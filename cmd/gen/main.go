@@ -60,7 +60,7 @@ func main() {
 	binName := path.Join(binAbiDir, smartContractName+".bin")
 	abiName := path.Join(binAbiDir, smartContractName+".abi")
 	lowerSmartContractName := strings.ToLower(smartContractName)
-	goPkgDir := path.Join(goDir, lowerSmartContractName)
+	goPkgDir := path.Join(goDir, lowerSmartContractName) // Go语言的 pkg 路径只能小写
 	goName := path.Join(goPkgDir, smartContractName+".go")
 
 	runCmd(cmd.NewCmd("rm", "-f", binName))
