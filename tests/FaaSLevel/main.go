@@ -89,4 +89,10 @@ func main() {
 		}
 		fmt.Printf("level %v: %v core, %v MB\n", i, core, mem)
 	}
+
+	// error
+	_, _, err = faaslevelSession.GetFaaSLevel(big.NewInt(10000))
+	if err != nil {
+		log.Fatal(err)
+	}
 }

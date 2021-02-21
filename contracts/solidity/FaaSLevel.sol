@@ -49,6 +49,11 @@ contract FaaSLevel {
         view
         returns (uint, uint) 
     {
+        require(
+            _levelID < numLevels,
+            "levelID is NOT less than numLevels, index is out of range."
+        );
+
         ComputingSourceLevel cs = levels[_levelID];
         return (cs.core, cs.mem);
     }
