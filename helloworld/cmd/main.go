@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"defaas/helloworld" // import helloworld
+	// "defaas/helloworld" // import helloworld
+	"defaas/contracts/go/helloworld" // import helloworld
 
 	"github.com/FISCO-BCOS/go-sdk/client"
 	"github.com/FISCO-BCOS/go-sdk/conf"

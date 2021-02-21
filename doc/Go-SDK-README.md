@@ -1,5 +1,7 @@
 # FISCO BCOS Go-SDK手册
 
+https://github.com/FISCO-BCOS/go-sdk
+
 ## 外部账户
 
 SDK发送交易需要一个外部账户，导入go-sdk的`crypto`包，该包提供用于生成随机私钥的`GenerateKey`方法：

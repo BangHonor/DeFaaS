@@ -8,10 +8,6 @@ main
 console
 /abigen
 
-# config files
-sdk.crt
-sdk.key
-ca.crt
 
 # Test binary, built with `go test -c`
 *.test
@@ -28,14 +24,18 @@ coverage.txt
 # macOS specific
 .DS_Store
 
-# tools
+# tools binary
 solc*
 tools/
 abigen
 
 # config files
 config.toml
-config-data/
+accounts/
+cert/
+sdk.crt
+sdk.key
+ca.crt
 
 # golang
 go.sum
