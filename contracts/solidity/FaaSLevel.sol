@@ -22,12 +22,11 @@ contract FaaSLevel {
 
     event newFaaSLevelEvent(uint index, uint core, uint mem);
 
-    constructor(address _owner) {
-
+    constructor(address _owner) public {
         owner = _owner;
         numLevels = 0;
 
-        // init
+        // 规格表
         newFaaSLevel(1, 512);
         newFaaSLevel(1, 1024);
         newFaaSLevel(1, 2048);
@@ -35,6 +34,9 @@ contract FaaSLevel {
         newFaaSLevel(4, 2048);
     }
 
+    // 查询 FaaS 规格的数量
+    // 参数 空
+    // 返回（ 规格的数量 numLevels ）
     function getFaaSLevelNumber()
         public
         view
@@ -44,21 +46,25 @@ contract FaaSLevel {
     }
 
     // 查询 FaaS 规格编号对应的计算机资源
+    // 参数（ 规格编号 levelID ）
+    // 返回（ levelID 是否有效，core, mem ）
     function getFaaSLevel(uint _levelID) 
         public 
         view
-        returns (uint, uint) 
+        returns (bool, uint, uint) 
     {
-        require(
-            _levelID < numLevels,
-            "levelID is NOT less than numLevels, index is out of range."
-        );
+        if (_levelID >= numLevels) {
+            // invalid levelID
+            return (false, 0, 0);
+        }
 
-        ComputingSourceLevel cs = levels[_levelID];
-        return (cs.core, cs.mem);
+        ComputingSourceLevel memory cs = levels[_levelID];
+        return (true, cs.core, cs.mem);
     }
 
     // 新建 FaaS 规格
+    // 参数（ core, mem ）
+    // 返回（ 规格编号 _levelID ）
     function newFaaSLevel(uint _core, uint _mem) 
         public
         onlyOwner

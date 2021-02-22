@@ -45,7 +45,7 @@ bash ./tools/download_solc.sh -v 0.6.10
 由 `solidity` 文件编译出 `.bin` 和 `.abi` 文件
 
 ```bash
-./tools/solc-0.4.25 --bin --abi -o ./contracts/bin-abi/ ./contracts/solidity/HelloWorld.sol
+./tools/solc-0.6.10 --bin --abi -o ./contracts/bin-abi/ ./contracts/solidity/HelloWorld.sol
 ```
 
 由 `.bin` 和 `.abi` 文件生成 `.go` 代码

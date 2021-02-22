@@ -11,7 +11,7 @@ contract HelloWorld {
         return value;
     }
 
-    function set(string v) public {
+    function set(string memory v) public {
         value = v;
     }
 }

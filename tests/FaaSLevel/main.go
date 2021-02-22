@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"math/big"
@@ -55,9 +56,12 @@ func main() {
 	fmt.Println("num levels: ", numLevels)
 
 	for i := big.NewInt(0); i.Cmp(numLevels) == -1; i.Add(i, big.NewInt(1)) {
-		core, mem, err := faaslevelSession.GetFaaSLevel(i)
+		isValid, core, mem, err := faaslevelSession.GetFaaSLevel(i)
 		if err != nil {
 			log.Fatal(err)
+		}
+		if !isValid {
+			log.Fatal(errors.New("invalid level id"))
 		}
 		fmt.Printf("level %v: %v core, %v MB\n", i, core, mem)
 	}
@@ -83,16 +87,23 @@ func main() {
 	fmt.Println("num levels: ", numLevels)
 
 	for i := big.NewInt(0); i.Cmp(numLevels) == -1; i.Add(i, big.NewInt(1)) {
-		core, mem, err := faaslevelSession.GetFaaSLevel(i)
+		isValid, core, mem, err := faaslevelSession.GetFaaSLevel(i)
 		if err != nil {
 			log.Fatal(err)
 		}
+		if !isValid {
+			log.Fatal(errors.New("invalid level id"))
+		}
+
 		fmt.Printf("level %v: %v core, %v MB\n", i, core, mem)
 	}
 
 	// error
-	_, _, err = faaslevelSession.GetFaaSLevel(big.NewInt(10000))
+	isValid, _, _, err := faaslevelSession.GetFaaSLevel(big.NewInt(10000))
 	if err != nil {
 		log.Fatal(err)
+	}
+	if !isValid {
+		log.Println("invalid level id")
 	}
 }

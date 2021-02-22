@@ -68,7 +68,7 @@ func main() {
 
 	// Create Cmd, buffered output
 	binAbiGenCmd := cmd.NewCmd(
-		"./tools/solc-0.4.25",
+		"./tools/solc-0.6.10",
 		"--bin",
 		"--abi",
 		"-o",
