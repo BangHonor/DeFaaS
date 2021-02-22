@@ -3,6 +3,9 @@ pragma solidity^0.6.0;
 import "./ERC20.sol";
 import "./Context.sol";
 
+
+// 可参考 https://soliditydeveloper.com/mocking-contracts
+
 contract FaaSToken is Context, ERC20 {
 
     constructor() ERC20("FaaSToken", "FST") public {
@@ -23,7 +26,7 @@ contract FaaSToken is Context, ERC20 {
 
     // 继承自 ERC20 的转帐限制函数
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
-        // do nothing
+        // 现在还不加什么限制
     }
 
 }

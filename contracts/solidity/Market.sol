@@ -26,14 +26,19 @@ contract Market {
         uint maintainerFee;            // 区块链维护者的费用
     }
 
+    // 供应商信誉表
+    // 供应商的信誉值低于某个阈值，不能参与竞价
+    mapping (address => uint) providerReputation;
+
+    // 部署订单表
     uint numDelpoymentOrders;
-    // delpoymentOrderID => DelpoymentOrder
     mapping(uint => DelpoymentOrder) delpoymentOrders;
-    // delpoymentOrderID => Auction Smart Contract address
+
+    // 部署订单的拍卖地址表
     mapping(uint => address) auctions;
 
+    // 租约表
     uint numLeases;
-    // leaseID => Lease
     mapping(uint => Lease) leases;
     
 
@@ -53,6 +58,10 @@ contract Market {
         public 
         returns (uint, address) 
     {
+        // TODO
+        // uint _highestFee = _highestUnitPrice * _faaSDuration;
+        // bool success = FaaSToken.transferFrom(msg.sender, address(this), _highestFee);
+        // require(success == true, "transferFrom before publishing deployment order"); 
 
         uint _delpoymentOrderID = numDelpoymentOrders++;
 
