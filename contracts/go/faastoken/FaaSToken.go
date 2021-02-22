@@ -28,10 +28,10 @@ var (
 )
 
 // FaaSTokenABI is the input ABI used to generate the binding from.
-const FaaSTokenABI = "[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"_tokenTotalSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"tokenOwner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"remaining\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokens\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"success\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokens\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"approveAndCall\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"success\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"tokenOwner\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"balance\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"a\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"b\",\"type\":\"uint256\"}],\"name\":\"safeAdd\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"c\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"a\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"b\",\"type\":\"uint256\"}],\"name\":\"safeDiv\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"c\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"a\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"b\",\"type\":\"uint256\"}],\"name\":\"safeMul\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"c\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"a\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"b\",\"type\":\"uint256\"}],\"name\":\"safeSub\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"c\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokens\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"success\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokens\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"success\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+const FaaSTokenABI = "[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"subtractedValue\",\"type\":\"uint256\"}],\"name\":\"decreaseAllowance\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"addedValue\",\"type\":\"uint256\"}],\"name\":\"increaseAllowance\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"mint\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"mintTo\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
 
 // FaaSTokenBin is the compiled bytecode used for deploying new contracts.
-var FaaSTokenBin = "0x60806040523480156200001157600080fd5b506040518060400160405280600581526020017f4641415354000000000000000000000000000000000000000000000000000000815250600090805190602001906200005f929190620001aa565b506040518060400160405280600a81526020017f4661615320546f6b656e0000000000000000000000000000000000000000000081525060019080519060200190620000ad929190620001aa565b506000600260006101000a81548160ff021916908360ff1602179055506a52b7d2dcc80cd2e40000006003819055506000735a86f0cafd4ef3ba4f0344c138afcc84bd1ed2229050600354600460008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055508073ffffffffffffffffffffffffffffffffffffffff16600073ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef6003546040518082815260200191505060405180910390a35062000259565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f10620001ed57805160ff19168380011785556200021e565b828001600101855582156200021e579182015b828111156200021d57825182559160200191906001019062000200565b5b5090506200022d919062000231565b5090565b6200025691905b808211156200025257600081600090555060010162000238565b5090565b90565b61111480620002696000396000f3fe608060405234801561001057600080fd5b50600436106100f55760003560e01c806395d89b4111610097578063cae9ca5111610066578063cae9ca51146104a2578063d05c78da1461059f578063dd62ed3e146105eb578063e6cb901314610663576100f5565b806395d89b4114610321578063a293d1e8146103a4578063a9059cbb146103f0578063b5931f7c14610456576100f5565b806323b872dd116100d357806323b872dd14610201578063313ce5671461028757806370a08231146102ab578063953c151c14610303576100f5565b806306fdde03146100fa578063095ea7b31461017d57806318160ddd146101e3575b600080fd5b6101026106af565b6040518080602001828103825283818151815260200191508051906020019080838360005b83811015610142578082015181840152602081019050610127565b50505050905090810190601f16801561016f5780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b6101c96004803603604081101561019357600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291908035906020019092919050505061074d565b604051808215151515815260200191505060405180910390f35b6101eb61083f565b6040518082815260200191505060405180910390f35b61026d6004803603606081101561021757600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff1690602001909291908035906020019092919050505061088a565b604051808215151515815260200191505060405180910390f35b61028f610b1a565b604051808260ff1660ff16815260200191505060405180910390f35b6102ed600480360360208110156102c157600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610b2d565b6040518082815260200191505060405180910390f35b61030b610b76565b6040518082815260200191505060405180910390f35b610329610b7c565b6040518080602001828103825283818151815260200191508051906020019080838360005b8381101561036957808201518184015260208101905061034e565b50505050905090810190601f1680156103965780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b6103da600480360360408110156103ba57600080fd5b810190808035906020019092919080359060200190929190505050610c1a565b6040518082815260200191505060405180910390f35b61043c6004803603604081101561040657600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190505050610c34565b604051808215151515815260200191505060405180910390f35b61048c6004803603604081101561046c57600080fd5b810190808035906020019092919080359060200190929190505050610dbd565b6040518082815260200191505060405180910390f35b610585600480360360608110156104b857600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190803590602001906401000000008111156104ff57600080fd5b82018360208201111561051157600080fd5b8035906020019184600183028401116401000000008311171561053357600080fd5b91908080601f016020809104026020016040519081016040528093929190818152602001838380828437600081840152601f19601f820116905080830192505050505050509192919290505050610ddd565b604051808215151515815260200191505060405180910390f35b6105d5600480360360408110156105b557600080fd5b810190808035906020019092919080359060200190929190505050611010565b6040518082815260200191505060405180910390f35b61064d6004803603604081101561060157600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff16906020019092919050505061103d565b6040518082815260200191505060405180910390f35b6106996004803603604081101561067957600080fd5b8101908080359060200190929190803590602001909291905050506110c4565b6040518082815260200191505060405180910390f35b60018054600181600116156101000203166002900480601f0160208091040260200160405190810160405280929190818152602001828054600181600116156101000203166002900480156107455780601f1061071a57610100808354040283529160200191610745565b820191906000526020600020905b81548152906001019060200180831161072857829003601f168201915b505050505081565b600081600560003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055508273ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff167f8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925846040518082815260200191505060405180910390a36001905092915050565b6000600460008073ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205460035403905090565b60006108d5600460008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205483610c1a565b600460008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000208190555061099e600560008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205483610c1a565b600560008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002081905550610a67600460008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054836110c4565b600460008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055508273ffffffffffffffffffffffffffffffffffffffff168473ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef846040518082815260200191505060405180910390a3600190509392505050565b600260009054906101000a900460ff1681565b6000600460008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020549050919050565b60035481565b60008054600181600116156101000203166002900480601f016020809104026020016040519081016040528092919081815260200182805460018160011615610100020316600290048015610c125780601f10610be757610100808354040283529160200191610c12565b820191906000526020600020905b815481529060010190602001808311610bf557829003601f168201915b505050505081565b600082821115610c2957600080fd5b818303905092915050565b6000610c7f600460003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205483610c1a565b600460003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002081905550610d0b600460008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054836110c4565b600460008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055508273ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef846040518082815260200191505060405180910390a36001905092915050565b6000808211610dcb57600080fd5b818381610dd457fe5b04905092915050565b600082600560003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055508373ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff167f8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925856040518082815260200191505060405180910390a38373ffffffffffffffffffffffffffffffffffffffff16638f4ffcb1338530866040518563ffffffff1660e01b8152600401808573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018481526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200180602001828103825283818151815260200191508051906020019080838360005b83811015610f9e578082015181840152602081019050610f83565b50505050905090810190601f168015610fcb5780820380516001836020036101000a031916815260200191505b5095505050505050600060405180830381600087803b158015610fed57600080fd5b505af1158015611001573d6000803e3d6000fd5b50505050600190509392505050565b60008183029050600083148061102e57508183828161102b57fe5b04145b61103757600080fd5b92915050565b6000600560008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905092915050565b60008183019050828110156110d857600080fd5b9291505056fea2646970667358221220a6774395e3bcb142649232faf0b39da550bf47003894a1615d1cbfac963e267064736f6c634300060a0033"
+var FaaSTokenBin = "0x60806040523480156200001157600080fd5b506040518060400160405280600981526020017f46616153546f6b656e00000000000000000000000000000000000000000000008152506040518060400160405280600381526020017f4653540000000000000000000000000000000000000000000000000000000000815250816003908051906020019062000096929190620000b8565b508060049080519060200190620000af929190620000b8565b50505062000167565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f10620000fb57805160ff19168380011785556200012c565b828001600101855582156200012c579182015b828111156200012b5782518255916020019190600101906200010e565b5b5090506200013b91906200013f565b5090565b6200016491905b808211156200016057600081600090555060010162000146565b5090565b90565b61121b80620001776000396000f3fe608060405234801561001057600080fd5b50600436106100cf5760003560e01c8063449a52f81161008c578063a0712d6811610066578063a0712d6814610414578063a457c2d714610442578063a9059cbb146104a8578063dd62ed3e1461050e576100cf565b8063449a52f8146102eb57806370a082311461033957806395d89b4114610391576100cf565b806306fdde03146100d4578063095ea7b31461015757806318160ddd146101bd57806323b872dd146101db578063313ce567146102615780633950935114610285575b600080fd5b6100dc610586565b6040518080602001828103825283818151815260200191508051906020019080838360005b8381101561011c578082015181840152602081019050610101565b50505050905090810190601f1680156101495780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b6101a36004803603604081101561016d57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190505050610628565b604051808215151515815260200191505060405180910390f35b6101c5610646565b6040518082815260200191505060405180910390f35b610247600480360360608110156101f157600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190505050610650565b604051808215151515815260200191505060405180910390f35b61026961075e565b604051808260ff1660ff16815260200191505060405180910390f35b6102d16004803603604081101561029b57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190505050610767565b604051808215151515815260200191505060405180910390f35b6103376004803603604081101561030157600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291908035906020019092919050505061080a565b005b61037b6004803603602081101561034f57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610818565b6040518082815260200191505060405180910390f35b610399610860565b6040518080602001828103825283818151815260200191508051906020019080838360005b838110156103d95780820151818401526020810190506103be565b50505050905090810190601f1680156104065780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b6104406004803603602081101561042a57600080fd5b8101908080359060200190929190505050610902565b005b61048e6004803603604081101561045857600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190505050610916565b604051808215151515815260200191505060405180910390f35b6104f4600480360360408110156104be57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190505050610a17565b604051808215151515815260200191505060405180910390f35b6105706004803603604081101561052457600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610a35565b6040518082815260200191505060405180910390f35b606060038054600181600116156101000203166002900480601f01602080910402602001604051908101604052809291908181526020018280546001816001161561010002031660029004801561061e5780601f106105f35761010080835404028352916020019161061e565b820191906000526020600020905b81548152906001019060200180831161060157829003601f168201915b5050505050905090565b600061063c610635610abc565b8484610ac4565b6001905092915050565b6000600254905090565b600061065d848484610cbb565b6000600160008673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060006106a8610abc565b73ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205490508281101561073e576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260288152602001806111506028913960400191505060405180910390fd5b6107528561074a610abc565b858403610ac4565b60019150509392505050565b60006012905090565b6000610800610774610abc565b848460016000610782610abc565b73ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008873ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205401610ac4565b6001905092915050565b6108148282610f6a565b5050565b60008060008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020549050919050565b606060048054600181600116156101000203166002900480601f0160208091040260200160405190810160405280929190818152602001828054600181600116156101000203166002900480156108f85780601f106108cd576101008083540402835291602001916108f8565b820191906000526020600020905b8154815290600101906020018083116108db57829003601f168201915b5050505050905090565b61091361090d610abc565b82610f6a565b50565b60008060016000610925610abc565b73ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020549050828110156109f8576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260258152602001806111c16025913960400191505060405180910390fd5b610a0c610a03610abc565b85858403610ac4565b600191505092915050565b6000610a2b610a24610abc565b8484610cbb565b6001905092915050565b6000600160008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905092915050565b600033905090565b600073ffffffffffffffffffffffffffffffffffffffff168373ffffffffffffffffffffffffffffffffffffffff161415610b4a576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252602481526020018061119d6024913960400191505060405180910390fd5b600073ffffffffffffffffffffffffffffffffffffffff168273ffffffffffffffffffffffffffffffffffffffff161415610bd0576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260228152602001806111086022913960400191505060405180910390fd5b80600160008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055508173ffffffffffffffffffffffffffffffffffffffff168373ffffffffffffffffffffffffffffffffffffffff167f8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925836040518082815260200191505060405180910390a3505050565b600073ffffffffffffffffffffffffffffffffffffffff168373ffffffffffffffffffffffffffffffffffffffff161415610d41576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260258152602001806111786025913960400191505060405180910390fd5b600073ffffffffffffffffffffffffffffffffffffffff168273ffffffffffffffffffffffffffffffffffffffff161415610dc7576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260238152602001806110e56023913960400191505060405180910390fd5b610dd28383836110df565b60008060008573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054905081811015610e6e576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252602681526020018061112a6026913960400191505060405180910390fd5b8181036000808673ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002081905550816000808573ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825401925050819055508273ffffffffffffffffffffffffffffffffffffffff168473ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef846040518082815260200191505060405180910390a350505050565b600073ffffffffffffffffffffffffffffffffffffffff168273ffffffffffffffffffffffffffffffffffffffff16141561100d576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252601f8152602001807f45524332303a206d696e7420746f20746865207a65726f20616464726573730081525060200191505060405180910390fd5b611019600083836110df565b80600260008282540192505081905550806000808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600082825401925050819055508173ffffffffffffffffffffffffffffffffffffffff16600073ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef836040518082815260200191505060405180910390a35050565b50505056fe45524332303a207472616e7366657220746f20746865207a65726f206164647265737345524332303a20617070726f766520746f20746865207a65726f206164647265737345524332303a207472616e7366657220616d6f756e7420657863656564732062616c616e636545524332303a207472616e7366657220616d6f756e74206578636565647320616c6c6f77616e636545524332303a207472616e736665722066726f6d20746865207a65726f206164647265737345524332303a20617070726f76652066726f6d20746865207a65726f206164647265737345524332303a2064656372656173656420616c6c6f77616e63652062656c6f77207a65726fa26469706673582212206fd47fd70d6f973cb5a35fe0c36a5b5f6aa789724e5ee82b87fe949d9464a21f64736f6c634300060a0033"
 
 // DeployFaaSToken deploys a new contract, binding an instance of FaaSToken to it.
 func DeployFaaSToken(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *FaaSToken, error) {
@@ -202,82 +202,56 @@ func (_FaaSToken *FaaSTokenTransactorRaw) Transact(opts *bind.TransactOpts, meth
 	return _FaaSToken.Contract.contract.Transact(opts, method, params...)
 }
 
-// TokenTotalSupply is a free data retrieval call binding the contract method 0x953c151c.
-//
-// Solidity: function _tokenTotalSupply() constant returns(uint256)
-func (_FaaSToken *FaaSTokenCaller) TokenTotalSupply(opts *bind.CallOpts) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := _FaaSToken.contract.Call(opts, out, "_tokenTotalSupply")
-	return *ret0, err
-}
-
-// TokenTotalSupply is a free data retrieval call binding the contract method 0x953c151c.
-//
-// Solidity: function _tokenTotalSupply() constant returns(uint256)
-func (_FaaSToken *FaaSTokenSession) TokenTotalSupply() (*big.Int, error) {
-	return _FaaSToken.Contract.TokenTotalSupply(&_FaaSToken.CallOpts)
-}
-
-// TokenTotalSupply is a free data retrieval call binding the contract method 0x953c151c.
-//
-// Solidity: function _tokenTotalSupply() constant returns(uint256)
-func (_FaaSToken *FaaSTokenCallerSession) TokenTotalSupply() (*big.Int, error) {
-	return _FaaSToken.Contract.TokenTotalSupply(&_FaaSToken.CallOpts)
-}
-
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
 //
-// Solidity: function allowance(address tokenOwner, address spender) constant returns(uint256 remaining)
-func (_FaaSToken *FaaSTokenCaller) Allowance(opts *bind.CallOpts, tokenOwner common.Address, spender common.Address) (*big.Int, error) {
+// Solidity: function allowance(address owner, address spender) constant returns(uint256)
+func (_FaaSToken *FaaSTokenCaller) Allowance(opts *bind.CallOpts, owner common.Address, spender common.Address) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
 	)
 	out := ret0
-	err := _FaaSToken.contract.Call(opts, out, "allowance", tokenOwner, spender)
+	err := _FaaSToken.contract.Call(opts, out, "allowance", owner, spender)
 	return *ret0, err
 }
 
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
 //
-// Solidity: function allowance(address tokenOwner, address spender) constant returns(uint256 remaining)
-func (_FaaSToken *FaaSTokenSession) Allowance(tokenOwner common.Address, spender common.Address) (*big.Int, error) {
-	return _FaaSToken.Contract.Allowance(&_FaaSToken.CallOpts, tokenOwner, spender)
+// Solidity: function allowance(address owner, address spender) constant returns(uint256)
+func (_FaaSToken *FaaSTokenSession) Allowance(owner common.Address, spender common.Address) (*big.Int, error) {
+	return _FaaSToken.Contract.Allowance(&_FaaSToken.CallOpts, owner, spender)
 }
 
 // Allowance is a free data retrieval call binding the contract method 0xdd62ed3e.
 //
-// Solidity: function allowance(address tokenOwner, address spender) constant returns(uint256 remaining)
-func (_FaaSToken *FaaSTokenCallerSession) Allowance(tokenOwner common.Address, spender common.Address) (*big.Int, error) {
-	return _FaaSToken.Contract.Allowance(&_FaaSToken.CallOpts, tokenOwner, spender)
+// Solidity: function allowance(address owner, address spender) constant returns(uint256)
+func (_FaaSToken *FaaSTokenCallerSession) Allowance(owner common.Address, spender common.Address) (*big.Int, error) {
+	return _FaaSToken.Contract.Allowance(&_FaaSToken.CallOpts, owner, spender)
 }
 
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
-// Solidity: function balanceOf(address tokenOwner) constant returns(uint256 balance)
-func (_FaaSToken *FaaSTokenCaller) BalanceOf(opts *bind.CallOpts, tokenOwner common.Address) (*big.Int, error) {
+// Solidity: function balanceOf(address account) constant returns(uint256)
+func (_FaaSToken *FaaSTokenCaller) BalanceOf(opts *bind.CallOpts, account common.Address) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
 	)
 	out := ret0
-	err := _FaaSToken.contract.Call(opts, out, "balanceOf", tokenOwner)
+	err := _FaaSToken.contract.Call(opts, out, "balanceOf", account)
 	return *ret0, err
 }
 
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
-// Solidity: function balanceOf(address tokenOwner) constant returns(uint256 balance)
-func (_FaaSToken *FaaSTokenSession) BalanceOf(tokenOwner common.Address) (*big.Int, error) {
-	return _FaaSToken.Contract.BalanceOf(&_FaaSToken.CallOpts, tokenOwner)
+// Solidity: function balanceOf(address account) constant returns(uint256)
+func (_FaaSToken *FaaSTokenSession) BalanceOf(account common.Address) (*big.Int, error) {
+	return _FaaSToken.Contract.BalanceOf(&_FaaSToken.CallOpts, account)
 }
 
 // BalanceOf is a free data retrieval call binding the contract method 0x70a08231.
 //
-// Solidity: function balanceOf(address tokenOwner) constant returns(uint256 balance)
-func (_FaaSToken *FaaSTokenCallerSession) BalanceOf(tokenOwner common.Address) (*big.Int, error) {
-	return _FaaSToken.Contract.BalanceOf(&_FaaSToken.CallOpts, tokenOwner)
+// Solidity: function balanceOf(address account) constant returns(uint256)
+func (_FaaSToken *FaaSTokenCallerSession) BalanceOf(account common.Address) (*big.Int, error) {
+	return _FaaSToken.Contract.BalanceOf(&_FaaSToken.CallOpts, account)
 }
 
 // Decimals is a free data retrieval call binding the contract method 0x313ce567.
@@ -330,110 +304,6 @@ func (_FaaSToken *FaaSTokenSession) Name() (string, error) {
 // Solidity: function name() constant returns(string)
 func (_FaaSToken *FaaSTokenCallerSession) Name() (string, error) {
 	return _FaaSToken.Contract.Name(&_FaaSToken.CallOpts)
-}
-
-// SafeAdd is a free data retrieval call binding the contract method 0xe6cb9013.
-//
-// Solidity: function safeAdd(uint256 a, uint256 b) constant returns(uint256 c)
-func (_FaaSToken *FaaSTokenCaller) SafeAdd(opts *bind.CallOpts, a *big.Int, b *big.Int) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := _FaaSToken.contract.Call(opts, out, "safeAdd", a, b)
-	return *ret0, err
-}
-
-// SafeAdd is a free data retrieval call binding the contract method 0xe6cb9013.
-//
-// Solidity: function safeAdd(uint256 a, uint256 b) constant returns(uint256 c)
-func (_FaaSToken *FaaSTokenSession) SafeAdd(a *big.Int, b *big.Int) (*big.Int, error) {
-	return _FaaSToken.Contract.SafeAdd(&_FaaSToken.CallOpts, a, b)
-}
-
-// SafeAdd is a free data retrieval call binding the contract method 0xe6cb9013.
-//
-// Solidity: function safeAdd(uint256 a, uint256 b) constant returns(uint256 c)
-func (_FaaSToken *FaaSTokenCallerSession) SafeAdd(a *big.Int, b *big.Int) (*big.Int, error) {
-	return _FaaSToken.Contract.SafeAdd(&_FaaSToken.CallOpts, a, b)
-}
-
-// SafeDiv is a free data retrieval call binding the contract method 0xb5931f7c.
-//
-// Solidity: function safeDiv(uint256 a, uint256 b) constant returns(uint256 c)
-func (_FaaSToken *FaaSTokenCaller) SafeDiv(opts *bind.CallOpts, a *big.Int, b *big.Int) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := _FaaSToken.contract.Call(opts, out, "safeDiv", a, b)
-	return *ret0, err
-}
-
-// SafeDiv is a free data retrieval call binding the contract method 0xb5931f7c.
-//
-// Solidity: function safeDiv(uint256 a, uint256 b) constant returns(uint256 c)
-func (_FaaSToken *FaaSTokenSession) SafeDiv(a *big.Int, b *big.Int) (*big.Int, error) {
-	return _FaaSToken.Contract.SafeDiv(&_FaaSToken.CallOpts, a, b)
-}
-
-// SafeDiv is a free data retrieval call binding the contract method 0xb5931f7c.
-//
-// Solidity: function safeDiv(uint256 a, uint256 b) constant returns(uint256 c)
-func (_FaaSToken *FaaSTokenCallerSession) SafeDiv(a *big.Int, b *big.Int) (*big.Int, error) {
-	return _FaaSToken.Contract.SafeDiv(&_FaaSToken.CallOpts, a, b)
-}
-
-// SafeMul is a free data retrieval call binding the contract method 0xd05c78da.
-//
-// Solidity: function safeMul(uint256 a, uint256 b) constant returns(uint256 c)
-func (_FaaSToken *FaaSTokenCaller) SafeMul(opts *bind.CallOpts, a *big.Int, b *big.Int) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := _FaaSToken.contract.Call(opts, out, "safeMul", a, b)
-	return *ret0, err
-}
-
-// SafeMul is a free data retrieval call binding the contract method 0xd05c78da.
-//
-// Solidity: function safeMul(uint256 a, uint256 b) constant returns(uint256 c)
-func (_FaaSToken *FaaSTokenSession) SafeMul(a *big.Int, b *big.Int) (*big.Int, error) {
-	return _FaaSToken.Contract.SafeMul(&_FaaSToken.CallOpts, a, b)
-}
-
-// SafeMul is a free data retrieval call binding the contract method 0xd05c78da.
-//
-// Solidity: function safeMul(uint256 a, uint256 b) constant returns(uint256 c)
-func (_FaaSToken *FaaSTokenCallerSession) SafeMul(a *big.Int, b *big.Int) (*big.Int, error) {
-	return _FaaSToken.Contract.SafeMul(&_FaaSToken.CallOpts, a, b)
-}
-
-// SafeSub is a free data retrieval call binding the contract method 0xa293d1e8.
-//
-// Solidity: function safeSub(uint256 a, uint256 b) constant returns(uint256 c)
-func (_FaaSToken *FaaSTokenCaller) SafeSub(opts *bind.CallOpts, a *big.Int, b *big.Int) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := _FaaSToken.contract.Call(opts, out, "safeSub", a, b)
-	return *ret0, err
-}
-
-// SafeSub is a free data retrieval call binding the contract method 0xa293d1e8.
-//
-// Solidity: function safeSub(uint256 a, uint256 b) constant returns(uint256 c)
-func (_FaaSToken *FaaSTokenSession) SafeSub(a *big.Int, b *big.Int) (*big.Int, error) {
-	return _FaaSToken.Contract.SafeSub(&_FaaSToken.CallOpts, a, b)
-}
-
-// SafeSub is a free data retrieval call binding the contract method 0xa293d1e8.
-//
-// Solidity: function safeSub(uint256 a, uint256 b) constant returns(uint256 c)
-func (_FaaSToken *FaaSTokenCallerSession) SafeSub(a *big.Int, b *big.Int) (*big.Int, error) {
-	return _FaaSToken.Contract.SafeSub(&_FaaSToken.CallOpts, a, b)
 }
 
 // Symbol is a free data retrieval call binding the contract method 0x95d89b41.
@@ -490,134 +360,233 @@ func (_FaaSToken *FaaSTokenCallerSession) TotalSupply() (*big.Int, error) {
 
 // Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
 //
-// Solidity: function approve(address spender, uint256 tokens) returns(bool success)
-func (_FaaSToken *FaaSTokenTransactor) Approve(opts *bind.TransactOpts, spender common.Address, tokens *big.Int) (*types.Transaction, *types.Receipt, error) {
-	return _FaaSToken.contract.Transact(opts, "approve", spender, tokens)
+// Solidity: function approve(address spender, uint256 amount) returns(bool)
+func (_FaaSToken *FaaSTokenTransactor) Approve(opts *bind.TransactOpts, spender common.Address, amount *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSToken.contract.Transact(opts, "approve", spender, amount)
 }
 
-func (_FaaSToken *FaaSTokenTransactor) AsyncApprove(handler func(*types.Receipt, error), opts *bind.TransactOpts, spender common.Address, tokens *big.Int) (*types.Transaction, error) {
-	return _FaaSToken.contract.AsyncTransact(opts, handler, "approve", spender, tokens)
-}
-
-// Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
-//
-// Solidity: function approve(address spender, uint256 tokens) returns(bool success)
-func (_FaaSToken *FaaSTokenSession) Approve(spender common.Address, tokens *big.Int) (*types.Transaction, *types.Receipt, error) {
-	return _FaaSToken.Contract.Approve(&_FaaSToken.TransactOpts, spender, tokens)
-}
-
-func (_FaaSToken *FaaSTokenSession) AsyncApprove(handler func(*types.Receipt, error), spender common.Address, tokens *big.Int) (*types.Transaction, error) {
-	return _FaaSToken.Contract.AsyncApprove(handler, &_FaaSToken.TransactOpts, spender, tokens)
+func (_FaaSToken *FaaSTokenTransactor) AsyncApprove(handler func(*types.Receipt, error), opts *bind.TransactOpts, spender common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _FaaSToken.contract.AsyncTransact(opts, handler, "approve", spender, amount)
 }
 
 // Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
 //
-// Solidity: function approve(address spender, uint256 tokens) returns(bool success)
-func (_FaaSToken *FaaSTokenTransactorSession) Approve(spender common.Address, tokens *big.Int) (*types.Transaction, *types.Receipt, error) {
-	return _FaaSToken.Contract.Approve(&_FaaSToken.TransactOpts, spender, tokens)
+// Solidity: function approve(address spender, uint256 amount) returns(bool)
+func (_FaaSToken *FaaSTokenSession) Approve(spender common.Address, amount *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSToken.Contract.Approve(&_FaaSToken.TransactOpts, spender, amount)
 }
 
-func (_FaaSToken *FaaSTokenTransactorSession) AsyncApprove(handler func(*types.Receipt, error), spender common.Address, tokens *big.Int) (*types.Transaction, error) {
-	return _FaaSToken.Contract.AsyncApprove(handler, &_FaaSToken.TransactOpts, spender, tokens)
+func (_FaaSToken *FaaSTokenSession) AsyncApprove(handler func(*types.Receipt, error), spender common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _FaaSToken.Contract.AsyncApprove(handler, &_FaaSToken.TransactOpts, spender, amount)
 }
 
-// ApproveAndCall is a paid mutator transaction binding the contract method 0xcae9ca51.
+// Approve is a paid mutator transaction binding the contract method 0x095ea7b3.
 //
-// Solidity: function approveAndCall(address spender, uint256 tokens, bytes data) returns(bool success)
-func (_FaaSToken *FaaSTokenTransactor) ApproveAndCall(opts *bind.TransactOpts, spender common.Address, tokens *big.Int, data []byte) (*types.Transaction, *types.Receipt, error) {
-	return _FaaSToken.contract.Transact(opts, "approveAndCall", spender, tokens, data)
+// Solidity: function approve(address spender, uint256 amount) returns(bool)
+func (_FaaSToken *FaaSTokenTransactorSession) Approve(spender common.Address, amount *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSToken.Contract.Approve(&_FaaSToken.TransactOpts, spender, amount)
 }
 
-func (_FaaSToken *FaaSTokenTransactor) AsyncApproveAndCall(handler func(*types.Receipt, error), opts *bind.TransactOpts, spender common.Address, tokens *big.Int, data []byte) (*types.Transaction, error) {
-	return _FaaSToken.contract.AsyncTransact(opts, handler, "approveAndCall", spender, tokens, data)
+func (_FaaSToken *FaaSTokenTransactorSession) AsyncApprove(handler func(*types.Receipt, error), spender common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _FaaSToken.Contract.AsyncApprove(handler, &_FaaSToken.TransactOpts, spender, amount)
 }
 
-// ApproveAndCall is a paid mutator transaction binding the contract method 0xcae9ca51.
+// DecreaseAllowance is a paid mutator transaction binding the contract method 0xa457c2d7.
 //
-// Solidity: function approveAndCall(address spender, uint256 tokens, bytes data) returns(bool success)
-func (_FaaSToken *FaaSTokenSession) ApproveAndCall(spender common.Address, tokens *big.Int, data []byte) (*types.Transaction, *types.Receipt, error) {
-	return _FaaSToken.Contract.ApproveAndCall(&_FaaSToken.TransactOpts, spender, tokens, data)
+// Solidity: function decreaseAllowance(address spender, uint256 subtractedValue) returns(bool)
+func (_FaaSToken *FaaSTokenTransactor) DecreaseAllowance(opts *bind.TransactOpts, spender common.Address, subtractedValue *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSToken.contract.Transact(opts, "decreaseAllowance", spender, subtractedValue)
 }
 
-func (_FaaSToken *FaaSTokenSession) AsyncApproveAndCall(handler func(*types.Receipt, error), spender common.Address, tokens *big.Int, data []byte) (*types.Transaction, error) {
-	return _FaaSToken.Contract.AsyncApproveAndCall(handler, &_FaaSToken.TransactOpts, spender, tokens, data)
+func (_FaaSToken *FaaSTokenTransactor) AsyncDecreaseAllowance(handler func(*types.Receipt, error), opts *bind.TransactOpts, spender common.Address, subtractedValue *big.Int) (*types.Transaction, error) {
+	return _FaaSToken.contract.AsyncTransact(opts, handler, "decreaseAllowance", spender, subtractedValue)
 }
 
-// ApproveAndCall is a paid mutator transaction binding the contract method 0xcae9ca51.
+// DecreaseAllowance is a paid mutator transaction binding the contract method 0xa457c2d7.
 //
-// Solidity: function approveAndCall(address spender, uint256 tokens, bytes data) returns(bool success)
-func (_FaaSToken *FaaSTokenTransactorSession) ApproveAndCall(spender common.Address, tokens *big.Int, data []byte) (*types.Transaction, *types.Receipt, error) {
-	return _FaaSToken.Contract.ApproveAndCall(&_FaaSToken.TransactOpts, spender, tokens, data)
+// Solidity: function decreaseAllowance(address spender, uint256 subtractedValue) returns(bool)
+func (_FaaSToken *FaaSTokenSession) DecreaseAllowance(spender common.Address, subtractedValue *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSToken.Contract.DecreaseAllowance(&_FaaSToken.TransactOpts, spender, subtractedValue)
 }
 
-func (_FaaSToken *FaaSTokenTransactorSession) AsyncApproveAndCall(handler func(*types.Receipt, error), spender common.Address, tokens *big.Int, data []byte) (*types.Transaction, error) {
-	return _FaaSToken.Contract.AsyncApproveAndCall(handler, &_FaaSToken.TransactOpts, spender, tokens, data)
+func (_FaaSToken *FaaSTokenSession) AsyncDecreaseAllowance(handler func(*types.Receipt, error), spender common.Address, subtractedValue *big.Int) (*types.Transaction, error) {
+	return _FaaSToken.Contract.AsyncDecreaseAllowance(handler, &_FaaSToken.TransactOpts, spender, subtractedValue)
+}
+
+// DecreaseAllowance is a paid mutator transaction binding the contract method 0xa457c2d7.
+//
+// Solidity: function decreaseAllowance(address spender, uint256 subtractedValue) returns(bool)
+func (_FaaSToken *FaaSTokenTransactorSession) DecreaseAllowance(spender common.Address, subtractedValue *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSToken.Contract.DecreaseAllowance(&_FaaSToken.TransactOpts, spender, subtractedValue)
+}
+
+func (_FaaSToken *FaaSTokenTransactorSession) AsyncDecreaseAllowance(handler func(*types.Receipt, error), spender common.Address, subtractedValue *big.Int) (*types.Transaction, error) {
+	return _FaaSToken.Contract.AsyncDecreaseAllowance(handler, &_FaaSToken.TransactOpts, spender, subtractedValue)
+}
+
+// IncreaseAllowance is a paid mutator transaction binding the contract method 0x39509351.
+//
+// Solidity: function increaseAllowance(address spender, uint256 addedValue) returns(bool)
+func (_FaaSToken *FaaSTokenTransactor) IncreaseAllowance(opts *bind.TransactOpts, spender common.Address, addedValue *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSToken.contract.Transact(opts, "increaseAllowance", spender, addedValue)
+}
+
+func (_FaaSToken *FaaSTokenTransactor) AsyncIncreaseAllowance(handler func(*types.Receipt, error), opts *bind.TransactOpts, spender common.Address, addedValue *big.Int) (*types.Transaction, error) {
+	return _FaaSToken.contract.AsyncTransact(opts, handler, "increaseAllowance", spender, addedValue)
+}
+
+// IncreaseAllowance is a paid mutator transaction binding the contract method 0x39509351.
+//
+// Solidity: function increaseAllowance(address spender, uint256 addedValue) returns(bool)
+func (_FaaSToken *FaaSTokenSession) IncreaseAllowance(spender common.Address, addedValue *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSToken.Contract.IncreaseAllowance(&_FaaSToken.TransactOpts, spender, addedValue)
+}
+
+func (_FaaSToken *FaaSTokenSession) AsyncIncreaseAllowance(handler func(*types.Receipt, error), spender common.Address, addedValue *big.Int) (*types.Transaction, error) {
+	return _FaaSToken.Contract.AsyncIncreaseAllowance(handler, &_FaaSToken.TransactOpts, spender, addedValue)
+}
+
+// IncreaseAllowance is a paid mutator transaction binding the contract method 0x39509351.
+//
+// Solidity: function increaseAllowance(address spender, uint256 addedValue) returns(bool)
+func (_FaaSToken *FaaSTokenTransactorSession) IncreaseAllowance(spender common.Address, addedValue *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSToken.Contract.IncreaseAllowance(&_FaaSToken.TransactOpts, spender, addedValue)
+}
+
+func (_FaaSToken *FaaSTokenTransactorSession) AsyncIncreaseAllowance(handler func(*types.Receipt, error), spender common.Address, addedValue *big.Int) (*types.Transaction, error) {
+	return _FaaSToken.Contract.AsyncIncreaseAllowance(handler, &_FaaSToken.TransactOpts, spender, addedValue)
+}
+
+// Mint is a paid mutator transaction binding the contract method 0xa0712d68.
+//
+// Solidity: function mint(uint256 amount) returns()
+func (_FaaSToken *FaaSTokenTransactor) Mint(opts *bind.TransactOpts, amount *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSToken.contract.Transact(opts, "mint", amount)
+}
+
+func (_FaaSToken *FaaSTokenTransactor) AsyncMint(handler func(*types.Receipt, error), opts *bind.TransactOpts, amount *big.Int) (*types.Transaction, error) {
+	return _FaaSToken.contract.AsyncTransact(opts, handler, "mint", amount)
+}
+
+// Mint is a paid mutator transaction binding the contract method 0xa0712d68.
+//
+// Solidity: function mint(uint256 amount) returns()
+func (_FaaSToken *FaaSTokenSession) Mint(amount *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSToken.Contract.Mint(&_FaaSToken.TransactOpts, amount)
+}
+
+func (_FaaSToken *FaaSTokenSession) AsyncMint(handler func(*types.Receipt, error), amount *big.Int) (*types.Transaction, error) {
+	return _FaaSToken.Contract.AsyncMint(handler, &_FaaSToken.TransactOpts, amount)
+}
+
+// Mint is a paid mutator transaction binding the contract method 0xa0712d68.
+//
+// Solidity: function mint(uint256 amount) returns()
+func (_FaaSToken *FaaSTokenTransactorSession) Mint(amount *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSToken.Contract.Mint(&_FaaSToken.TransactOpts, amount)
+}
+
+func (_FaaSToken *FaaSTokenTransactorSession) AsyncMint(handler func(*types.Receipt, error), amount *big.Int) (*types.Transaction, error) {
+	return _FaaSToken.Contract.AsyncMint(handler, &_FaaSToken.TransactOpts, amount)
+}
+
+// MintTo is a paid mutator transaction binding the contract method 0x449a52f8.
+//
+// Solidity: function mintTo(address account, uint256 amount) returns()
+func (_FaaSToken *FaaSTokenTransactor) MintTo(opts *bind.TransactOpts, account common.Address, amount *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSToken.contract.Transact(opts, "mintTo", account, amount)
+}
+
+func (_FaaSToken *FaaSTokenTransactor) AsyncMintTo(handler func(*types.Receipt, error), opts *bind.TransactOpts, account common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _FaaSToken.contract.AsyncTransact(opts, handler, "mintTo", account, amount)
+}
+
+// MintTo is a paid mutator transaction binding the contract method 0x449a52f8.
+//
+// Solidity: function mintTo(address account, uint256 amount) returns()
+func (_FaaSToken *FaaSTokenSession) MintTo(account common.Address, amount *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSToken.Contract.MintTo(&_FaaSToken.TransactOpts, account, amount)
+}
+
+func (_FaaSToken *FaaSTokenSession) AsyncMintTo(handler func(*types.Receipt, error), account common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _FaaSToken.Contract.AsyncMintTo(handler, &_FaaSToken.TransactOpts, account, amount)
+}
+
+// MintTo is a paid mutator transaction binding the contract method 0x449a52f8.
+//
+// Solidity: function mintTo(address account, uint256 amount) returns()
+func (_FaaSToken *FaaSTokenTransactorSession) MintTo(account common.Address, amount *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSToken.Contract.MintTo(&_FaaSToken.TransactOpts, account, amount)
+}
+
+func (_FaaSToken *FaaSTokenTransactorSession) AsyncMintTo(handler func(*types.Receipt, error), account common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _FaaSToken.Contract.AsyncMintTo(handler, &_FaaSToken.TransactOpts, account, amount)
 }
 
 // Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
 //
-// Solidity: function transfer(address to, uint256 tokens) returns(bool success)
-func (_FaaSToken *FaaSTokenTransactor) Transfer(opts *bind.TransactOpts, to common.Address, tokens *big.Int) (*types.Transaction, *types.Receipt, error) {
-	return _FaaSToken.contract.Transact(opts, "transfer", to, tokens)
+// Solidity: function transfer(address recipient, uint256 amount) returns(bool)
+func (_FaaSToken *FaaSTokenTransactor) Transfer(opts *bind.TransactOpts, recipient common.Address, amount *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSToken.contract.Transact(opts, "transfer", recipient, amount)
 }
 
-func (_FaaSToken *FaaSTokenTransactor) AsyncTransfer(handler func(*types.Receipt, error), opts *bind.TransactOpts, to common.Address, tokens *big.Int) (*types.Transaction, error) {
-	return _FaaSToken.contract.AsyncTransact(opts, handler, "transfer", to, tokens)
-}
-
-// Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
-//
-// Solidity: function transfer(address to, uint256 tokens) returns(bool success)
-func (_FaaSToken *FaaSTokenSession) Transfer(to common.Address, tokens *big.Int) (*types.Transaction, *types.Receipt, error) {
-	return _FaaSToken.Contract.Transfer(&_FaaSToken.TransactOpts, to, tokens)
-}
-
-func (_FaaSToken *FaaSTokenSession) AsyncTransfer(handler func(*types.Receipt, error), to common.Address, tokens *big.Int) (*types.Transaction, error) {
-	return _FaaSToken.Contract.AsyncTransfer(handler, &_FaaSToken.TransactOpts, to, tokens)
+func (_FaaSToken *FaaSTokenTransactor) AsyncTransfer(handler func(*types.Receipt, error), opts *bind.TransactOpts, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _FaaSToken.contract.AsyncTransact(opts, handler, "transfer", recipient, amount)
 }
 
 // Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
 //
-// Solidity: function transfer(address to, uint256 tokens) returns(bool success)
-func (_FaaSToken *FaaSTokenTransactorSession) Transfer(to common.Address, tokens *big.Int) (*types.Transaction, *types.Receipt, error) {
-	return _FaaSToken.Contract.Transfer(&_FaaSToken.TransactOpts, to, tokens)
+// Solidity: function transfer(address recipient, uint256 amount) returns(bool)
+func (_FaaSToken *FaaSTokenSession) Transfer(recipient common.Address, amount *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSToken.Contract.Transfer(&_FaaSToken.TransactOpts, recipient, amount)
 }
 
-func (_FaaSToken *FaaSTokenTransactorSession) AsyncTransfer(handler func(*types.Receipt, error), to common.Address, tokens *big.Int) (*types.Transaction, error) {
-	return _FaaSToken.Contract.AsyncTransfer(handler, &_FaaSToken.TransactOpts, to, tokens)
+func (_FaaSToken *FaaSTokenSession) AsyncTransfer(handler func(*types.Receipt, error), recipient common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _FaaSToken.Contract.AsyncTransfer(handler, &_FaaSToken.TransactOpts, recipient, amount)
+}
+
+// Transfer is a paid mutator transaction binding the contract method 0xa9059cbb.
+//
+// Solidity: function transfer(address recipient, uint256 amount) returns(bool)
+func (_FaaSToken *FaaSTokenTransactorSession) Transfer(recipient common.Address, amount *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSToken.Contract.Transfer(&_FaaSToken.TransactOpts, recipient, amount)
+}
+
+func (_FaaSToken *FaaSTokenTransactorSession) AsyncTransfer(handler func(*types.Receipt, error), recipient common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _FaaSToken.Contract.AsyncTransfer(handler, &_FaaSToken.TransactOpts, recipient, amount)
 }
 
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
 //
-// Solidity: function transferFrom(address from, address to, uint256 tokens) returns(bool success)
-func (_FaaSToken *FaaSTokenTransactor) TransferFrom(opts *bind.TransactOpts, from common.Address, to common.Address, tokens *big.Int) (*types.Transaction, *types.Receipt, error) {
-	return _FaaSToken.contract.Transact(opts, "transferFrom", from, to, tokens)
+// Solidity: function transferFrom(address sender, address recipient, uint256 amount) returns(bool)
+func (_FaaSToken *FaaSTokenTransactor) TransferFrom(opts *bind.TransactOpts, sender common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSToken.contract.Transact(opts, "transferFrom", sender, recipient, amount)
 }
 
-func (_FaaSToken *FaaSTokenTransactor) AsyncTransferFrom(handler func(*types.Receipt, error), opts *bind.TransactOpts, from common.Address, to common.Address, tokens *big.Int) (*types.Transaction, error) {
-	return _FaaSToken.contract.AsyncTransact(opts, handler, "transferFrom", from, to, tokens)
-}
-
-// TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
-//
-// Solidity: function transferFrom(address from, address to, uint256 tokens) returns(bool success)
-func (_FaaSToken *FaaSTokenSession) TransferFrom(from common.Address, to common.Address, tokens *big.Int) (*types.Transaction, *types.Receipt, error) {
-	return _FaaSToken.Contract.TransferFrom(&_FaaSToken.TransactOpts, from, to, tokens)
-}
-
-func (_FaaSToken *FaaSTokenSession) AsyncTransferFrom(handler func(*types.Receipt, error), from common.Address, to common.Address, tokens *big.Int) (*types.Transaction, error) {
-	return _FaaSToken.Contract.AsyncTransferFrom(handler, &_FaaSToken.TransactOpts, from, to, tokens)
+func (_FaaSToken *FaaSTokenTransactor) AsyncTransferFrom(handler func(*types.Receipt, error), opts *bind.TransactOpts, sender common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _FaaSToken.contract.AsyncTransact(opts, handler, "transferFrom", sender, recipient, amount)
 }
 
 // TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
 //
-// Solidity: function transferFrom(address from, address to, uint256 tokens) returns(bool success)
-func (_FaaSToken *FaaSTokenTransactorSession) TransferFrom(from common.Address, to common.Address, tokens *big.Int) (*types.Transaction, *types.Receipt, error) {
-	return _FaaSToken.Contract.TransferFrom(&_FaaSToken.TransactOpts, from, to, tokens)
+// Solidity: function transferFrom(address sender, address recipient, uint256 amount) returns(bool)
+func (_FaaSToken *FaaSTokenSession) TransferFrom(sender common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSToken.Contract.TransferFrom(&_FaaSToken.TransactOpts, sender, recipient, amount)
 }
 
-func (_FaaSToken *FaaSTokenTransactorSession) AsyncTransferFrom(handler func(*types.Receipt, error), from common.Address, to common.Address, tokens *big.Int) (*types.Transaction, error) {
-	return _FaaSToken.Contract.AsyncTransferFrom(handler, &_FaaSToken.TransactOpts, from, to, tokens)
+func (_FaaSToken *FaaSTokenSession) AsyncTransferFrom(handler func(*types.Receipt, error), sender common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _FaaSToken.Contract.AsyncTransferFrom(handler, &_FaaSToken.TransactOpts, sender, recipient, amount)
+}
+
+// TransferFrom is a paid mutator transaction binding the contract method 0x23b872dd.
+//
+// Solidity: function transferFrom(address sender, address recipient, uint256 amount) returns(bool)
+func (_FaaSToken *FaaSTokenTransactorSession) TransferFrom(sender common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSToken.Contract.TransferFrom(&_FaaSToken.TransactOpts, sender, recipient, amount)
+}
+
+func (_FaaSToken *FaaSTokenTransactorSession) AsyncTransferFrom(handler func(*types.Receipt, error), sender common.Address, recipient common.Address, amount *big.Int) (*types.Transaction, error) {
+	return _FaaSToken.Contract.AsyncTransferFrom(handler, &_FaaSToken.TransactOpts, sender, recipient, amount)
 }
 
 // FaaSTokenApprovalIterator is returned from FilterApproval and is used to iterate over the raw logs and unpacked data for Approval events raised by the FaaSToken contract.

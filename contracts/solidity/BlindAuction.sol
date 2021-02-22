@@ -1,10 +1,6 @@
 pragma solidity^0.6.0;
 
 
-// 盲拍 
-// https://solidity-cn.readthedocs.io/zh/develop/solidity-by-example.html#id5
-// https://solidity-cn.readthedocs.io/zh/develop/common-patterns.html#id5
-
 contract BlindAuction {
     
 

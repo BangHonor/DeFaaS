@@ -5,8 +5,8 @@
 
 - https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md
 - https://blog.51cto.com/13784902/2324024
-- （可用的）https://github.com/bitfwdcommunity/Issue-your-own-ERC20-token
-- （ solidity 版本较高）https://github.com/vittominacori/erc20-generator/tree/master/dist
+- （标准实现）https://github.com/OpenZeppelin/openzeppelin-contracts/tree/master/contracts/token/ERC20
+- （可用实现）https://github.com/vittominacori/erc20-generator/tree/master/dist
 
 -------------
 
@@ -14,19 +14,13 @@
 
 - https://ethfans.org/ajian1984/articles/816
 
-方案一
-
-![](http://upyun-assets.ethfans.org/uploads/photo/image/75c95e91b16f429cbdf52c43941ba268.png)
-
-
-方案二
-
-![](http://upyun-assets.ethfans.org/uploads/photo/image/fe1fd871cac64110a0f34fad30d76b4a.png)
-
 -------------
 
 
 ## 盲拍合约
+
+- https://solidity-cn.readthedocs.io/zh/develop/solidity-by-example.html#id5
+- https://solidity-cn.readthedocs.io/zh/develop/common-patterns.html#id5
 
 
 -------------
@@ -71,3 +65,7 @@
 
 - 坑一：solidity 版本 和 solc 版本
 - 坑二：FISCO-BCOS 提供的 go-sdk 功能不完整
+- 坑三：安全漏洞
+    - 智能合约的整数溢出
+    - 智能合约的恶意重入
+    - 非对称加密
