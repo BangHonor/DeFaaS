@@ -75,7 +75,8 @@ func main() {
 		"--abi",
 		"-o",
 		binAbiDir,
-		path.Join(solidityDir, smartContractName+".sol"))
+		path.Join(solidityDir, smartContractName+".sol"),
+		"--overwrite")
 
 	utils.RunCmd(binAbiGenCmd)
 

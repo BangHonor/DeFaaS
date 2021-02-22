@@ -65,3 +65,9 @@
 
 
 -------------
+
+
+## 坑
+
+- 坑一：solidity 版本 和 solc 版本
+- 坑二：FISCO-BCOS 提供的 go-sdk 功能不完整

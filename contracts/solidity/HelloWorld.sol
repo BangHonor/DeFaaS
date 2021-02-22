@@ -1,4 +1,4 @@
-pragma solidity>=0.4.25 <0.6.11;
+pragma solidity^0.6.0;
 
 contract HelloWorld {
     string value;

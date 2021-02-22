@@ -106,4 +106,7 @@ func main() {
 	if !isValid {
 		log.Println("invalid level id")
 	}
+
+	// bind.ContractFilterer{}
+	// faaslevel.NewFaaSLevelFilterer()
 }
