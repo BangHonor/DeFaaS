@@ -14,6 +14,14 @@
 
 - https://ethfans.org/ajian1984/articles/816
 
+方案一
+
+![](http://upyun-assets.ethfans.org/uploads/photo/image/75c95e91b16f429cbdf52c43941ba268.png)
+
+
+方案二
+
+![](http://upyun-assets.ethfans.org/uploads/photo/image/fe1fd871cac64110a0f34fad30d76b4a.png)
 
 -------------
 

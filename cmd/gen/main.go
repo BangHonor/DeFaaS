@@ -8,6 +8,8 @@ import (
 	"path"
 	"strings"
 
+	"defaas/utils"
+
 	"github.com/go-cmd/cmd"
 )
 
@@ -63,8 +65,8 @@ func main() {
 	goPkgDir := path.Join(goDir, lowerSmartContractName) // Go语言的 pkg 路径只能小写
 	goName := path.Join(goPkgDir, smartContractName+".go")
 
-	runCmd(cmd.NewCmd("rm", "-f", binName))
-	runCmd(cmd.NewCmd("rm", "-f", abiName))
+	utils.RunCmd(cmd.NewCmd("rm", "-f", binName))
+	utils.RunCmd(cmd.NewCmd("rm", "-f", abiName))
 
 	// Create Cmd, buffered output
 	binAbiGenCmd := cmd.NewCmd(
@@ -75,12 +77,12 @@ func main() {
 		binAbiDir,
 		path.Join(solidityDir, smartContractName+".sol"))
 
-	runCmd(binAbiGenCmd)
+	utils.RunCmd(binAbiGenCmd)
 
 	fmt.Printf("[gen] %s \n", binName)
 	fmt.Printf("[gen] %s \n", abiName)
 
-	runCmd(cmd.NewCmd("mkdir", "-p", goPkgDir))
+	utils.RunCmd(cmd.NewCmd("mkdir", "-p", goPkgDir))
 
 	goGenCmd := cmd.NewCmd(
 		"./tools/abigen",
@@ -90,7 +92,7 @@ func main() {
 		"--type", smartContractName,
 		"--out", goName)
 
-	runCmd(goGenCmd)
+	utils.RunCmd(goGenCmd)
 
 	fmt.Printf("[gen] %s \n", goName)
 }
