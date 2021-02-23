@@ -16,20 +16,6 @@ bash ./tools/get_account.sh
 
 ## 编译
 
-- 一键编译
-
-把合约放进 `defaas/contracts/solidity`，在 `defaas/` 目录下执行以下命令，可以编译合约，并生成 Go 语言合约。
-
-```bash
-go run cmd/gen/main.go -name=ShaTest
-```
-
-生成的 Go 语言合约以 pkg 的形式保存在 `defaas/contracts/go` 目录下，可以在 Go 代码中调用。
-
-一键编译的方式是整合了下面的多个步骤。
-
-- 多个步骤
-
 文档 https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/sdk/go_sdk/contractExamples.html
 
 `solc`

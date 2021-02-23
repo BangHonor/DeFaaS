@@ -58,7 +58,7 @@ func configExample() {
 }
 
 func pemExample() {
-	pem := "./accounts/0x83309d045a19c44dc3722d15a6abd472f95866ac.pem"
+	pem := "./accounts/0x9db2cf0827d258fb96a81f57839747c27a31a4d2.pem"
 	address, _ := utils.GetAddressFromPem(pem)
 	fmt.Println("pem      address: ", address.Hex())
 }

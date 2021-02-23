@@ -1,7 +1,8 @@
 package main
 
+// 自动化编译合约，生成合约
+
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -16,7 +17,6 @@ import (
 func init() {
 	// log.SetFlags(log.Ldate | log.Lmicroseconds | log.Llongfile)
 	log.SetFlags(log.Lmicroseconds | log.Llongfile)
-
 }
 
 const (
@@ -25,32 +25,8 @@ const (
 	goDir       = "./contracts/go"
 )
 
-func runCmd(_cmd *cmd.Cmd) {
-
-	fmt.Print(_cmd.Name)
-	for _, arg := range _cmd.Args {
-		fmt.Print(" ", arg)
-	}
-	fmt.Println()
-
-	// Run and wait for Cmd to return Status
-	status := <-_cmd.Start()
-
-	// Print each line of STDOUT from Cmd
-	for _, line := range status.Stdout {
-		fmt.Println(line)
-	}
-
-	if status.Exit != 0 {
-		// Print each line of STDERR from Cmd
-		for _, line := range status.Stderr {
-			fmt.Println(line)
-		}
-
-		err := errors.New("runCmd")
-		log.Fatal(err)
-	}
-}
+// e.g.
+// go run cmd/gen/main.go  -name=FaaSToken
 
 func main() {
 
@@ -64,9 +40,6 @@ func main() {
 	lowerSmartContractName := strings.ToLower(smartContractName)
 	goPkgDir := path.Join(goDir, lowerSmartContractName) // Go语言的 pkg 路径只能小写
 	goName := path.Join(goPkgDir, smartContractName+".go")
-
-	utils.RunCmd(cmd.NewCmd("rm", "-f", binName))
-	utils.RunCmd(cmd.NewCmd("rm", "-f", abiName))
 
 	// Create Cmd, buffered output
 	binAbiGenCmd := cmd.NewCmd(
