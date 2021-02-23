@@ -14,7 +14,7 @@ bash ./tools/get_account.sh
 
 ---------------
 
-## 编译
+## 编译智能合约
 
 文档 https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/sdk/go_sdk/contractExamples.html
 
