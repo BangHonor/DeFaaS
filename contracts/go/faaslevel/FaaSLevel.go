@@ -28,10 +28,10 @@ var (
 )
 
 // FaaSLevelABI is the input ABI used to generate the binding from.
-const FaaSLevelABI = "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"index\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"core\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"mem\",\"type\":\"uint256\"}],\"name\":\"newFaaSLevelEvent\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_levelID\",\"type\":\"uint256\"}],\"name\":\"getFaaSLevel\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getFaaSLevelNumber\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_core\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_mem\",\"type\":\"uint256\"}],\"name\":\"newFaaSLevel\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]"
+const FaaSLevelABI = "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"index\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"core\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"mem\",\"type\":\"uint256\"}],\"name\":\"addFaaSLevelEvent\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_core\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_mem\",\"type\":\"uint256\"}],\"name\":\"addFaaSLevel\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_levelID\",\"type\":\"uint256\"}],\"name\":\"getFaaSLevel\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getFaaSLevelNumber\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]"
 
 // FaaSLevelBin is the compiled bytecode used for deploying new contracts.
-var FaaSLevelBin = "0x608060405234801561001057600080fd5b506040516106293803806106298339818101604052602081101561003357600080fd5b810190808051906020019092919050505080600260006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506000808190555061009f60016102006100f660201b60201c565b506100b360016104006100f660201b60201c565b506100c760016108006100f660201b60201c565b506100db60026104006100f660201b60201c565b506100ef60046108006100f660201b60201c565b505061025f565b6000600260009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16146101bb576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260198152602001807f4f6e6c79206f776e65722063616e2063616c6c20746869732e0000000000000081525060200191505060405180910390fd5b60008060008154809291906001019190505590506040518060400160405280858152602001848152506001600083815260200190815260200160002060008201518160000155602082015181600101559050507f0f7fd73bc5b00f997cac82624b411f100d076b6990053a1e4956f92f69fbf2f781858560405180848152602001838152602001828152602001935050505060405180910390a18091505092915050565b6103bb8061026e6000396000f3fe608060405234801561001057600080fd5b506004361061004c5760003560e01c806304d15fb4146100515780638da5cb5b1461009d578063c7807478146100e7578063c86fdf7d14610105575b600080fd5b6100876004803603604081101561006757600080fd5b810190808035906020019092919080359060200190929190505050610159565b6040518082815260200191505060405180910390f35b6100a56102c2565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b6100ef6102e8565b6040518082815260200191505060405180910390f35b6101316004803603602081101561011b57600080fd5b81019080803590602001909291905050506102f1565b6040518084151515158152602001838152602001828152602001935050505060405180910390f35b6000600260009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161461021e576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260198152602001807f4f6e6c79206f776e65722063616e2063616c6c20746869732e0000000000000081525060200191505060405180910390fd5b60008060008154809291906001019190505590506040518060400160405280858152602001848152506001600083815260200190815260200160002060008201518160000155602082015181600101559050507f0f7fd73bc5b00f997cac82624b411f100d076b6990053a1e4956f92f69fbf2f781858560405180848152602001838152602001828152602001935050505060405180910390a18091505092915050565b600260009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b60008054905090565b600080600080548410610314576000806000819150809050925092509250610364565b61031c61036b565b60016000868152602001908152602001600020604051806040016040529081600082015481526020016001820154815250509050600181600001518260200151935093509350505b9193909250565b60405180604001604052806000815260200160008152509056fea26469706673582212202cce3033dfa83640e507abdb2f337e2177c2b55bed8a8e2c6a21797cd1bffcfb64736f6c634300060a0033"
+var FaaSLevelBin = "0x608060405234801561001057600080fd5b506040516106293803806106298339818101604052602081101561003357600080fd5b810190808051906020019092919050505080600260006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506000808190555061009f60016102006100f660201b60201c565b506100b360016104006100f660201b60201c565b506100c760016108006100f660201b60201c565b506100db60026104006100f660201b60201c565b506100ef60046108006100f660201b60201c565b505061025f565b6000600260009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16146101bb576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260198152602001807f4f6e6c79206f776e65722063616e2063616c6c20746869732e0000000000000081525060200191505060405180910390fd5b60008060008154809291906001019190505590506040518060400160405280858152602001848152506001600083815260200190815260200160002060008201518160000155602082015181600101559050507f901fa3fc598633460c6bb1e971f1a36b52ae0240ec8e04d15251e8f092cd7ec181858560405180848152602001838152602001828152602001935050505060405180910390a18091505092915050565b6103bb8061026e6000396000f3fe608060405234801561001057600080fd5b506004361061004c5760003560e01c80638da5cb5b14610051578063c0b717c01461009b578063c7807478146100e7578063c86fdf7d14610105575b600080fd5b610059610159565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b6100d1600480360360408110156100b157600080fd5b81019080803590602001909291908035906020019092919050505061017f565b6040518082815260200191505060405180910390f35b6100ef6102e8565b6040518082815260200191505060405180910390f35b6101316004803603602081101561011b57600080fd5b81019080803590602001909291905050506102f1565b6040518084151515158152602001838152602001828152602001935050505060405180910390f35b600260009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b6000600260009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614610244576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260198152602001807f4f6e6c79206f776e65722063616e2063616c6c20746869732e0000000000000081525060200191505060405180910390fd5b60008060008154809291906001019190505590506040518060400160405280858152602001848152506001600083815260200190815260200160002060008201518160000155602082015181600101559050507f901fa3fc598633460c6bb1e971f1a36b52ae0240ec8e04d15251e8f092cd7ec181858560405180848152602001838152602001828152602001935050505060405180910390a18091505092915050565b60008054905090565b600080600080548410610314576000806000819150809050925092509250610364565b61031c61036b565b60016000868152602001908152602001600020604051806040016040529081600082015481526020016001820154815250509050600181600001518260200151935093509350505b9193909250565b60405180604001604052806000815260200160008152509056fea2646970667358221220c9154319712ae67f90f0bb491cd3410666d917153e84fb3df17c2bee82273a3d64736f6c634300060a0033"
 
 // DeployFaaSLevel deploys a new contract, binding an instance of FaaSLevel to it.
 func DeployFaaSLevel(auth *bind.TransactOpts, backend bind.ContractBackend, _owner common.Address) (common.Address, *types.Transaction, *FaaSLevel, error) {
@@ -286,42 +286,42 @@ func (_FaaSLevel *FaaSLevelCallerSession) Owner() (common.Address, error) {
 	return _FaaSLevel.Contract.Owner(&_FaaSLevel.CallOpts)
 }
 
-// NewFaaSLevel is a paid mutator transaction binding the contract method 0x04d15fb4.
+// AddFaaSLevel is a paid mutator transaction binding the contract method 0xc0b717c0.
 //
-// Solidity: function newFaaSLevel(uint256 _core, uint256 _mem) returns(uint256)
-func (_FaaSLevel *FaaSLevelTransactor) NewFaaSLevel(opts *bind.TransactOpts, _core *big.Int, _mem *big.Int) (*types.Transaction, *types.Receipt, error) {
-	return _FaaSLevel.contract.Transact(opts, "newFaaSLevel", _core, _mem)
+// Solidity: function addFaaSLevel(uint256 _core, uint256 _mem) returns(uint256)
+func (_FaaSLevel *FaaSLevelTransactor) AddFaaSLevel(opts *bind.TransactOpts, _core *big.Int, _mem *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSLevel.contract.Transact(opts, "addFaaSLevel", _core, _mem)
 }
 
-func (_FaaSLevel *FaaSLevelTransactor) AsyncNewFaaSLevel(handler func(*types.Receipt, error), opts *bind.TransactOpts, _core *big.Int, _mem *big.Int) (*types.Transaction, error) {
-	return _FaaSLevel.contract.AsyncTransact(opts, handler, "newFaaSLevel", _core, _mem)
+func (_FaaSLevel *FaaSLevelTransactor) AsyncAddFaaSLevel(handler func(*types.Receipt, error), opts *bind.TransactOpts, _core *big.Int, _mem *big.Int) (*types.Transaction, error) {
+	return _FaaSLevel.contract.AsyncTransact(opts, handler, "addFaaSLevel", _core, _mem)
 }
 
-// NewFaaSLevel is a paid mutator transaction binding the contract method 0x04d15fb4.
+// AddFaaSLevel is a paid mutator transaction binding the contract method 0xc0b717c0.
 //
-// Solidity: function newFaaSLevel(uint256 _core, uint256 _mem) returns(uint256)
-func (_FaaSLevel *FaaSLevelSession) NewFaaSLevel(_core *big.Int, _mem *big.Int) (*types.Transaction, *types.Receipt, error) {
-	return _FaaSLevel.Contract.NewFaaSLevel(&_FaaSLevel.TransactOpts, _core, _mem)
+// Solidity: function addFaaSLevel(uint256 _core, uint256 _mem) returns(uint256)
+func (_FaaSLevel *FaaSLevelSession) AddFaaSLevel(_core *big.Int, _mem *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSLevel.Contract.AddFaaSLevel(&_FaaSLevel.TransactOpts, _core, _mem)
 }
 
-func (_FaaSLevel *FaaSLevelSession) AsyncNewFaaSLevel(handler func(*types.Receipt, error), _core *big.Int, _mem *big.Int) (*types.Transaction, error) {
-	return _FaaSLevel.Contract.AsyncNewFaaSLevel(handler, &_FaaSLevel.TransactOpts, _core, _mem)
+func (_FaaSLevel *FaaSLevelSession) AsyncAddFaaSLevel(handler func(*types.Receipt, error), _core *big.Int, _mem *big.Int) (*types.Transaction, error) {
+	return _FaaSLevel.Contract.AsyncAddFaaSLevel(handler, &_FaaSLevel.TransactOpts, _core, _mem)
 }
 
-// NewFaaSLevel is a paid mutator transaction binding the contract method 0x04d15fb4.
+// AddFaaSLevel is a paid mutator transaction binding the contract method 0xc0b717c0.
 //
-// Solidity: function newFaaSLevel(uint256 _core, uint256 _mem) returns(uint256)
-func (_FaaSLevel *FaaSLevelTransactorSession) NewFaaSLevel(_core *big.Int, _mem *big.Int) (*types.Transaction, *types.Receipt, error) {
-	return _FaaSLevel.Contract.NewFaaSLevel(&_FaaSLevel.TransactOpts, _core, _mem)
+// Solidity: function addFaaSLevel(uint256 _core, uint256 _mem) returns(uint256)
+func (_FaaSLevel *FaaSLevelTransactorSession) AddFaaSLevel(_core *big.Int, _mem *big.Int) (*types.Transaction, *types.Receipt, error) {
+	return _FaaSLevel.Contract.AddFaaSLevel(&_FaaSLevel.TransactOpts, _core, _mem)
 }
 
-func (_FaaSLevel *FaaSLevelTransactorSession) AsyncNewFaaSLevel(handler func(*types.Receipt, error), _core *big.Int, _mem *big.Int) (*types.Transaction, error) {
-	return _FaaSLevel.Contract.AsyncNewFaaSLevel(handler, &_FaaSLevel.TransactOpts, _core, _mem)
+func (_FaaSLevel *FaaSLevelTransactorSession) AsyncAddFaaSLevel(handler func(*types.Receipt, error), _core *big.Int, _mem *big.Int) (*types.Transaction, error) {
+	return _FaaSLevel.Contract.AsyncAddFaaSLevel(handler, &_FaaSLevel.TransactOpts, _core, _mem)
 }
 
-// FaaSLevelNewFaaSLevelEventIterator is returned from FilterNewFaaSLevelEvent and is used to iterate over the raw logs and unpacked data for NewFaaSLevelEvent events raised by the FaaSLevel contract.
-type FaaSLevelNewFaaSLevelEventIterator struct {
-	Event *FaaSLevelNewFaaSLevelEvent // Event containing the contract specifics and raw log
+// FaaSLevelAddFaaSLevelEventIterator is returned from FilterAddFaaSLevelEvent and is used to iterate over the raw logs and unpacked data for AddFaaSLevelEvent events raised by the FaaSLevel contract.
+type FaaSLevelAddFaaSLevelEventIterator struct {
+	Event *FaaSLevelAddFaaSLevelEvent // Event containing the contract specifics and raw log
 
 	contract *bind.BoundContract // Generic contract to use for unpacking event data
 	event    string              // Event name to use for unpacking event data
@@ -335,7 +335,7 @@ type FaaSLevelNewFaaSLevelEventIterator struct {
 // Next advances the iterator to the subsequent event, returning whether there
 // are any more events found. In case of a retrieval or parsing error, false is
 // returned and Error() can be queried for the exact failure.
-func (it *FaaSLevelNewFaaSLevelEventIterator) Next() bool {
+func (it *FaaSLevelAddFaaSLevelEventIterator) Next() bool {
 	// If the iterator failed, stop iterating
 	if it.fail != nil {
 		return false
@@ -344,7 +344,7 @@ func (it *FaaSLevelNewFaaSLevelEventIterator) Next() bool {
 	if it.done {
 		select {
 		case log := <-it.logs:
-			it.Event = new(FaaSLevelNewFaaSLevelEvent)
+			it.Event = new(FaaSLevelAddFaaSLevelEvent)
 			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 				it.fail = err
 				return false
@@ -359,7 +359,7 @@ func (it *FaaSLevelNewFaaSLevelEventIterator) Next() bool {
 	// Iterator still in progress, wait for either a data or an error event
 	select {
 	case log := <-it.logs:
-		it.Event = new(FaaSLevelNewFaaSLevelEvent)
+		it.Event = new(FaaSLevelAddFaaSLevelEvent)
 		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
 			it.fail = err
 			return false
@@ -375,43 +375,43 @@ func (it *FaaSLevelNewFaaSLevelEventIterator) Next() bool {
 }
 
 // Error returns any retrieval or parsing error occurred during filtering.
-func (it *FaaSLevelNewFaaSLevelEventIterator) Error() error {
+func (it *FaaSLevelAddFaaSLevelEventIterator) Error() error {
 	return it.fail
 }
 
 // Close terminates the iteration process, releasing any pending underlying
 // resources.
-func (it *FaaSLevelNewFaaSLevelEventIterator) Close() error {
+func (it *FaaSLevelAddFaaSLevelEventIterator) Close() error {
 	it.sub.Unsubscribe()
 	return nil
 }
 
-// FaaSLevelNewFaaSLevelEvent represents a NewFaaSLevelEvent event raised by the FaaSLevel contract.
-type FaaSLevelNewFaaSLevelEvent struct {
+// FaaSLevelAddFaaSLevelEvent represents a AddFaaSLevelEvent event raised by the FaaSLevel contract.
+type FaaSLevelAddFaaSLevelEvent struct {
 	Index *big.Int
 	Core  *big.Int
 	Mem   *big.Int
 	Raw   types.Log // Blockchain specific contextual infos
 }
 
-// FilterNewFaaSLevelEvent is a free log retrieval operation binding the contract event 0x0f7fd73bc5b00f997cac82624b411f100d076b6990053a1e4956f92f69fbf2f7.
+// FilterAddFaaSLevelEvent is a free log retrieval operation binding the contract event 0x901fa3fc598633460c6bb1e971f1a36b52ae0240ec8e04d15251e8f092cd7ec1.
 //
-// Solidity: event newFaaSLevelEvent(uint256 index, uint256 core, uint256 mem)
-func (_FaaSLevel *FaaSLevelFilterer) FilterNewFaaSLevelEvent(opts *bind.FilterOpts) (*FaaSLevelNewFaaSLevelEventIterator, error) {
+// Solidity: event addFaaSLevelEvent(uint256 index, uint256 core, uint256 mem)
+func (_FaaSLevel *FaaSLevelFilterer) FilterAddFaaSLevelEvent(opts *bind.FilterOpts) (*FaaSLevelAddFaaSLevelEventIterator, error) {
 
-	logs, sub, err := _FaaSLevel.contract.FilterLogs(opts, "newFaaSLevelEvent")
+	logs, sub, err := _FaaSLevel.contract.FilterLogs(opts, "addFaaSLevelEvent")
 	if err != nil {
 		return nil, err
 	}
-	return &FaaSLevelNewFaaSLevelEventIterator{contract: _FaaSLevel.contract, event: "newFaaSLevelEvent", logs: logs, sub: sub}, nil
+	return &FaaSLevelAddFaaSLevelEventIterator{contract: _FaaSLevel.contract, event: "addFaaSLevelEvent", logs: logs, sub: sub}, nil
 }
 
-// WatchNewFaaSLevelEvent is a free log subscription operation binding the contract event 0x0f7fd73bc5b00f997cac82624b411f100d076b6990053a1e4956f92f69fbf2f7.
+// WatchAddFaaSLevelEvent is a free log subscription operation binding the contract event 0x901fa3fc598633460c6bb1e971f1a36b52ae0240ec8e04d15251e8f092cd7ec1.
 //
-// Solidity: event newFaaSLevelEvent(uint256 index, uint256 core, uint256 mem)
-func (_FaaSLevel *FaaSLevelFilterer) WatchNewFaaSLevelEvent(opts *bind.WatchOpts, sink chan<- *FaaSLevelNewFaaSLevelEvent) (event.Subscription, error) {
+// Solidity: event addFaaSLevelEvent(uint256 index, uint256 core, uint256 mem)
+func (_FaaSLevel *FaaSLevelFilterer) WatchAddFaaSLevelEvent(opts *bind.WatchOpts, sink chan<- *FaaSLevelAddFaaSLevelEvent) (event.Subscription, error) {
 
-	logs, sub, err := _FaaSLevel.contract.WatchLogs(opts, "newFaaSLevelEvent")
+	logs, sub, err := _FaaSLevel.contract.WatchLogs(opts, "addFaaSLevelEvent")
 	if err != nil {
 		return nil, err
 	}
@@ -421,8 +421,8 @@ func (_FaaSLevel *FaaSLevelFilterer) WatchNewFaaSLevelEvent(opts *bind.WatchOpts
 			select {
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
-				event := new(FaaSLevelNewFaaSLevelEvent)
-				if err := _FaaSLevel.contract.UnpackLog(event, "newFaaSLevelEvent", log); err != nil {
+				event := new(FaaSLevelAddFaaSLevelEvent)
+				if err := _FaaSLevel.contract.UnpackLog(event, "addFaaSLevelEvent", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -443,12 +443,12 @@ func (_FaaSLevel *FaaSLevelFilterer) WatchNewFaaSLevelEvent(opts *bind.WatchOpts
 	}), nil
 }
 
-// ParseNewFaaSLevelEvent is a log parse operation binding the contract event 0x0f7fd73bc5b00f997cac82624b411f100d076b6990053a1e4956f92f69fbf2f7.
+// ParseAddFaaSLevelEvent is a log parse operation binding the contract event 0x901fa3fc598633460c6bb1e971f1a36b52ae0240ec8e04d15251e8f092cd7ec1.
 //
-// Solidity: event newFaaSLevelEvent(uint256 index, uint256 core, uint256 mem)
-func (_FaaSLevel *FaaSLevelFilterer) ParseNewFaaSLevelEvent(log types.Log) (*FaaSLevelNewFaaSLevelEvent, error) {
-	event := new(FaaSLevelNewFaaSLevelEvent)
-	if err := _FaaSLevel.contract.UnpackLog(event, "newFaaSLevelEvent", log); err != nil {
+// Solidity: event addFaaSLevelEvent(uint256 index, uint256 core, uint256 mem)
+func (_FaaSLevel *FaaSLevelFilterer) ParseAddFaaSLevelEvent(log types.Log) (*FaaSLevelAddFaaSLevelEvent, error) {
+	event := new(FaaSLevelAddFaaSLevelEvent)
+	if err := _FaaSLevel.contract.UnpackLog(event, "addFaaSLevelEvent", log); err != nil {
 		return nil, err
 	}
 	return event, nil

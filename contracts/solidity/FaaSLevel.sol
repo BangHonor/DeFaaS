@@ -20,18 +20,18 @@ contract FaaSLevel {
         _;
     }
 
-    event newFaaSLevelEvent(uint index, uint core, uint mem);
+    event addFaaSLevelEvent(uint index, uint core, uint mem);
 
     constructor(address _owner) public {
         owner = _owner;
         numLevels = 0;
 
         // 规格表
-        newFaaSLevel(1, 512);
-        newFaaSLevel(1, 1024);
-        newFaaSLevel(1, 2048);
-        newFaaSLevel(2, 1024);
-        newFaaSLevel(4, 2048);
+        addFaaSLevel(1, 512);
+        addFaaSLevel(1, 1024);
+        addFaaSLevel(1, 2048);
+        addFaaSLevel(2, 1024);
+        addFaaSLevel(4, 2048);
     }
 
     // 查询 FaaS 规格的数量
@@ -62,10 +62,10 @@ contract FaaSLevel {
         return (true, cs.core, cs.mem);
     }
 
-    // 新建 FaaS 规格
+    // 添加 FaaS 规格
     // 参数（ core, mem ）
     // 返回（ 规格编号 _levelID ）
-    function newFaaSLevel(uint _core, uint _mem) 
+    function addFaaSLevel(uint _core, uint _mem) 
         public
         onlyOwner
         returns (uint) 
@@ -78,7 +78,7 @@ contract FaaSLevel {
             mem: _mem
         });
         
-        emit newFaaSLevelEvent(_levelID, _core, _mem);
+        emit addFaaSLevelEvent(_levelID, _core, _mem);
 
         return (_levelID);
     }

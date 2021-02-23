@@ -8,6 +8,8 @@ import (
 	"github.com/go-cmd/cmd"
 )
 
+// 运行命令行
+
 // RunCmd ...
 func RunCmd(_cmd *cmd.Cmd) {
 

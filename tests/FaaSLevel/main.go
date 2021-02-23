@@ -30,7 +30,7 @@ func main() {
 	}
 
 	// deploy the contract
-	owner := utils.GetAddressFromConfig(config)
+	owner, _ := utils.GetAddressFromConfig(config)
 	address, tx, _instance, err := faaslevel.DeployFaaSLevel(client.GetTransactOpts(), client, owner)
 	if err != nil {
 		log.Fatal(err)
@@ -49,6 +49,7 @@ func main() {
 
 	faaslevelSession := faaslevel.FaaSLevelSession{Contract: instance, CallOpts: *client.GetCallOpts(), TransactOpts: *client.GetTransactOpts()}
 
+	// list FaaS levels
 	numLevels, err := faaslevelSession.GetFaaSLevelNumber()
 	if err != nil {
 		log.Fatal(err)
@@ -66,20 +67,21 @@ func main() {
 		fmt.Printf("level %v: %v core, %v MB\n", i, core, mem)
 	}
 
+	// add FaaS level
 	newCore := big.NewInt(4)
 	newMem := big.NewInt(4096)
-	tx, receipt, err := faaslevelSession.NewFaaSLevel(newCore, newMem)
+	tx, receipt, err := faaslevelSession.AddFaaSLevel(newCore, newMem)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("new FaaS level %v core, %v MB\n", newCore, newMem)
+	fmt.Printf("add FaaS level %v core, %v MB\n", newCore, newMem)
 	fmt.Printf("tx sent: %s\n", tx.Hash().Hex())
 	fmt.Printf("transaction hash of receipt: %s\n", receipt.GetTransactionHash())
 
 	// -----------------------------------------------
 
-	fmt.Println("After new FaaS level...")
+	fmt.Println("After adding FaaS level...")
 	numLevels, err = faaslevelSession.GetFaaSLevelNumber()
 	if err != nil {
 		log.Fatal(err)
