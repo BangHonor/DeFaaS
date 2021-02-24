@@ -3,12 +3,23 @@
 pragma solidity^0.6.0;
 
 contract SimpleAuction {
+    
+    address marketContractAddress;
+
+    // 只有 Matket 合约才能调用
+    // 因为 Matket 合约预先做了供应商资格检查
+    modifier marketCall() {
+        require(
+            msg.sender == marketContractAddress,
+            "SimpleAuction: only market conctract can call this funciton"
+        );
+        _;
+    }
 
     // 两个状态：接受竞价 和 竞价结束
     enum States {
         AcceptingBids,
-        StoppedBids,
-        Finished
+        StoppedBids
     }
 
     States public state;
@@ -22,15 +33,15 @@ contract SimpleAuction {
     uint lowestUnitPrice;
     address provider;
 
-    bool success;
-
     constructor(
+        address _marketContractAddress,
         uint _delpoymentOrderID, 
         uint _highestUnitPrice,
         uint _biddingDuration) 
         public 
     {
-        
+        marketContractAddress = _marketContractAddress;
+
         state = States.AcceptingBids;
         
         delpoymentOrderID = _delpoymentOrderID;
@@ -42,37 +53,29 @@ contract SimpleAuction {
         // init value
         lowestUnitPrice = _highestUnitPrice;
         provider = address(0);
-
-        success = false;
     }
 
     // 状态检查：函数只能在对应状态调用
     modifier atState(States _state) {
-
         require(
             state == _state,
-            "Function cannot be called at this state."
+            "SimpleAuction: function cannot be called at this state"
         );
         _;
     }
 
     // 有限状态机的状态转移
     function nextState() internal {
-
         if (state == States.AcceptingBids) {
             state = States.StoppedBids;
         }
         if (state == States.StoppedBids) {
-            state = States.Finished;
-        }
-        if (state == States.Finished) {
-            state = States.Finished;
+            state = States.StoppedBids;
         }
     }
 
     // 根据时间的状态转换
     modifier timedTransitions() {
-
         if (state == States.AcceptingBids && now > createTime + biddingDuration) {
                 nextState();
         }
@@ -86,54 +89,36 @@ contract SimpleAuction {
         nextState();
     }
 
-    // 新的最低出价事件
-    event lowestUnitPriceEvent(uint _delpoymentOrderID, uint _lowestUnitPrice, address _provider);
-    // 竞价结束事件
-    event auctionEndEvent(bool success, uint _delpoymentOrderID, address _provider);
-
     // 竞争最低出价
-    function bid(uint _unitPrice) 
+    function bid(address _provider, uint _unitPrice) 
         public
+        marketCall
         timedTransitions
         atState(States.AcceptingBids) 
     {
-
         require (
             _unitPrice <= highestUnitPrice,
-            "The unit-price is higher than highest the customer accepted."
+            "SimpleAuction: the unit-price is higher than highest the customer accepted"
         );
 
         require(
             _unitPrice < lowestUnitPrice,
-            "There already is a lower uint-price."
+            "SimpleAuction: there already is a lower uint-price."
         );
 
         lowestUnitPrice = _unitPrice;
-        provider = msg.sender;
-
-        emit lowestUnitPriceEvent(delpoymentOrderID, lowestUnitPrice, provider);
+        provider = _provider;
     }
 
     // 结束竞价:调用后合约状态转移到 Finished
+    // 返回：（是否匹配成功，供应商，中标出价）
     function auctionEnd() 
         public
         timedTransitions
         atState(States.StoppedBids)
-        transitionNext  
+        returns (bool, address, uint)
     {
-        if (provider != address(0)) {
-            success = true;
-        }
-        emit auctionEndEvent(success, delpoymentOrderID, provider);
-    }
-
-
-    function getResult() 
-        public
-        view
-        atState(States.Finished)
-        returns (bool, uint, uint, address)
-    {
-        return (success, delpoymentOrderID, lowestUnitPrice, provider);
+        bool _success = ( provider != address(0) );
+        return (_success, provider, lowestUnitPrice);
     }
 }

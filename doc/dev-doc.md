@@ -87,6 +87,8 @@
         - SafeMath
     - 智能合约的恶意重入（还没有检查可能的 bug！！！）
         - 在你合约中状态变量进行各种变化后再调用外部函数，这样，你的合约就不会轻易被滥用的重入 (reentrancy) 所影响
+        - 多发生再 withdraw 函数
+        - 解决方法：“检查-生效-交互”（Checks-Effects-Interactions）模式
     - 非对称加密（该加密的地方还没有加密！！！）
 - 坑四：token 的 approveAndCall 是糟糕的转帐方式
 - 坑五：配置地狱

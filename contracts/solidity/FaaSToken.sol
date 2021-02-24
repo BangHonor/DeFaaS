@@ -28,7 +28,7 @@ contract FaaSToken is Context, ERC20 {
 
     // 继承自 ERC20 的转帐限制函数
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
-        // 现在还不加什么限制
+        // 测试阶段，还不加什么限制
     }
 
 }
