@@ -92,7 +92,7 @@ func main() {
 		fmt.Printf("> balance of [%s] after mint is [%v]\n", account.Hex(), balanceOfAfterMint)
 	}
 
-	// 授权测试
+	// 授权测试，转帐测试
 	fmt.Printf("\n\n\n")
 	{
 		spender, spenderPrivateKey := utils.GetAddressFromGenerating()
@@ -168,6 +168,34 @@ func main() {
 				log.Fatal(err)
 			}
 			fmt.Printf("> After transferFrom, allowance of [%s] to spender [%s] is [%v]\n", account.Hex(), spender.Hex(), allowance)
+		}
+
+		// tansfer
+		fmt.Printf("\n\n\n")
+		{
+			transferAmount := big.NewInt(1)
+			tx, receipt, err := spenderFaastokenSession.Transfer(account, transferAmount)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Printf("> transfer [%v] tokens from [%s] to [%s]\n", transferAmount, spender.Hex(), account.Hex())
+			fmt.Printf("tx sent: %s\n", tx.Hash().Hex())
+			fmt.Printf("transaction hash of receipt: %s\n", receipt.GetTransactionHash())
+		}
+
+		// query
+		{
+			balanceOfSpender, err := spenderFaastokenSession.BalanceOf(spender)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Printf("> balance of spender [%s] is [%v]\n", spender.Hex(), balanceOfSpender)
+
+			balanceOfAccount, err := spenderFaastokenSession.BalanceOf(account)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Printf("> balance of account [%s] after mint is [%v]\n", account.Hex(), balanceOfAccount)
 		}
 	}
 }

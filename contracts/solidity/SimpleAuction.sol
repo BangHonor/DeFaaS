@@ -1,5 +1,6 @@
-pragma solidity^0.6.0;
+// SPDX-License-Identifier: MIT
 
+pragma solidity^0.6.0;
 
 contract SimpleAuction {
 
@@ -40,7 +41,7 @@ contract SimpleAuction {
 
         // init value
         lowestUnitPrice = _highestUnitPrice;
-        provider = 0;
+        provider = address(0);
 
         success = false;
     }
@@ -61,7 +62,7 @@ contract SimpleAuction {
         if (state == States.AcceptingBids) {
             state = States.StoppedBids;
         }
-        if (state = States.StoppedBids) {
+        if (state == States.StoppedBids) {
             state = States.Finished;
         }
         if (state == States.Finished) {
@@ -72,7 +73,7 @@ contract SimpleAuction {
     // 根据时间的状态转换
     modifier timedTransitions() {
 
-        if (state == AcceptingBids && now > createTime + biddingDuration) {
+        if (state == States.AcceptingBids && now > createTime + biddingDuration) {
                 nextState();
         }
         _;
@@ -82,7 +83,7 @@ contract SimpleAuction {
     modifier transitionNext()
     {
         _;
-        nextStage();
+        nextState();
     }
 
     // 新的最低出价事件
@@ -120,7 +121,7 @@ contract SimpleAuction {
         atState(States.StoppedBids)
         transitionNext  
     {
-        if (provider != 0) {
+        if (provider != address(0)) {
             success = true;
         }
         emit auctionEndEvent(success, delpoymentOrderID, provider);
@@ -131,8 +132,8 @@ contract SimpleAuction {
         public
         view
         atState(States.Finished)
-        returns (bool, uint, uint, uint)
+        returns (bool, uint, uint, address)
     {
-        returns (success, delpoymentOrderID, lowestUnitPrice, provider);
+        return (success, delpoymentOrderID, lowestUnitPrice, provider);
     }
 }
