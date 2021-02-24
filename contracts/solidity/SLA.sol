@@ -622,8 +622,9 @@ contract CloudSLA {
         require(index != witnessCommittee.length);
         //move the last one in the list to replace the deleted one
         witnessCommittee[index] = witnessCommittee[witnessCommittee.length - 1];
-            
-        witnessCommittee.length--;
+
+        // [修改之处]
+        // witnessCommittee.length--;
             
         delete witnesses[msg.sender];
             

@@ -66,9 +66,10 @@ contract WitnessPool {
         (address)
     {
         CloudSLA newSLAContract = new CloudSLA(this, msg.sender, address(0x0));
-        SLAContractPool[address(newSLAContract)].valid = true; 
-        emit SLAContractGen(msg.sender, now, address(newSLAContract));
-        return newSLAContract;
+        address newSLAContractAddress = address(newSLAContract);
+        SLAContractPool[newSLAContractAddress].valid = true; 
+        emit SLAContractGen(msg.sender, now, newSLAContractAddress);
+        return newSLAContractAddress;
     }
     
     /**
@@ -95,7 +96,10 @@ contract WitnessPool {
         public 
         checkRegister(msg.sender) 
     {
-        witnessPool[msg.sender].index = witnessAddrs.push(msg.sender) - 1;
+        // witnessPool[msg.sender].index = witnessAddrs.push(msg.sender) - 1;
+        witnessAddrs.push(msg.sender);
+        witnessPool[msg.sender].index = witnessAddrs.length - 1;
+
         witnessPool[msg.sender].state = WState.Offline;
         witnessPool[msg.sender].reputation = 100; 
         witnessPool[msg.sender].registered = true;
@@ -143,7 +147,11 @@ contract WitnessPool {
         require( block.number > SLAContractPool[msg.sender].curBlockNum + 2*SLAContractPool[msg.sender].blkNeed );
         uint seed = 0;
         for(uint bi = 0 ; bi<SLAContractPool[msg.sender].blkNeed ; bi++)
-            seed += (uint)(block.blockhash( SLAContractPool[msg.sender].curBlockNum + bi + 1 ));
+        {
+            // seed += (uint)(block.blockhash( SLAContractPool[msg.sender].curBlockNum + bi + 1 ));
+            seed += (uint)(blockhash( SLAContractPool[msg.sender].curBlockNum + bi + 1 ));
+        }
+            
         
         uint wcounter = 0;
         while(wcounter < _N){
@@ -160,7 +168,9 @@ contract WitnessPool {
                 wcounter++;
             }
             
-            seed = (uint)(keccak256(uint(seed)));
+            // seed = (uint)(keccak256(uint(seed)));
+            seed = (uint)(keccak256(abi.encodePacked(bytes32(seed))));
+            
         }
         
         //make this interface cannot be invoked twice without 'request'
