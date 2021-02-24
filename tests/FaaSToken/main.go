@@ -9,7 +9,7 @@ import (
 	"defaas/contracts/go/faastoken"
 	"defaas/utils"
 
-	goSDKClient "github.com/FISCO-BCOS/go-sdk/client"
+	sdkClient "github.com/FISCO-BCOS/go-sdk/client"
 	"github.com/FISCO-BCOS/go-sdk/conf"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -24,7 +24,7 @@ func main() {
 	config := &configs[0]
 
 	// client connect...
-	client, err := goSDKClient.Dial(config)
+	client, err := sdkClient.Dial(config)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -130,7 +130,7 @@ func main() {
 		spenderConfig := *config
 		spenderConfig.PrivateKey = spenderPrivateKey
 
-		spenderClient, err := goSDKClient.Dial(&spenderConfig)
+		spenderClient, err := sdkClient.Dial(&spenderConfig)
 		if err != nil {
 			log.Fatal(err)
 		}

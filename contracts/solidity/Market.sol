@@ -8,7 +8,7 @@ import "./SimpleAuction.sol";
 contract Market {
     
     // 部署订单
-    struct DelpoymentOrder {
+    struct DeploymentOrder {
         address customer;        // 租户地址
         uint faaSLevelID;        // 租用的 FaaS 规格
         uint faaSDuration;       // 租用的时间
@@ -48,9 +48,9 @@ contract Market {
     mapping (address => uint) private providerReputations;
 
     // 部署订单数量
-    uint public numDelpoymentOrders;
+    uint public numDeploymentOrders;
     // 部署订单表
-    mapping(uint => DelpoymentOrder) public delpoymentOrders;
+    mapping(uint => DeploymentOrder) public deploymentOrders;
     // 部署订单的拍卖地址表
     mapping(uint => SimpleAuction) public auctions;
     // 匹配成功的部署订单的租约表
@@ -59,9 +59,9 @@ contract Market {
     // ------------------------------------------------------------------------------------
 
     // 新建部署订单事件
-    event newDeploymentOrderEvent(uint _delpoymentOrderID, address _auctionAddress);
+    event newDeploymentOrderEvent(uint _deploymentOrderID, address _auctionAddress);
     // 部署订单竞价结束事件
-    event auctionEndEvent(uint _delpoymentOrderID, bool _success, address _provider, uint _unitPrice);
+    event auctionEndEvent(uint _deploymentOrderID, bool _success, address _provider, uint _unitPrice);
     // 新租约事件
     event newLeaseEvent(address _customer, address _provider, uint _leaseID);
 
@@ -79,7 +79,7 @@ contract Market {
 
         // 部署订单参数初始化
         // 部署订单号计数， 有效的部署订单号从 1 开始，0 为无效的部署订单号
-        numDelpoymentOrders = 1;
+        numDeploymentOrders = 1;
     }
 
     // ------------------------------------------------------------------------------------
@@ -178,7 +178,7 @@ contract Market {
     // ------------------------------------------------------------------------------------
 
     // 计算订单预付款
-    function getDelpoymentOrderLockFee(uint _highestUnitPrice, uint _faaSDuration) 
+    function getDeploymentOrderLockFee(uint _highestUnitPrice, uint _faaSDuration) 
         public 
         pure 
         returns (uint) 
@@ -188,12 +188,12 @@ contract Market {
     }
 
     // 查询部署订单
-    function getDeploymentOrder(uint _delpoymentOrderID) 
+    function getDeploymentOrder(uint _deploymentOrderID) 
         public
         view
         returns (address, uint, uint, uint)
     {
-        DelpoymentOrder memory order = delpoymentOrders[_delpoymentOrderID];
+        DeploymentOrder memory order = deploymentOrders[_deploymentOrderID];
         
         return (
             order.customer,
@@ -213,15 +213,15 @@ contract Market {
         returns (uint, address) 
     {
         // 锁定预付款
-        uint lockFee = getDelpoymentOrderLockFee(_highestUnitPrice, _faaSDuration);
+        uint lockFee = getDeploymentOrderLockFee(_highestUnitPrice, _faaSDuration);
         require(
             tokenContract.transferFrom(msg.sender, address(this), lockFee) == true,
             "lock fee before creating deployment order"
         );
 
         // 构造新订单
-        uint _delpoymentOrderID = numDelpoymentOrders++;
-        delpoymentOrders[_delpoymentOrderID] = DelpoymentOrder({
+        uint _deploymentOrderID = numDeploymentOrders++;
+        deploymentOrders[_deploymentOrderID] = DeploymentOrder({
             customer: msg.sender,
             faaSLevelID: _faaSDuration,
             highestUnitPrice: _highestUnitPrice,
@@ -231,30 +231,30 @@ contract Market {
         // 为新订单创建竞价合约
         SimpleAuction _auction = new SimpleAuction(
             address(this),
-            _delpoymentOrderID,
+            _deploymentOrderID,
             _highestUnitPrice,
             _biddingDuration
         );
-        auctions[_delpoymentOrderID] = _auction;
+        auctions[_deploymentOrderID] = _auction;
 
         // 产生事件
-        emit newDeploymentOrderEvent(_delpoymentOrderID, address(_auction));
+        emit newDeploymentOrderEvent(_deploymentOrderID, address(_auction));
 
-        return (_delpoymentOrderID, address(_auction));
+        return (_deploymentOrderID, address(_auction));
     }
 
     // 对部署订单竞价
-    function bid(uint _delpoymentOrderID, uint _unitPrice) 
+    function bid(uint _deploymentOrderID, uint _unitPrice) 
         public
         providerRegistered
         providerQualified
     {
-        auctions[_delpoymentOrderID].bid(msg.sender, _unitPrice);
+        auctions[_deploymentOrderID].bid(msg.sender, _unitPrice);
     }
 
     // 检查部署订单的匹配结果
     // 返回：（是否匹配成功，租约 ID）
-    function matchDeploymentOrder(uint _delpoymentOrderID) 
+    function matchDeploymentOrder(uint _deploymentOrderID) 
         public
         returns (bool, uint) 
     {
@@ -262,8 +262,8 @@ contract Market {
         address _provider;
         uint _unitPrice;
 
-        (_success, _provider, _unitPrice) = auctions[_delpoymentOrderID].auctionEnd();
-        emit auctionEndEvent(_delpoymentOrderID, _success, _provider, _unitPrice);
+        (_success, _provider, _unitPrice) = auctions[_deploymentOrderID].auctionEnd();
+        emit auctionEndEvent(_deploymentOrderID, _success, _provider, _unitPrice);
         
         // 匹配失败
         if (_success == false) {
@@ -271,20 +271,32 @@ contract Market {
         }
 
         // 匹配成功
-        uint _leaseID = newLease(_delpoymentOrderID, _provider, _unitPrice);
+        uint _leaseID = newLease(_deploymentOrderID, _provider, _unitPrice);
         return (true, _leaseID);
     }
 
-    // 结算部署订房
-    function settleDeploymemtOrder(uint _delpoymentOrderID) 
+    // 结算部署订单
+    function settleDeploymemtOrder(uint _deploymentOrderID) 
         public
     {
-        // Lease memory lease = leases[_delpoymentOrderID];
+        // Lease memory lease = leases[_deploymentOrderID];
 
+        // 支付区块链维护者费用
         // require(tokenContract.transfer(maintainer, leases.maintainerFee), "");
+
+        // 支付证人费用
         // require(tokenContract.transfer(wpContract, leases.witnessFee), "");
-        // require(tokenContract.transfer(customer, lease.customerWithdrawFee), "");
-        // require(tokenContract.transfer(provider, lease.providerServiceFee), "");
+        
+        // 退回租户预付款多出的部分
+        // require(tokenContract.transfer(customer, lease.customerWithdrawFee), "");  
+        
+        // if (leaes.供应商违约 == true) {
+        //     // 如违约，退回租户补偿费
+        //     // require(tokenContract.transfer(customer, lease.customerWithdrawFee), "");
+        // } else {
+        //     //  如不违约，支付供应商报酬
+        //     // require(tokenContract.transfer(provider, lease.providerServiceFee), "");
+        // }
     }
 
 
@@ -293,14 +305,14 @@ contract Market {
     // 新建租约
     // 返回租约ID
     function newLease(
-        uint _delpoymentOrderID,
+        uint _deploymentOrderID,
         address _provider,
         uint _unitPrice) 
         internal
         returns (uint)
     {
-        uint _leaseID = _delpoymentOrderID;  // leaseID 就是 delpoymentOrderID
-        DelpoymentOrder memory order = delpoymentOrders[_delpoymentOrderID];
+        uint _leaseID = _deploymentOrderID;  // leaseID 就是 deploymentOrderID
+        DeploymentOrder memory order = deploymentOrders[_deploymentOrderID];
 
         uint _serviceFee = order.faaSDuration * _unitPrice;
 
