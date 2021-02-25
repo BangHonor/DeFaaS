@@ -4,6 +4,7 @@ pragma solidity^0.6.0;
 
 import "./FaaSToken.sol";
 import "./SimpleAuction.sol";
+import "./WitnessPool.sol";
 
 contract Market {
     
@@ -24,8 +25,11 @@ contract Market {
         uint faaSDuration; // 租用的时间
         uint unitPrice;    // FaaS 规格对应的单价
         
-        uint providerServiceFee;       // 服务成功，供应商的费用
-        uint customerWithdrawFee;  // 服务失败，租户取回的费用
+        bool isViolatedSLA;            // 是否违反 SLA 合约
+        uint providerServiceFee;       // 服务成功时，供应商的服务费用
+        uint customerLockFee;          // 租户的预付款
+        uint customerWithdrawFee;      // 租户取回多出的预付款
+        uint customerCompensationFee;  // 服务失败时，租户的补偿款
         uint witnessFee;               // 证人的费用
         uint maintainerFee;            // 区块链维护者的费用
     }
@@ -33,7 +37,7 @@ contract Market {
     // ------------------------------------------------------------------------------------
 
     FaaSToken tokenContract;
-    // WitnessPool wpContract;
+    WitnessPool wpContract;
 
     // 供应商押金
     uint public providerDeposit;
@@ -49,21 +53,42 @@ contract Market {
 
     // 部署订单数量
     uint public numDeploymentOrders;
-    // 部署订单表
+    // 部署订单表：deploymentOrderID => DeploymentOrder
     mapping(uint => DeploymentOrder) public deploymentOrders;
-    // 部署订单的拍卖地址表
+    // 部署订单的拍卖地址表: deploymentOrderID => SimpleAuction
     mapping(uint => SimpleAuction) public auctions;
-    // 匹配成功的部署订单的租约表
+    // 匹配成功的部署订单的租约表: deploymentOrderID(leaseID) => Lease
     mapping(uint => Lease) public leases;
+    // 部署订单的状态表：deploymentOrderID => orderState
+    mapping(uint => OrderStates) private deploymentOrderStates;
 
     // ------------------------------------------------------------------------------------
+
+    // 部署订单的有限状态机
+    enum OrderStates {
+        Bidding,    // 竞价中
+        Fulfilling, // 履行中 
+        Settling,   // 结算中
+        Finished    // 已完成
+    }
+
+    modifier atOrderState(uint _deploymentOrderID, OrderStates _state) {
+        require(
+            deploymentOrderStates[_deploymentOrderID] == _state,
+            "Matket: function cannot be called at this order state"
+        );
+        _;
+    }
+    
+    // ------------------------------------------------------------------------------------
+
 
     // 新建部署订单事件
     event newDeploymentOrderEvent(uint _deploymentOrderID, address _auctionAddress);
     // 部署订单竞价结束事件
     event auctionEndEvent(uint _deploymentOrderID, bool _success, address _provider, uint _unitPrice);
     // 新租约事件
-    event newLeaseEvent(address _customer, address _provider, uint _leaseID);
+    event newLeaseEvent(address _customer, address _provider, uint _deploymentOrderID);
 
     // ------------------------------------------------------------------------------------
 
@@ -237,6 +262,9 @@ contract Market {
         );
         auctions[_deploymentOrderID] = _auction;
 
+        // 为新订单创建状态
+        deploymentOrderStates[_deploymentOrderID] = OrderStates.Bidding;
+
         // 产生事件
         emit newDeploymentOrderEvent(_deploymentOrderID, address(_auction));
 
@@ -248,15 +276,17 @@ contract Market {
         public
         providerRegistered
         providerQualified
+        atOrderState(_deploymentOrderID, OrderStates.Bidding)
     {
         auctions[_deploymentOrderID].bid(msg.sender, _unitPrice);
     }
 
     // 检查部署订单的匹配结果
-    // 返回：（是否匹配成功，租约 ID）
+    // 返回：（是否匹配成功，供应商信息）
     function matchDeploymentOrder(uint _deploymentOrderID) 
         public
-        returns (bool, uint) 
+        atOrderState(_deploymentOrderID, OrderStates.Bidding)
+        returns (bool, string memory) 
     {
         bool _success;
         address _provider;
@@ -267,36 +297,65 @@ contract Market {
         
         // 匹配失败
         if (_success == false) {
-            return (false, 0);
+            // 修改匹配失败的订单状态为 Finished
+            deploymentOrderStates[_deploymentOrderID] = OrderStates.Finished;
+            return (false, "");
         }
 
-        // 匹配成功
-        uint _leaseID = newLease(_deploymentOrderID, _provider, _unitPrice);
-        return (true, _leaseID);
+        // 匹配成功, 创建新租约
+        Lease memory _lease = newLease(_deploymentOrderID, _provider, _unitPrice);
+        leases[_deploymentOrderID] = _lease;
+        emit newLeaseEvent(_lease.customer, _lease.provider, _deploymentOrderID);
+
+        // 修改匹配成功订单状态为 Fulfilling
+        deploymentOrderStates[_deploymentOrderID] = OrderStates.Fulfilling;
+
+        return (true, "");
+    }
+
+    // 报告部署订单的履行情况
+    function reportDeploymemtOrder(uint _delpoymentOrderID, bool _isViolatedSLA) 
+        public
+        atOrderState(_delpoymentOrderID, OrderStates.Fulfilling)
+    {
+        require(
+            msg.sender == address(wpContract),
+            "Market: only WitnessPool Contract can report"
+        );
+
+        leases[_delpoymentOrderID].isViolatedSLA = _isViolatedSLA;
+
+        // 报告完成后，订单可以进入结算状态
+        deploymentOrderStates[_delpoymentOrderID] = OrderStates.Settling;
     }
 
     // 结算部署订单
     function settleDeploymemtOrder(uint _deploymentOrderID) 
         public
+        atOrderState(_deploymentOrderID, OrderStates.Settling)
     {
-        // Lease memory lease = leases[_deploymentOrderID];
+        Lease memory lease = leases[_deploymentOrderID];
 
-        // 支付区块链维护者费用
-        // require(tokenContract.transfer(maintainer, leases.maintainerFee), "");
+        // 支付区块链维护者费用 TODO
+        address _maintainerAddress = address(0);
+        require(tokenContract.transfer(_maintainerAddress, lease.maintainerFee), "");
 
         // 支付证人费用
-        // require(tokenContract.transfer(wpContract, leases.witnessFee), "");
+        require(tokenContract.transfer(address(wpContract), lease.witnessFee), "");
         
         // 退回租户预付款多出的部分
-        // require(tokenContract.transfer(customer, lease.customerWithdrawFee), "");  
+        require(tokenContract.transfer(lease.customer, lease.customerWithdrawFee), "");  
         
-        // if (leaes.供应商违约 == true) {
-        //     // 如违约，退回租户补偿费
-        //     // require(tokenContract.transfer(customer, lease.customerWithdrawFee), "");
-        // } else {
-        //     //  如不违约，支付供应商报酬
-        //     // require(tokenContract.transfer(provider, lease.providerServiceFee), "");
-        // }
+        if (lease.isViolatedSLA == true) {
+            // 如违约，退回租户补偿费
+            require(tokenContract.transfer(lease.customer, lease.customerWithdrawFee), "");
+        } else {
+            //  如不违约，支付供应商报酬
+            require(tokenContract.transfer(lease.provider, lease.providerServiceFee), "");
+        }
+
+        // 结算完成的订单状态为 Finished
+        deploymentOrderStates[_deploymentOrderID] = OrderStates.Finished;
     }
 
 
@@ -309,36 +368,45 @@ contract Market {
         address _provider,
         uint _unitPrice) 
         internal
-        returns (uint)
+        returns (Lease memory)
     {
         uint _leaseID = _deploymentOrderID;  // leaseID 就是 deploymentOrderID
         DeploymentOrder memory order = deploymentOrders[_deploymentOrderID];
 
-        uint _serviceFee = order.faaSDuration * _unitPrice;
-
-        // TODO 价格计算
-        uint _providerServiceFee = _serviceFee;
-        uint _customerWithdrawFee = 0;
+        // 租户的服务款
+        uint _customerLockFee =  getDeploymentOrderLockFee(order.highestUnitPrice, order.faaSDuration);
+        // 租户的实际支付
+        uint _customerPayFee = order.faaSDuration * _unitPrice;
+        // 租户多出的预付款
+        uint _customerWithdrawFee = _customerLockFee - _customerPayFee;
+        // 证人费用 TODO
         uint _witnessFee = 0;
+        // 区块链维护者费用 TODO
         uint _maintainerFee = 0;
+        // 服务成功时，供应商可得服务报酬
+        uint _providerServiceFee = _customerPayFee - (_witnessFee + _maintainerFee);
+        // 服务失败时，租户可得的补偿款
+        uint _customerCompensationFee = _providerServiceFee;
 
-        leases[_leaseID] = Lease({
+        Lease memory _lease = Lease({
             customer: order.customer,
             provider: _provider,
             faaSLevelID: order.faaSLevelID,
             faaSDuration: order.faaSDuration,
             unitPrice: _unitPrice,
+            isViolatedSLA: false,
             providerServiceFee: _providerServiceFee,
+            customerLockFee: _customerLockFee,
             customerWithdrawFee: _customerWithdrawFee,
+            customerCompensationFee: _customerCompensationFee,
             witnessFee: _witnessFee,
             maintainerFee: _maintainerFee
         });
 
-        emit newLeaseEvent(order.customer, _provider, _leaseID);
-
         // TODO 产生 SLA 合约等等
+        // wp.....
         
-        return (_leaseID);
+        return _lease;
     }
 
 }

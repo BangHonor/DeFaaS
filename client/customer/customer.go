@@ -14,7 +14,7 @@ import (
 
 // 租户处理一个部署订单 的 有限状态机
 
-// // State 租户状态
+// State 租户状态
 // type State int
 
 const (

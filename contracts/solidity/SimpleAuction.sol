@@ -68,8 +68,8 @@ contract SimpleAuction {
     function nextState() internal {
         if (state == States.AcceptingBids) {
             state = States.StoppedBids;
-        }
-        if (state == States.StoppedBids) {
+        } 
+        else if (state == States.StoppedBids) {
             state = States.StoppedBids;
         }
     }

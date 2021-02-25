@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
 
+// 未完成
+
 pragma solidity^0.6.0;
 
 contract BlindAuction {
@@ -15,23 +17,23 @@ contract BlindAuction {
 
     States public state;
 
-    uint createTime;
+    uint creationTime;
     uint biddingDuration;
     uint revealDuration;
 
     // 有限状态机的状态转移
     function nextState() internal {
 
-        if (state = States.AcceptingBlindedBids) {
+        if (state == States.AcceptingBlindedBids) {
             state = States.RevealingBids;
         }
-        if (state == States.RevealingBids) {
+        else if (state == States.RevealingBids) {
             state = States.StoppedReveal;
         }
-        if (state == States.StoppedReveal) {
+        else if (state == States.StoppedReveal) {
             state = States.Finished;
         }
-        if (state == States.Finished) {
+        else if (state == States.Finished) {
             state = States.Finished;
         }
     }
@@ -51,10 +53,10 @@ contract BlindAuction {
     // 根据时间的状态转换
     modifier timedTransitions() {
 
-        if (state == States.AcceptingBlindedBids && now > createTime + biddingDuration) {
+        if (state == States.AcceptingBlindedBids && now > creationTime + biddingDuration) {
             nextState();
         }
-        if (state = States.RevealingBids && now > createTime + biddingDuration + revealDuration) {
+        else if (state == States.RevealingBids && now > creationTime + biddingDuration + revealDuration) {
             nextState();
         }
         _;
@@ -64,18 +66,7 @@ contract BlindAuction {
     modifier transitionNext()
     {
         _;
-        nextStage();
-    }
-    
-    modifier timedTransitions() {
-        if (stage == Stages.AcceptingBlindedBids &&
-                    now >= creationTime + 10 days)
-            nextStage();
-        if (stage == Stages.RevealBids &&
-                now >= creationTime + 12 days)
-            nextStage();
-        // 由交易触发的其他阶段转换
-        _;
+        nextState();
     }
 
     constructor()

@@ -13,12 +13,16 @@ import (
 
 // go run cmd/gen/main.go -name=FaaSLevel
 // go run cmd/gen/main.go -name=FaaSToken
+// go run cmd/gen/main.go -name=WitnessPool
+// go run cmd/gen/main.go -name=Market
 
 func genContracts() {
 
 	contractNames := []string{
 		"FaaSLevel",
 		"FaaSToken",
+		"WitnessPool",
+		"Market",
 	}
 
 	for _, name := range contractNames {
