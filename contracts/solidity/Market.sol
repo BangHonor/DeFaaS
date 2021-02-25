@@ -6,6 +6,7 @@ import "./FaaSTokenPay.sol";
 import "./ProviderPool.sol";
 import "./SimpleAuction.sol";
 import "./WitnessPool.sol";
+import "./SLA.sol";
 
 contract Market is FaaSTokenPay, ProviderPool {
     
@@ -33,6 +34,8 @@ contract Market is FaaSTokenPay, ProviderPool {
         uint customerCompensationFee;  // 服务失败时，租户的补偿款
         uint witnessFee;               // 证人的费用
         uint maintainerFee;            // 区块链维护者的费用
+
+        address SLAContractAddress;   // 本租约的 SLA 执行合约的地址
     }
 
     // ------------------------------------------------------------------------------------
@@ -55,9 +58,10 @@ contract Market is FaaSTokenPay, ProviderPool {
     // 部署订单的有限状态机
     enum OrderStates {
         Bidding,    // 竞价中
+        Deploying,  // 部署中
         Fulfilling, // 履行中 
-        Settling,   // 结算中
-        Finished    // 已完成
+        Settled,    // 已结算
+        Finished    // 已结束
     }
 
     modifier atOrderState(uint _deploymentOrderID, OrderStates _state) {
@@ -152,6 +156,8 @@ contract Market is FaaSTokenPay, ProviderPool {
         );
     }
 
+    // ------------------------------------------------------------------------------------
+
     // 新建部署订单
     function newDeploymentOrder(
         uint _faaSLevelID,
@@ -231,32 +237,45 @@ contract Market is FaaSTokenPay, ProviderPool {
         leases[_deploymentOrderID] = _lease;
         emit NewLeaseEvent(_deploymentOrderID, _lease.customer, _lease.provider);
 
-        // 修改匹配成功订单状态为 Fulfilling
-        deploymentOrderStates[_deploymentOrderID] = OrderStates.Fulfilling;
+        // 修改匹配成功订单状态
+        deploymentOrderStates[_deploymentOrderID] = OrderStates.Deploying;
 
         return (true, "");
     }
 
-    // 报告部署订单的履行情况
-    function reportDeploymemtOrder(uint _delpoymentOrderID, bool _isViolatedSLA) 
+    // 租户部署完成，开始履行部署订单
+    function fulfillDeploymentOrder(uint _deploymentOrderID, string memory something)
         public
-        atOrderState(_delpoymentOrderID, OrderStates.Fulfilling)
+        atOrderState(_deploymentOrderID, OrderStates.Deploying)
     {
-        require(
-            msg.sender == address(wpContract),
-            "Market: only WitnessPool Contract can report"
-        );
+        // 产生 SLA 执行合约
+        // TODO：详细的 SLA 内容 something
+        leases[_deploymentOrderID].SLAContractAddress = wpContract.genSLAContract();
 
-        leases[_delpoymentOrderID].isViolatedSLA = _isViolatedSLA;
-
-        // 报告完成后，订单可以进入结算状态
-        deploymentOrderStates[_delpoymentOrderID] = OrderStates.Settling;
+        // 修改订单状态
+        deploymentOrderStates[_deploymentOrderID] = OrderStates.Fulfilling;
     }
 
-    // 结算部署订单
-    function settleDeploymemtOrder(uint _deploymentOrderID) 
+    // 按照 SLA 的返回结果对订单进行结算
+    // 履行时间结束，供应商完成部署订房单
+    function settleDeploymentOrder(uint _deploymentOrderID) 
         public
-        atOrderState(_deploymentOrderID, OrderStates.Settling)
+        atOrderState(_deploymentOrderID, OrderStates.Fulfilling)
+    {
+        // TODO：控制时间
+
+        // 查看是否违约
+        leases[_deploymentOrderID].isViolatedSLA = CloudSLA(leases[_deploymentOrderID].SLAContractAddress).isViolatedSLA();
+
+        // 修改订单状态：进入已结算（未转账）的状态
+        deploymentOrderStates[_deploymentOrderID] = OrderStates.Settled;
+    }
+
+
+    // 结束部署订单，完成转账
+    function finishDeploymemtOrder(uint _deploymentOrderID) 
+        public
+        atOrderState(_deploymentOrderID, OrderStates.Settled)
     {
         Lease memory _lease = leases[_deploymentOrderID];
 
@@ -324,11 +343,9 @@ contract Market is FaaSTokenPay, ProviderPool {
             customerWithdrawFee: _customerWithdrawFee,
             customerCompensationFee: _customerCompensationFee,
             witnessFee: _witnessFee,
-            maintainerFee: _maintainerFee
+            maintainerFee: _maintainerFee,
+            SLAContractAddress: address(0)  // 在本函数中填充为 0
         });
-
-        // TODO 产生 SLA 合约等等
-        // wp.....
         
         return _lease;
     }

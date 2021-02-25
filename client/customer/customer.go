@@ -99,13 +99,19 @@ func (client *Client) Deploy(order *DeploymentOrder, function *Function) error {
 		return errors.New("deploymentOrder is missed")
 	}
 
-	// 部署请求
-	// TOOD
-	// client.deployRequest(provider, function)
+	// 订单匹配成功
+	// 开始部署
+	// client.deployToProvider()
+	// client.market.FulfillDeploymentOrder()
 
-	// 等待 FaaS 服务结束
+	// 等待履行结束
 	<-time.After(order.FaaSDuration + ToleranceDuration)
-	client.settleDeploymemtOrder(deploymentOrderID)
+
+	// 结算订单
+	// client.market.SettleDeploymentOrder()
+
+	// 结束订单
+	// client.market.FinishDeploymemtOrder()
 
 	return nil
 }
@@ -132,11 +138,4 @@ func (client *Client) matchDeploymentOrder(deploymentOrderID *big.Int) (success 
 	_, _, err = client.market.MatchDeploymentOrder(deploymentOrderID)
 
 	return success, leaseID, err
-}
-
-func (client *Client) settleDeploymemtOrder(deploymentOrderID *big.Int) (err error) {
-
-	_, _, err = client.market.SettleDeploymemtOrder(deploymentOrderID)
-
-	return err
 }

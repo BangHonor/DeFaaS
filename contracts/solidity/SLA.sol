@@ -72,8 +72,6 @@ contract CloudSLA {
     }
     
     //following functinos are used for setting parameters instead of default ones
-    
-    
     modifier checkState(State _state){
         require(SLAState == _state);
         _;
@@ -632,4 +630,13 @@ contract CloudSLA {
         
     }
     
+
+
+    // [修改之处]
+    function isViolatedSLA()
+        public
+        returns (bool)
+    {
+        return false;
+    }
 }

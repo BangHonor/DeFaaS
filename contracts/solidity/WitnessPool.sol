@@ -19,7 +19,7 @@ contract WitnessPool is FaaSTokenPay {
         WStates state;    // 当前状态
         
         address SLAContract;   // 当前服务的 SLA 合约（被选中到服务该 SLA 合约）
-        uint confirmDeadline;  // Must confirm the sortition in the state of Candidate. Otherwise, reputation -10. Candidata 状态下的确认期限
+        uint confirmDeadline;  // Candidata 状态下的最晚确认时间
         int8 reputation;       // 信誉值，初始为 100，当为 0 时 Witness 被封锁
     }
 
@@ -43,26 +43,38 @@ contract WitnessPool is FaaSTokenPay {
         public
         FaaSTokenPay(_tokenContractAddress)
     {
-
+        // TODO
     }
 
     // ------------------------------------------------------------------------------------------------
-
 
     // record the provider _who generates a SLA contract of address _contractAddr at time _time
     event SLAContractGenEvent(address indexed _who, uint _time, address _contractAddr);
     
     event WitnessSelectedEvent(address indexed _who, uint _index, address _forWhom);
-    
-    //check whether the register has already registered
-    modifier checkRegister(address _register){
-        require(!witnessPool[_register].registered);
+
+    // ------------------------------------------------------------------------------------------------
+
+    // 未注册
+    modifier witenssUnRegistered(address _witness) {
+        require(
+            witnessPool[_witness].registered == false,
+            "WitnessPool: the address had been registered"
+        );
         _;
     }
-    
-    //check whether it is a registered witness
-    modifier checkWitness(address _witness){
-        require(witnessPool[_witness].registered);
+
+    // 已注册
+    modifier witenssRegisterd(address _witness) {
+        require(
+            witnessPool[_witness].registered == true,
+            "WitnessPool: the address had not been registered"
+        );
+        _;
+    }
+
+    // 状态机
+    modifier atState(WStates _state) {
         _;
     }
     
@@ -110,7 +122,7 @@ contract WitnessPool is FaaSTokenPay {
      * */
     function register() 
         public 
-        checkRegister(msg.sender) 
+        witenssUnRegistered(msg.sender)
     {
         // witnessPool[msg.sender].index = witnessAddrs.push(msg.sender) - 1;
         witnessAddrs.push(msg.sender);
@@ -173,8 +185,10 @@ contract WitnessPool is FaaSTokenPay {
         while(wcounter < _N){
             address sAddr = witnessAddrs[seed % witnessAddrs.length];
             
-            if(witnessPool[sAddr].state == WStates.Online && witnessPool[sAddr].reputation > 0
-               && sAddr != _provider && sAddr != _customer)
+            if(witnessPool[sAddr].state == WStates.Online && 
+                witnessPool[sAddr].reputation > 0 && 
+                sAddr != _provider && 
+                sAddr != _customer)
             {
                 witnessPool[sAddr].state = WStates.Candidate;
                 witnessPool[sAddr].confirmDeadline = now + 5 minutes;   // 5 minutes for confirmation
@@ -184,12 +198,10 @@ contract WitnessPool is FaaSTokenPay {
                 wcounter++;
             }
             
-            // seed = (uint)(keccak256(uint(seed)));
             seed = (uint)(keccak256(abi.encodePacked(bytes32(seed))));
-            
         }
         
-        //make this interface cannot be invoked twice without 'request'
+        // make this interface cannot be invoked twice without 'request'
         SLAContractPool[msg.sender].curBlockNum = 0;
         return true;
     }
@@ -200,7 +212,7 @@ contract WitnessPool is FaaSTokenPay {
      * */
     function confirm(address _candidate)
         public
-        checkWitness(_candidate)
+        witenssRegisterd(_candidate)
         checkSLAContract(msg.sender)
         returns 
         (bool)
@@ -226,7 +238,7 @@ contract WitnessPool is FaaSTokenPay {
      * */
     function release(address _witness)
         public
-        checkWitness(_witness)
+        witenssRegisterd(_witness)
         checkSLAContract(msg.sender)
     {
         //only able to release in Busy state
@@ -250,7 +262,7 @@ contract WitnessPool is FaaSTokenPay {
      * */
     function reputationDecrease(address _witness, int8 _value)
         public
-        checkWitness(_witness)
+        witenssRegisterd(_witness)
         checkSLAContract(msg.sender)
     {
         //only able to release in Busy state
@@ -271,7 +283,7 @@ contract WitnessPool is FaaSTokenPay {
      * */
     function reject()
         public
-        checkWitness(msg.sender)
+        witenssRegisterd(msg.sender)
     {
         //only reject in candidate state
         require(witnessPool[msg.sender].state == WStates.Candidate);
@@ -289,7 +301,7 @@ contract WitnessPool is FaaSTokenPay {
      * */
     function reverse()
         public
-        checkWitness(msg.sender)
+        witenssRegisterd(msg.sender)
     {
         //must exceed the confirmation deadline
         require( now > witnessPool[msg.sender].confirmDeadline );
@@ -313,7 +325,7 @@ contract WitnessPool is FaaSTokenPay {
      * */
     function turnOn()
         public
-        checkWitness(msg.sender)
+        witenssRegisterd(msg.sender)
     {
         //must be in the state of offline
         require(witnessPool[msg.sender].state == WStates.Offline);
@@ -331,7 +343,7 @@ contract WitnessPool is FaaSTokenPay {
      * */
     function turnOff()
         public
-        checkWitness(msg.sender)
+        witenssRegisterd(msg.sender)
     {
         
         //must be in the state of online
