@@ -3,10 +3,11 @@
 pragma solidity^0.6.0;
 
 import "./FaaSToken.sol";
+import "./ProviderPool.sol";
 import "./SimpleAuction.sol";
 import "./WitnessPool.sol";
 
-contract Market {
+contract Market is ProviderPool {
     
     // 部署订单
     struct DeploymentOrder {
@@ -38,18 +39,6 @@ contract Market {
 
     FaaSToken tokenContract;
     WitnessPool wpContract;
-
-    // 供应商押金
-    uint public providerDeposit;
-    // 供应商押金表
-    mapping(address => uint) private providerDeposits;
-    // 供应商信誉初始值，是新注册的供应商的初始信誉值
-    uint public providerReputationInit;  
-    // 供应商信誉合格值，低于合格值为不合格
-    uint public providerReputationQualified;  
-    // 供应商信誉值表
-    // 信誉值为 0 表示未注册
-    mapping (address => uint) private providerReputations;
 
     // 部署订单数量
     uint public numDeploymentOrders;
@@ -97,102 +86,34 @@ contract Market {
         // 合约地址初始化
         tokenContract = FaaSToken(tokenContractAddress);
 
-        // 供应商参数初始化
-        providerDeposit = 100; // 100 token
-        providerReputationInit = 5;
-        providerReputationQualified = 5;
-
         // 部署订单参数初始化
         // 部署订单号计数， 有效的部署订单号从 1 开始，0 为无效的部署订单号
         numDeploymentOrders = 1;
     }
 
+  
     // ------------------------------------------------------------------------------------
 
-    // 查询供应商押金
-    function getProviderDeposit() public view returns (uint) {
-        return providerDeposit;
-    } 
-
-    // 查询供应商信誉合格值
-    function getProviderReputationQualified() public view returns (uint) {
-        return providerReputationQualified;
-    }
-
-    // 查询指定供应商的信誉值
-    function getProviderReputation(address provider) public view returns (uint) {
-        return providerReputations[provider];
-    }
-
-    // 查询是否已注册为供应商
-    function isProviderRegistered(address provider) public view returns (bool) {
-        // 信誉值为 0 表示供应商未注册, 大于 0 表示供应商已注册
-        return (providerReputations[provider] > 0);
-    }
-
-    // 查询供应商是否合格
-    function isProviderQualified(address provider) public view returns (bool) {
-        // 低于合格值为不合格
-        // 即，信誉值在区间 (0, providerReputationQualified) 的供应商为不合格的
-        // 不合格的供应商既不能注销供应商资格取回押金，也不能参与竞价
-        return (providerReputations[msg.sender] >= providerReputationQualified);
-    }
-
-    // 已注册
-    modifier providerRegistered() {
-        require(
-            isProviderRegistered(msg.sender) == true,
-            "Market: the address had not been registered"
-        );
-        _;
-    }
-
-    // 未注册
-    modifier providerUnregistered() {
-        require(
-            isProviderRegistered(msg.sender) == false,
-            "Market: the address had been registered"
-        );
-        _;
-    }
-
-    // 合格
-    modifier providerQualified() {
-        require(
-            isProviderQualified(msg.sender),
-            "Market: the provider is not qualified"
-        );
-        _;
-    }
-
     // 注册供应商资格，支付押金
-    function providerLogin() 
-        public 
-        providerUnregistered 
+    function providerLogin() public 
     {
+        // 注册
+        _providerLogin();  // 包含供应商资格检查
+
         // 支付押金
         require(
-            tokenContract.transferFrom(msg.sender, address(this), providerDeposit) == true,
+            tokenContract.transferFrom(msg.sender, address(this), stdProviderDeposit) == true,
             "Market: failed to pay a register deposit"
-        );
-
-        providerDeposits[msg.sender] = providerDeposit;
-        providerReputations[msg.sender] = providerReputationInit;
+        );    
     }
 
     // 注销供应商资格，取回押金
-    function providerLogout() 
-        public 
-        providerRegistered
-        providerQualified
+    function providerLogout() public 
     {
-        // 信誉值清零
-        providerReputations[msg.sender] = 0;
-
         // 检查：记录押金
-        uint _depoist = providerDeposits[msg.sender];
-        // 生效：押金清零
-        providerDeposits[msg.sender] = 0;
+        uint _depoist = getProviderDeposit(msg.sender);
+        // 生效：注销
+        _providerLogout();  // 包含供应商资格检查
         // 交互：退还押金
         require(
             tokenContract.transfer(msg.sender, _depoist) == true,
@@ -408,5 +329,4 @@ contract Market {
         
         return _lease;
     }
-
 }
