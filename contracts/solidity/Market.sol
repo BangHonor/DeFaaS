@@ -2,12 +2,12 @@
 
 pragma solidity^0.6.0;
 
-import "./FaaSToken.sol";
+import "./FaaSTokenPay.sol";
 import "./ProviderPool.sol";
 import "./SimpleAuction.sol";
 import "./WitnessPool.sol";
 
-contract Market is ProviderPool {
+contract Market is FaaSTokenPay, ProviderPool {
     
     // 部署订单
     struct DeploymentOrder {
@@ -37,7 +37,6 @@ contract Market is ProviderPool {
 
     // ------------------------------------------------------------------------------------
 
-    FaaSToken tokenContract;
     WitnessPool wpContract;
 
     // 部署订单数量
@@ -73,19 +72,18 @@ contract Market is ProviderPool {
 
 
     // 新建部署订单事件
-    event newDeploymentOrderEvent(uint _deploymentOrderID, address _auctionAddress);
+    event NewDeploymentOrderEvent(uint _deploymentOrderID, address _auctionAddress);
     // 部署订单竞价结束事件
-    event auctionEndEvent(uint _deploymentOrderID, bool _success, address _provider, uint _unitPrice);
+    event AuctionEndEvent(uint _deploymentOrderID, bool _success, address _provider, uint _unitPrice);
     // 新租约事件
-    event newLeaseEvent(address _customer, address _provider, uint _deploymentOrderID);
+    event NewLeaseEvent(address _customer, address _provider, uint _deploymentOrderID);
 
     // ------------------------------------------------------------------------------------
 
-    constructor(address tokenContractAddress) public
+    constructor(address _tokenContractAddress) 
+        FaaSTokenPay(_tokenContractAddress)
+        public
     {        
-        // 合约地址初始化
-        tokenContract = FaaSToken(tokenContractAddress);
-
         // 部署订单参数初始化
         // 部署订单号计数， 有效的部署订单号从 1 开始，0 为无效的部署订单号
         numDeploymentOrders = 1;
@@ -95,10 +93,12 @@ contract Market is ProviderPool {
     // ------------------------------------------------------------------------------------
 
     // 注册供应商资格，支付押金
-    function providerLogin() public 
+    function providerLogin() 
+        public
+        providerUnregistered 
     {
         // 注册
-        _providerLogin();  // 包含供应商资格检查
+        _providerLogin();
 
         // 支付押金
         require(
@@ -108,12 +108,15 @@ contract Market is ProviderPool {
     }
 
     // 注销供应商资格，取回押金
-    function providerLogout() public 
+    function providerLogout() 
+        public
+        providerRegistered
+        providerQualified 
     {
         // 检查：记录押金
         uint _depoist = getProviderDeposit(msg.sender);
         // 生效：注销
-        _providerLogout();  // 包含供应商资格检查
+        _providerLogout();
         // 交互：退还押金
         require(
             tokenContract.transfer(msg.sender, _depoist) == true,
@@ -139,13 +142,13 @@ contract Market is ProviderPool {
         view
         returns (address, uint, uint, uint)
     {
-        DeploymentOrder memory order = deploymentOrders[_deploymentOrderID];
+        DeploymentOrder memory _order = deploymentOrders[_deploymentOrderID];
         
         return (
-            order.customer,
-            order.faaSLevelID,
-            order.faaSDuration,
-            order.highestUnitPrice
+            _order.customer,
+            _order.faaSLevelID,
+            _order.faaSDuration,
+            _order.highestUnitPrice
         );
     }
 
@@ -187,7 +190,7 @@ contract Market is ProviderPool {
         deploymentOrderStates[_deploymentOrderID] = OrderStates.Bidding;
 
         // 产生事件
-        emit newDeploymentOrderEvent(_deploymentOrderID, address(_auction));
+        emit NewDeploymentOrderEvent(_deploymentOrderID, address(_auction));
 
         return (_deploymentOrderID, address(_auction));
     }
@@ -214,7 +217,7 @@ contract Market is ProviderPool {
         uint _unitPrice;
 
         (_success, _provider, _unitPrice) = auctions[_deploymentOrderID].auctionEnd();
-        emit auctionEndEvent(_deploymentOrderID, _success, _provider, _unitPrice);
+        emit AuctionEndEvent(_deploymentOrderID, _success, _provider, _unitPrice);
         
         // 匹配失败
         if (_success == false) {
@@ -226,7 +229,7 @@ contract Market is ProviderPool {
         // 匹配成功, 创建新租约
         Lease memory _lease = newLease(_deploymentOrderID, _provider, _unitPrice);
         leases[_deploymentOrderID] = _lease;
-        emit newLeaseEvent(_lease.customer, _lease.provider, _deploymentOrderID);
+        emit NewLeaseEvent(_lease.customer, _lease.provider, _deploymentOrderID);
 
         // 修改匹配成功订单状态为 Fulfilling
         deploymentOrderStates[_deploymentOrderID] = OrderStates.Fulfilling;
@@ -255,24 +258,24 @@ contract Market is ProviderPool {
         public
         atOrderState(_deploymentOrderID, OrderStates.Settling)
     {
-        Lease memory lease = leases[_deploymentOrderID];
+        Lease memory _lease = leases[_deploymentOrderID];
 
         // 支付区块链维护者费用 TODO
         address _maintainerAddress = address(0);
-        require(tokenContract.transfer(_maintainerAddress, lease.maintainerFee), "");
+        require(tokenContract.transfer(_maintainerAddress, _lease.maintainerFee), "");
 
         // 支付证人费用
-        require(tokenContract.transfer(address(wpContract), lease.witnessFee), "");
+        require(tokenContract.transfer(address(wpContract), _lease.witnessFee), "");
         
         // 退回租户预付款多出的部分
-        require(tokenContract.transfer(lease.customer, lease.customerWithdrawFee), "");  
+        require(tokenContract.transfer(_lease.customer, _lease.customerWithdrawFee), "");  
         
-        if (lease.isViolatedSLA == true) {
+        if (_lease.isViolatedSLA == true) {
             // 如违约，退回租户补偿费
-            require(tokenContract.transfer(lease.customer, lease.customerWithdrawFee), "");
+            require(tokenContract.transfer(_lease.customer, _lease.customerWithdrawFee), "");
         } else {
             //  如不违约，支付供应商报酬
-            require(tokenContract.transfer(lease.provider, lease.providerServiceFee), "");
+            require(tokenContract.transfer(_lease.provider, _lease.providerServiceFee), "");
         }
 
         // 结算完成的订单状态为 Finished
