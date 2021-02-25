@@ -72,11 +72,11 @@ contract Market is FaaSTokenPay, ProviderPool {
 
 
     // 新建部署订单事件
-    event NewDeploymentOrderEvent(uint _deploymentOrderID, address _auctionAddress);
+    event NewDeploymentOrderEvent(uint indexed _deploymentOrderID, address _auctionAddress);
     // 部署订单竞价结束事件
-    event AuctionEndEvent(uint _deploymentOrderID, bool _success, address _provider, uint _unitPrice);
+    event AuctionEndEvent(uint indexed _deploymentOrderID, bool _success, address _provider, uint _unitPrice);
     // 新租约事件
-    event NewLeaseEvent(address _customer, address _provider, uint _deploymentOrderID);
+    event NewLeaseEvent(uint indexed _deploymentOrderID, address _customer, address _provider);
 
     // ------------------------------------------------------------------------------------
 
@@ -229,7 +229,7 @@ contract Market is FaaSTokenPay, ProviderPool {
         // 匹配成功, 创建新租约
         Lease memory _lease = newLease(_deploymentOrderID, _provider, _unitPrice);
         leases[_deploymentOrderID] = _lease;
-        emit NewLeaseEvent(_lease.customer, _lease.provider, _deploymentOrderID);
+        emit NewLeaseEvent(_deploymentOrderID, _lease.customer, _lease.provider);
 
         // 修改匹配成功订单状态为 Fulfilling
         deploymentOrderStates[_deploymentOrderID] = OrderStates.Fulfilling;

@@ -2,41 +2,57 @@
 
 pragma solidity^0.6.0;
 
+import "./FaaSTokenPay.sol";
 import "./SLA.sol";
 
-contract WitnessPool {
+contract WitnessPool is FaaSTokenPay {
     
+    // witness Online 数量
     uint public onlineCounter = 0;
     
-    enum WState { Offline, Online, Candidate, Busy }
+    enum WStates { Offline, Online, Candidate, Busy }
     
     struct Witness {
-        bool registered;    //true: this witness has registered.
-        uint index;         //the index of the witness in the address pool, if it is registered
+        bool registered;    // 是否注册
+        uint index;         // 在 witnessAddrs 数组中的索引
         
-        WState state;    //the state of the witness
+        WStates state;    // 当前状态
         
-        address SLAContract;    //the contract address of 
-        uint confirmDeadline;   //Must confirm the sortition in the state of Candidate. Otherwise, reputation -10.
-        int8 reputation;       //the reputation of the witness, the initial value is 100. If it is 0, than it is blocked.
+        address SLAContract;   // 当前服务的 SLA 合约（被选中到服务该 SLA 合约）
+        uint confirmDeadline;  // Must confirm the sortition in the state of Candidate. Otherwise, reputation -10. Candidata 状态下的确认期限
+        int8 reputation;       // 信誉值，初始为 100，当为 0 时 Witness 被封锁
     }
 
     mapping(address => Witness) witnessPool;    
-    address [] public witnessAddrs;    //the address pool of witnesses
+    address [] public witnessAddrs;    // the address pool of witnesses
 
-    
+    // ------------------------------------------------------------------------------------------------
+
+    // 抽签信息
     struct SortitionInfo{
         bool valid;
         uint curBlockNum;
-        uint8 blkNeed;   //how many blocks needed for sortition
+        uint8 blkNeed;   // how many blocks needed for sortition
     }
-    mapping(address => SortitionInfo) SLAContractPool;   //record the requester's initial block number. The sortition will be based on the hash value after this block.
+    mapping(address => SortitionInfo) SLAContractPool;   // record the requester's initial block number. The sortition will be based on the hash value after this block.
     
     
-    //record the provider _who generates a SLA contract of address _contractAddr at time _time
-    event SLAContractGen(address indexed _who, uint _time, address _contractAddr);
+    // ------------------------------------------------------------------------------------------------
+
+    constructor(address _tokenContractAddress)
+        public
+        FaaSTokenPay(_tokenContractAddress)
+    {
+
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+
+    // record the provider _who generates a SLA contract of address _contractAddr at time _time
+    event SLAContractGenEvent(address indexed _who, uint _time, address _contractAddr);
     
-    event WitnessSelected(address indexed _who, uint _index, address _forWhom);
+    event WitnessSelectedEvent(address indexed _who, uint _index, address _forWhom);
     
     //check whether the register has already registered
     modifier checkRegister(address _register){
@@ -68,7 +84,7 @@ contract WitnessPool {
         CloudSLA newSLAContract = new CloudSLA(this, msg.sender, address(0x0));
         address newSLAContractAddress = address(newSLAContract);
         SLAContractPool[newSLAContractAddress].valid = true; 
-        emit SLAContractGen(msg.sender, now, newSLAContractAddress);
+        emit SLAContractGenEvent(msg.sender, now, newSLAContractAddress);
         return newSLAContractAddress;
     }
     
@@ -100,7 +116,7 @@ contract WitnessPool {
         witnessAddrs.push(msg.sender);
         witnessPool[msg.sender].index = witnessAddrs.length - 1;
 
-        witnessPool[msg.sender].state = WState.Offline;
+        witnessPool[msg.sender].state = WStates.Offline;
         witnessPool[msg.sender].reputation = 100; 
         witnessPool[msg.sender].registered = true;
     }
@@ -157,13 +173,13 @@ contract WitnessPool {
         while(wcounter < _N){
             address sAddr = witnessAddrs[seed % witnessAddrs.length];
             
-            if(witnessPool[sAddr].state == WState.Online && witnessPool[sAddr].reputation > 0
+            if(witnessPool[sAddr].state == WStates.Online && witnessPool[sAddr].reputation > 0
                && sAddr != _provider && sAddr != _customer)
             {
-                witnessPool[sAddr].state = WState.Candidate;
+                witnessPool[sAddr].state = WStates.Candidate;
                 witnessPool[sAddr].confirmDeadline = now + 5 minutes;   // 5 minutes for confirmation
                 witnessPool[sAddr].SLAContract = msg.sender;
-                emit WitnessSelected(sAddr, witnessPool[sAddr].index, msg.sender);
+                emit WitnessSelectedEvent(sAddr, witnessPool[sAddr].index, msg.sender);
                 onlineCounter--;
                 wcounter++;
             }
@@ -193,12 +209,12 @@ contract WitnessPool {
         require( now < witnessPool[_candidate].confirmDeadline );
         
         //only able to confirm in candidate state
-        require(witnessPool[_candidate].state == WState.Candidate);
+        require(witnessPool[_candidate].state == WStates.Candidate);
         
         //only the SLA contract can select it.
         require(witnessPool[_candidate].SLAContract == msg.sender);
         
-        witnessPool[_candidate].state = WState.Busy;
+        witnessPool[_candidate].state = WStates.Busy;
         
         return true;
     }
@@ -214,15 +230,15 @@ contract WitnessPool {
         checkSLAContract(msg.sender)
     {
         //only able to release in Busy state
-        require(witnessPool[_witness].state == WState.Busy);
+        require(witnessPool[_witness].state == WStates.Busy);
         
         //only the SLA contract can operate on it.
-        require(witnessPool[_witness].SLAContract == msg.sender);
+        require(address( witnessPool[_witness].SLAContract ) == msg.sender);
         
         if(witnessPool[_witness].reputation <= 0){
-            witnessPool[_witness].state = WState.Offline;
+            witnessPool[_witness].state = WStates.Offline;
         }else{
-            witnessPool[_witness].state = WState.Online;
+            witnessPool[_witness].state = WStates.Online;
             onlineCounter++;
         }
         
@@ -241,7 +257,7 @@ contract WitnessPool {
         require( _value > 0 );
         
         //only the SLA contract can operate on it.
-        require(witnessPool[_witness].SLAContract == msg.sender);
+        require(address( witnessPool[_witness].SLAContract ) == msg.sender);
         
         witnessPool[_witness].reputation -= _value;
         
@@ -258,12 +274,12 @@ contract WitnessPool {
         checkWitness(msg.sender)
     {
         //only reject in candidate state
-        require(witnessPool[msg.sender].state == WState.Candidate);
+        require(witnessPool[msg.sender].state == WStates.Candidate);
         
         //have not reached the rejection deadline
         require( now < witnessPool[msg.sender].confirmDeadline );
         
-        witnessPool[msg.sender].state = WState.Online;
+        witnessPool[msg.sender].state = WStates.Online;
         onlineCounter++;
     }
     
@@ -279,14 +295,14 @@ contract WitnessPool {
         require( now > witnessPool[msg.sender].confirmDeadline );
         
         //able to turn only in candidate state
-        require(witnessPool[msg.sender].state == WState.Candidate);
+        require(witnessPool[msg.sender].state == WStates.Candidate);
         
         witnessPool[msg.sender].reputation -= 10;
         
         if(witnessPool[msg.sender].reputation <= 0){
-            witnessPool[msg.sender].state = WState.Offline;
+            witnessPool[msg.sender].state = WStates.Offline;
         }else{
-            witnessPool[msg.sender].state = WState.Online;
+            witnessPool[msg.sender].state = WStates.Online;
             onlineCounter++;
         }
     }
@@ -300,12 +316,12 @@ contract WitnessPool {
         checkWitness(msg.sender)
     {
         //must be in the state of offline
-        require(witnessPool[msg.sender].state == WState.Offline);
+        require(witnessPool[msg.sender].state == WStates.Offline);
         
         //its reputation must be bigger than 0
         require( witnessPool[msg.sender].reputation > 0 );
         
-        witnessPool[msg.sender].state = WState.Online;
+        witnessPool[msg.sender].state = WStates.Online;
         onlineCounter++;
     }
     
@@ -319,9 +335,9 @@ contract WitnessPool {
     {
         
         //must be in the state of online
-        require(witnessPool[msg.sender].state == WState.Online);
+        require(witnessPool[msg.sender].state == WStates.Online);
         
-        witnessPool[msg.sender].state = WState.Offline;
+        witnessPool[msg.sender].state = WStates.Offline;
         onlineCounter--;
     }
     
@@ -331,13 +347,17 @@ contract WitnessPool {
      * For witness itself to check the state of itself and the reputation.
      * If it is selected, following two return values show its confirmation deadline and the address of the SLA contract, who sortited it. 
      * */
-    function checkWState(address _witness)
+    function checkWStates(address _witness)
         public
         view
         returns
-        (WitnessPool.WState, int8, uint, address)
+        (WitnessPool.WStates, int8, uint, address)
     {
-        return (witnessPool[_witness].state, witnessPool[_witness].reputation, witnessPool[_witness].confirmDeadline, witnessPool[_witness].SLAContract);
+        return (
+            witnessPool[_witness].state, 
+            witnessPool[_witness].reputation, 
+            witnessPool[_witness].confirmDeadline, 
+            address( witnessPool[_witness].SLAContract ));
     }
     
 }
