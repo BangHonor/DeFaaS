@@ -6,6 +6,7 @@ pragma solidity ^0.6.0;
 
 import "./Context.sol";
 import "./IERC20.sol";
+import "./SafeMath.sol";
 
 /**
  * @dev Implementation of the {IERC20} interface.
@@ -32,6 +33,8 @@ import "./IERC20.sol";
  * allowances. See {IERC20-approve}.
  */
 contract ERC20 is Context, IERC20 {
+    using SafeMath for uint256;
+
     mapping (address => uint256) private _balances;
 
     mapping (address => mapping (address => uint256)) private _allowances;
@@ -40,6 +43,7 @@ contract ERC20 is Context, IERC20 {
 
     string private _name;
     string private _symbol;
+    uint8 private _decimals;
 
     /**
      * @dev Sets the values for {name} and {symbol}.
@@ -53,6 +57,7 @@ contract ERC20 is Context, IERC20 {
     constructor (string memory name_, string memory symbol_) public {
         _name = name_;
         _symbol = symbol_;
+        _decimals = 18;
     }
 
     /**
@@ -84,7 +89,7 @@ contract ERC20 is Context, IERC20 {
      * {IERC20-balanceOf} and {IERC20-transfer}.
      */
     function decimals() public view virtual returns (uint8) {
-        return 18;
+        return _decimals;
     }
 
     /**

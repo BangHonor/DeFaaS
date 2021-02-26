@@ -7,9 +7,14 @@ import "./ProviderPool.sol";
 import "./SimpleAuction.sol";
 import "./WitnessPool.sol";
 import "./SLA.sol";
+import "./SafeMath.sol";
+import "./Owned.sol";
+import "./FaaSLevel.sol";
 
-contract Market is FaaSTokenPay, ProviderPool {
-    
+contract Market is Owned, FaaSLevel, FaaSTokenPay, ProviderPool {
+
+    using SafeMath for uint;   // 注意到 uint 默认是 uint256
+
     // 部署订单
     struct DeploymentOrder {
         address customer;        // 租户地址
@@ -40,8 +45,6 @@ contract Market is FaaSTokenPay, ProviderPool {
 
     // ------------------------------------------------------------------------------------
 
-    WitnessPool wpContract;
-
     // 部署订单数量
     uint public numDeploymentOrders;
     // 部署订单表：deploymentOrderID => DeploymentOrder
@@ -67,7 +70,7 @@ contract Market is FaaSTokenPay, ProviderPool {
     modifier atOrderState(uint _deploymentOrderID, OrderStates _state) {
         require(
             deploymentOrderStates[_deploymentOrderID] == _state,
-            "Matket: function cannot be called at this order state"
+            "Matket: function cannot be called at this state"
         );
         _;
     }
@@ -84,13 +87,18 @@ contract Market is FaaSTokenPay, ProviderPool {
 
     // ------------------------------------------------------------------------------------
 
-    constructor(address _tokenContractAddress) 
+    WitnessPool wpContract;
+
+    constructor(address _tokenContractAddress, address _witnessPoolContractAddress) 
         FaaSTokenPay(_tokenContractAddress)
         public
     {        
         // 部署订单参数初始化
         // 部署订单号计数， 有效的部署订单号从 1 开始，0 为无效的部署订单号
         numDeploymentOrders = 1;
+
+        wpContract = WitnessPool(_witnessPoolContractAddress);
+        // wpContract.setMarketContractAddress(address(this));  // 部署时动作，要求 Market 的部署者和 WitnessPool 相同
     }
 
   
@@ -106,7 +114,7 @@ contract Market is FaaSTokenPay, ProviderPool {
 
         // 支付押金
         require(
-            tokenContract.transferFrom(msg.sender, address(this), stdProviderDeposit) == true,
+            tokenContract.transferFrom(msg.sender, address(this), getStdProviderDeposit()) == true,
             "Market: failed to pay a register deposit"
         );    
     }
@@ -167,6 +175,10 @@ contract Market is FaaSTokenPay, ProviderPool {
         public 
         returns (uint, address) 
     {
+        require(_faaSLevelID < getFaaSLevelNumber(), "");
+        require(_faaSDuration < 100 days, "");
+        require(_biddingDuration < 1 days, "");
+
         // 锁定预付款
         uint lockFee = getDeploymentOrderLockFee(_highestUnitPrice, _faaSDuration);
         require(
@@ -257,7 +269,7 @@ contract Market is FaaSTokenPay, ProviderPool {
     }
 
     // 按照 SLA 的返回结果对订单进行结算
-    // 履行时间结束，供应商完成部署订房单
+    // 履行时间结束，供应商完成部署订单
     function settleDeploymentOrder(uint _deploymentOrderID) 
         public
         atOrderState(_deploymentOrderID, OrderStates.Fulfilling)

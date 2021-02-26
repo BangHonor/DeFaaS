@@ -5,13 +5,13 @@ pragma solidity^0.6.0;
 contract ProviderPool {
 
     // 标准的供应商押金
-    uint public stdProviderDeposit;
+    uint private stdProviderDeposit;
     // 供应商押金表
     mapping(address => uint) private providerDeposits;
     // 供应商信誉初始值，是新注册的供应商的初始信誉值
-    uint public providerReputationInit;  
+    uint private providerReputationInit;  
     // 供应商信誉合格值，低于合格值为不合格
-    uint public providerReputationQualified;  
+    uint private providerReputationQualified;  
     // 供应商信誉值表
     // 信誉值为 0 表示未注册
     mapping (address => uint) private providerReputations;
@@ -64,6 +64,12 @@ contract ProviderPool {
             "Market: the provider is not qualified"
         );
         _;
+    }
+
+    // ------------------------------------------------------------------------------------
+
+    function getStdProviderDeposit() public view returns (uint) {
+        return stdProviderDeposit;
     }
 
     // 查询指定供应商的押金

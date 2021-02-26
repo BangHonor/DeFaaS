@@ -2,30 +2,33 @@
 
 pragma solidity^0.6.0;
 
-contract FaaSLevel {
 
+import "./Owned.sol";
+
+contract FaaSLevel is Owned {
+
+    // 计算资源
     struct ComputingSourceLevel {
         uint core;  // CPU 核心数
-        uint mem;   // 内存大小，以 MB 为单位
+        uint mem;   // 函数执行内存，以 MB 为单位
+        
+        // 尚不支持
+        // uint packageSize;          // 部署文件包的大小，以 MB 为单位
+        // uint gpu;                  // GPU 计算资源，难以分割
+        // uint upstreamBandwidth;    // 上行带宽，以 KBps 为单位
+        // uint downstreamBandwidth;  // 下行带宽，以 KBps 为单位
     }
 
     // FaaS 规格表
-    uint numLevels;
-    mapping(uint => ComputingSourceLevel) levels;
+    uint private numFaaSLevels;
+    mapping(uint => ComputingSourceLevel) private faaSLevels;
 
-    // 管理者
-    address public owner;
+    event addFaaSLevelEvent(uint indexed index, uint core, uint mem);
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Only owner can call this.");
-        _;
-    }
-
-    event addFaaSLevelEvent(uint index, uint core, uint mem);
-
-    constructor(address _owner) public {
-        owner = _owner;
-        numLevels = 0;
+    constructor() 
+        public 
+    {
+        numFaaSLevels = 0;
 
         // 规格表
         addFaaSLevel(1, 512);
@@ -37,13 +40,13 @@ contract FaaSLevel {
 
     // 查询 FaaS 规格的数量
     // 参数 空
-    // 返回（ 规格的数量 numLevels ）
+    // 返回（ 规格的数量 numFaaSLevels ）
     function getFaaSLevelNumber()
         public
         view
         returns (uint)
     {
-        return numLevels;
+        return numFaaSLevels;
     }
 
     // 查询 FaaS 规格编号对应的计算机资源
@@ -54,12 +57,12 @@ contract FaaSLevel {
         view
         returns (bool, uint, uint) 
     {
-        if (_levelID >= numLevels) {
+        if (_levelID >= numFaaSLevels) {
             // invalid levelID
             return (false, 0, 0);
         }
 
-        ComputingSourceLevel memory cs = levels[_levelID];
+        ComputingSourceLevel memory cs = faaSLevels[_levelID];
         return (true, cs.core, cs.mem);
     }
 
@@ -72,9 +75,9 @@ contract FaaSLevel {
         returns (uint) 
     {
 
-        uint _levelID = numLevels++;
+        uint _levelID = numFaaSLevels++;
 
-        levels[_levelID] = ComputingSourceLevel({
+        faaSLevels[_levelID] = ComputingSourceLevel({
             core: _core,
             mem: _mem
         });

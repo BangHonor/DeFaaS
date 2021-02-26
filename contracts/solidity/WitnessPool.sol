@@ -4,8 +4,10 @@ pragma solidity^0.6.0;
 
 import "./FaaSTokenPay.sol";
 import "./SLA.sol";
+import "./Owned.sol";
 
-contract WitnessPool is FaaSTokenPay {
+
+contract WitnessPool is Owned, FaaSTokenPay {
     
     // witness Online 数量
     uint public onlineCounter = 0;
@@ -28,7 +30,7 @@ contract WitnessPool is FaaSTokenPay {
 
     // ------------------------------------------------------------------------------------------------
 
-    // 抽签信息
+    // SLA 合约的信息
     struct SortitionInfo{
         bool valid;
         uint curBlockNum;
@@ -39,12 +41,20 @@ contract WitnessPool is FaaSTokenPay {
     
     // ------------------------------------------------------------------------------------------------
 
+    address private marketContractAddress;
+
+    function setMarketContractAddress(address _marketContractAddress) public onlyOwner {
+        marketContractAddress = _marketContractAddress;
+    }
+
     constructor(address _tokenContractAddress)
         public
         FaaSTokenPay(_tokenContractAddress)
     {
-        // TODO
+        marketContractAddress = address(0);
     }
+
+
 
     // ------------------------------------------------------------------------------------------------
 
@@ -55,44 +65,70 @@ contract WitnessPool is FaaSTokenPay {
 
     // ------------------------------------------------------------------------------------------------
 
-    // 未注册
-    modifier witenssUnRegistered(address _witness) {
-        require(
-            witnessPool[_witness].registered == false,
-            "WitnessPool: the address had been registered"
-        );
-        _;
+    // 证人是否已注册
+    function isWitnessRegistered(address _witness) internal view returns (bool) {
+        return witnessPool[_witness].registered;
     }
-
-    // 已注册
-    modifier witenssRegisterd(address _witness) {
+    
+    // 检查已注册
+    modifier witenssRegisterd() {
         require(
-            witnessPool[_witness].registered == true,
+            isWitnessRegistered(msg.sender) == true,
             "WitnessPool: the address had not been registered"
         );
         _;
     }
 
-    // 状态机
-    modifier atState(WStates _state) {
+    // 检查未注册
+    modifier witenssUnRegistered() {
+        require(
+            isWitnessRegistered(msg.sender) == false,
+            "WitnessPool: the address had been registered"
+        );
+        _;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    // 证人是否处于指定状态
+    function isAtWitnessOrder(address _witness, WStates _state) internal view returns (bool) {
+        return (witnessPool[_witness].state == _state);
+    }
+
+    // 检查证人的状态
+    modifier atWitnessState(WStates _state) {
+        require(
+            isAtWitnessOrder(msg.sender, _state) == true,
+            "WitnessPool: function cannot be called at this state"
+        );
         _;
     }
     
-    //check whether it is a valid SLA contract
-    modifier checkSLAContract(address _sla){
-        require(SLAContractPool[_sla].valid);
+    // ------------------------------------------------------------------------------------------------
+
+
+    // 是否是有效的 SLA 合约
+    function isValidSLAContract(address _sla) internal view returns (bool) {
+        return SLAContractPool[_sla].valid;
+    }
+
+    // 检查有效的 SLA 合约
+    modifier validSLAContract() {
+        require(isValidSLAContract(msg.sender) == true, "");
         _;
     }
-    
-    /**
-     * Provider Interface::
-     * This is for the provider to generate a SLA contract
-     * */
+
+    // ------------------------------------------------------------------------------------------------
+
+
+    // 产生一个 SLA 合约，仅可由 Market 合约调用
     function genSLAContract() 
         public 
         returns
         (address)
     {
+        // require(msg.sender == marketContractAddress, "msg sender is not Market Contract");
+
         CloudSLA newSLAContract = new CloudSLA(this, msg.sender, address(0x0));
         address newSLAContractAddress = address(newSLAContract);
         SLAContractPool[newSLAContractAddress].valid = true; 
@@ -122,7 +158,7 @@ contract WitnessPool is FaaSTokenPay {
      * */
     function register() 
         public 
-        witenssUnRegistered(msg.sender)
+        witenssUnRegistered
     {
         // witnessPool[msg.sender].index = witnessAddrs.push(msg.sender) - 1;
         witnessAddrs.push(msg.sender);
@@ -143,7 +179,7 @@ contract WitnessPool is FaaSTokenPay {
      * */
     function request(uint8 _blkNeed)
         public 
-        checkSLAContract(msg.sender)
+        validSLAContract
         returns
         (bool success)
     {
@@ -159,7 +195,7 @@ contract WitnessPool is FaaSTokenPay {
      * */
     function sortition(uint _N, address _provider, address _customer)
         public
-        checkSLAContract(msg.sender)
+        validSLAContract
         returns
         (bool success)
     {
@@ -212,11 +248,12 @@ contract WitnessPool is FaaSTokenPay {
      * */
     function confirm(address _candidate)
         public
-        witenssRegisterd(_candidate)
-        checkSLAContract(msg.sender)
+        validSLAContract
         returns 
         (bool)
     {
+        require(isWitnessRegistered(_candidate) == true, "");
+
         //have not reached the confirmation deadline
         require( now < witnessPool[_candidate].confirmDeadline );
         
@@ -238,9 +275,10 @@ contract WitnessPool is FaaSTokenPay {
      * */
     function release(address _witness)
         public
-        witenssRegisterd(_witness)
-        checkSLAContract(msg.sender)
+        validSLAContract
     {
+        require(isWitnessRegistered(_witness) == true, "");
+
         //only able to release in Busy state
         require(witnessPool[_witness].state == WStates.Busy);
         
@@ -262,9 +300,10 @@ contract WitnessPool is FaaSTokenPay {
      * */
     function reputationDecrease(address _witness, int8 _value)
         public
-        witenssRegisterd(_witness)
-        checkSLAContract(msg.sender)
+        validSLAContract
     {
+        require(isWitnessRegistered(_witness) == true, "");
+
         //only able to release in Busy state
         require( _value > 0 );
         
@@ -283,7 +322,7 @@ contract WitnessPool is FaaSTokenPay {
      * */
     function reject()
         public
-        witenssRegisterd(msg.sender)
+        witenssRegisterd
     {
         //only reject in candidate state
         require(witnessPool[msg.sender].state == WStates.Candidate);
@@ -301,7 +340,7 @@ contract WitnessPool is FaaSTokenPay {
      * */
     function reverse()
         public
-        witenssRegisterd(msg.sender)
+        witenssRegisterd
     {
         //must exceed the confirmation deadline
         require( now > witnessPool[msg.sender].confirmDeadline );
@@ -325,7 +364,7 @@ contract WitnessPool is FaaSTokenPay {
      * */
     function turnOn()
         public
-        witenssRegisterd(msg.sender)
+        witenssRegisterd
     {
         //must be in the state of offline
         require(witnessPool[msg.sender].state == WStates.Offline);
@@ -343,7 +382,7 @@ contract WitnessPool is FaaSTokenPay {
      * */
     function turnOff()
         public
-        witenssRegisterd(msg.sender)
+        witenssRegisterd
     {
         
         //must be in the state of online
