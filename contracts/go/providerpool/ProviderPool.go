@@ -28,32 +28,32 @@ var (
 )
 
 // ProviderPoolABI is the input ABI used to generate the binding from.
-const ProviderPoolABI = "[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"getProviderDeposit\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"provider\",\"type\":\"address\"}],\"name\":\"getProviderReputation\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getProviderReputationQualified\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"provider\",\"type\":\"address\"}],\"name\":\"isProviderQualified\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"provider\",\"type\":\"address\"}],\"name\":\"isProviderRegistered\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"providerDeposit\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"providerLogin\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"providerLogout\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"providerReputationInit\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"providerReputationQualified\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"tokenContract\",\"outputs\":[{\"internalType\":\"contractFaaSToken\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]"
+const ProviderPoolABI = "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_tokenContractAddress\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_provider\",\"type\":\"address\"}],\"name\":\"getProviderDeposit\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_provider\",\"type\":\"address\"}],\"name\":\"getProviderReputation\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getStdProviderDeposit\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_provider\",\"type\":\"address\"}],\"name\":\"isProviderQualified\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_provider\",\"type\":\"address\"}],\"name\":\"isProviderRegistered\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"providerLogin\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"providerLogout\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"tokenContract\",\"outputs\":[{\"internalType\":\"contractFaaSToken\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]"
 
 // ProviderPoolBin is the compiled bytecode used for deploying new contracts.
-var ProviderPoolBin = "0x608060405234801561001057600080fd5b506000806000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555050606460018190555060056003819055506005600481905550610a1c8061007b6000396000f3fe608060405234801561001057600080fd5b50600436106100a95760003560e01c8063729d98e911610071578063729d98e91461019a578063757f4a97146101f2578063884eacb814610210578063b82964711461021a578063dbeefdd214610276578063f0611e3814610294576100a9565b80631ead914e146100ae578063215218921461010a578063230544a7146101285780632bf355701461014657806355a373d614610150575b600080fd5b6100f0600480360360208110156100c457600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506102b2565b604051808215151515815260200191505060405180910390f35b6101126102fd565b6040518082815260200191505060405180910390f35b610130610303565b6040518082815260200191505060405180910390f35b61014e610309565b005b610158610571565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b6101dc600480360360208110156101b057600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610596565b6040518082815260200191505060405180910390f35b6101fa6105df565b6040518082815260200191505060405180910390f35b6102186105e9565b005b61025c6004803603602081101561023057600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506108bc565b604051808215151515815260200191505060405180910390f35b61027e61090a565b6040518082815260200191505060405180910390f35b61029c610914565b6040518082815260200191505060405180910390f35b600080600560008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002054119050919050565b60045481565b60015481565b60001515610316336102b2565b15151461036e576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260278152602001806109436027913960400191505060405180910390fd5b600115156000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166323b872dd33306001546040518463ffffffff1660e01b8152600401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050602060405180830381600087803b15801561045057600080fd5b505af1158015610464573d6000803e3d6000fd5b505050506040513d602081101561047a57600080fd5b81019080805190602001909291905050501515146104e3576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252602881526020018061091b6028913960400191505060405180910390fd5b600154600260003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002081905550600354600560003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002081905550565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b6000600560008373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020549050919050565b6000600454905090565b600115156105f6336102b2565b15151461064e576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252602b81526020018061098f602b913960400191505060405180910390fd5b610657336108bc565b6106ac576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252602581526020018061096a6025913960400191505060405180910390fd5b6000600560003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020819055506000600260003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205490506000600260003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002081905550600115156000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663a9059cbb33846040518363ffffffff1660e01b8152600401808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200182815260200192505050602060405180830381600087803b15801561082657600080fd5b505af115801561083a573d6000803e3d6000fd5b505050506040513d602081101561085057600080fd5b81019080805190602001909291905050501515146108b9576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252602d8152602001806109ba602d913960400191505060405180910390fd5b50565b6000600454600560003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000205410159050919050565b6000600154905090565b6003548156fe4d61726b65743a206661696c656420746f207061792061207265676973746572206465706f7369744d61726b65743a20746865206164647265737320686164206265656e20726567697374657265644d61726b65743a207468652070726f7669646572206973206e6f74207175616c69666965644d61726b65743a20746865206164647265737320686164206e6f74206265656e20726567697374657265644d61726b65743a206661696c656420746f20726566756e64207468652070726f7669646572206465706f736974a26469706673582212203f67fa0ad357258208dfb34b06233b6a04a0dd05a291c99cf7ab4ec61bd7182e64736f6c634300060a0033"
+var ProviderPoolBin = "0x608060405234801561001057600080fd5b50604051610baa380380610baa8339818101604052602081101561003357600080fd5b810190808051906020019092919050505080806000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505060646001819055506005600281905550600560038190555050610afc806100ae6000396000f3fe608060405234801561001057600080fd5b50600436106100885760003560e01c806361bb20f01161005b57806361bb20f01461015b578063729d98e9146101b3578063884eacb81461020b578063b82964711461021557610088565b80631c0d3ebd1461008d5780631ead914e146100ab5780632bf355701461010757806355a373d614610111575b600080fd5b610095610271565b6040518082815260200191505060405180910390f35b6100ed600480360360208110156100c157600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919050505061027b565b604051808215151515815260200191505060405180910390f35b61010f6102c9565b005b61011961053e565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b61019d6004803603602081101561017157600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610563565b6040518082815260200191505060405180910390f35b6101f5600480360360208110156101c957600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610616565b6040518082815260200191505060405180910390f35b6102136106c9565b005b6102576004803603602081101561022b57600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506109a9565b604051808215151515815260200191505060405180910390f35b6000600154905090565b600080600460008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000154119050919050565b33600015156102d78261027b565b15151461032f576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401808060200182810382526027815260200180610a236027913960400191505060405180910390fd5b600154600460003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060010181905550600254600460003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000181905550600115156000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166323b872dd333061040c610271565b6040518463ffffffff1660e01b8152600401808473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018281526020019350505050602060405180830381600087803b1580156104a857600080fd5b505af11580156104bc573d6000803e3d6000fd5b505050506040513d60208110156104d257600080fd5b810190808051906020019092919050505015151461053b576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260288152602001806109fb6028913960400191505060405180910390fd5b50565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b600081600115156105738261027b565b1515146105cb576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252602b815260200180610a6f602b913960400191505060405180910390fd5b600460008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060010154915050919050565b600081600115156106268261027b565b15151461067e576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252602b815260200180610a6f602b913960400191505060405180910390fd5b600460008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000154915050919050565b33600115156106d78261027b565b15151461072f576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252602b815260200180610a6f602b913960400191505060405180910390fd5b33610739816109a9565b61078e576040517f08c379a0000000000000000000000000000000000000000000000000000000008152600401808060200182810382526025815260200180610a4a6025913960400191505060405180910390fd5b6000600460003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019081526020016000206001015490506000600460003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600101819055506000600460003373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200190815260200160002060000181905550600115156000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663a9059cbb33846040518363ffffffff1660e01b8152600401808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200182815260200192505050602060405180830381600087803b15801561091157600080fd5b505af1158015610925573d6000803e3d6000fd5b505050506040513d602081101561093b57600080fd5b81019080805190602001909291905050501515146109a4576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252602d815260200180610a9a602d913960400191505060405180910390fd5b505050565b6000600354600460008473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001908152602001600020600001541015905091905056fe4d61726b65743a206661696c656420746f207061792061207265676973746572206465706f7369744d61726b65743a20746865206164647265737320686164206265656e20726567697374657265644d61726b65743a207468652070726f7669646572206973206e6f74207175616c69666965644d61726b65743a20746865206164647265737320686164206e6f74206265656e20726567697374657265644d61726b65743a206661696c656420746f20726566756e64207468652070726f7669646572206465706f736974a26469706673582212207f4301c5a6cafbd86b0cbb52e07e80014d6af9a879e478633d7f10d1fffd052964736f6c634300060a0033"
 
 // DeployProviderPool deploys a new contract, binding an instance of ProviderPool to it.
-func DeployProviderPool(auth *bind.TransactOpts, backend bind.ContractBackend) (common.Address, *types.Transaction, *ProviderPool, error) {
+func DeployProviderPool(auth *bind.TransactOpts, backend bind.ContractBackend, _tokenContractAddress common.Address) (common.Address, *types.Transaction, *ProviderPool, error) {
 	parsed, err := abi.JSON(strings.NewReader(ProviderPoolABI))
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
 
-	address, tx, contract, err := bind.DeployContract(auth, parsed, common.FromHex(ProviderPoolBin), backend)
+	address, tx, contract, err := bind.DeployContract(auth, parsed, common.FromHex(ProviderPoolBin), backend, _tokenContractAddress)
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
 	return address, tx, &ProviderPool{ProviderPoolCaller: ProviderPoolCaller{contract: contract}, ProviderPoolTransactor: ProviderPoolTransactor{contract: contract}, ProviderPoolFilterer: ProviderPoolFilterer{contract: contract}}, nil
 }
 
-func AsyncDeployProviderPool(auth *bind.TransactOpts, handler func(*types.Receipt, error), backend bind.ContractBackend) (*types.Transaction, error) {
+func AsyncDeployProviderPool(auth *bind.TransactOpts, handler func(*types.Receipt, error), backend bind.ContractBackend, _tokenContractAddress common.Address) (*types.Transaction, error) {
 	parsed, err := abi.JSON(strings.NewReader(ProviderPoolABI))
 	if err != nil {
 		return nil, err
 	}
 
-	tx, err := bind.AsyncDeployContract(auth, handler, parsed, common.FromHex(ProviderPoolBin), backend)
+	tx, err := bind.AsyncDeployContract(auth, handler, parsed, common.FromHex(ProviderPoolBin), backend, _tokenContractAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -202,212 +202,134 @@ func (_ProviderPool *ProviderPoolTransactorRaw) Transact(opts *bind.TransactOpts
 	return _ProviderPool.Contract.contract.Transact(opts, method, params...)
 }
 
-// GetProviderDeposit is a free data retrieval call binding the contract method 0xdbeefdd2.
+// GetProviderDeposit is a free data retrieval call binding the contract method 0x61bb20f0.
 //
-// Solidity: function getProviderDeposit() constant returns(uint256)
-func (_ProviderPool *ProviderPoolCaller) GetProviderDeposit(opts *bind.CallOpts) (*big.Int, error) {
+// Solidity: function getProviderDeposit(address _provider) constant returns(uint256)
+func (_ProviderPool *ProviderPoolCaller) GetProviderDeposit(opts *bind.CallOpts, _provider common.Address) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
 	)
 	out := ret0
-	err := _ProviderPool.contract.Call(opts, out, "getProviderDeposit")
+	err := _ProviderPool.contract.Call(opts, out, "getProviderDeposit", _provider)
 	return *ret0, err
 }
 
-// GetProviderDeposit is a free data retrieval call binding the contract method 0xdbeefdd2.
+// GetProviderDeposit is a free data retrieval call binding the contract method 0x61bb20f0.
 //
-// Solidity: function getProviderDeposit() constant returns(uint256)
-func (_ProviderPool *ProviderPoolSession) GetProviderDeposit() (*big.Int, error) {
-	return _ProviderPool.Contract.GetProviderDeposit(&_ProviderPool.CallOpts)
+// Solidity: function getProviderDeposit(address _provider) constant returns(uint256)
+func (_ProviderPool *ProviderPoolSession) GetProviderDeposit(_provider common.Address) (*big.Int, error) {
+	return _ProviderPool.Contract.GetProviderDeposit(&_ProviderPool.CallOpts, _provider)
 }
 
-// GetProviderDeposit is a free data retrieval call binding the contract method 0xdbeefdd2.
+// GetProviderDeposit is a free data retrieval call binding the contract method 0x61bb20f0.
 //
-// Solidity: function getProviderDeposit() constant returns(uint256)
-func (_ProviderPool *ProviderPoolCallerSession) GetProviderDeposit() (*big.Int, error) {
-	return _ProviderPool.Contract.GetProviderDeposit(&_ProviderPool.CallOpts)
+// Solidity: function getProviderDeposit(address _provider) constant returns(uint256)
+func (_ProviderPool *ProviderPoolCallerSession) GetProviderDeposit(_provider common.Address) (*big.Int, error) {
+	return _ProviderPool.Contract.GetProviderDeposit(&_ProviderPool.CallOpts, _provider)
 }
 
 // GetProviderReputation is a free data retrieval call binding the contract method 0x729d98e9.
 //
-// Solidity: function getProviderReputation(address provider) constant returns(uint256)
-func (_ProviderPool *ProviderPoolCaller) GetProviderReputation(opts *bind.CallOpts, provider common.Address) (*big.Int, error) {
+// Solidity: function getProviderReputation(address _provider) constant returns(uint256)
+func (_ProviderPool *ProviderPoolCaller) GetProviderReputation(opts *bind.CallOpts, _provider common.Address) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
 	)
 	out := ret0
-	err := _ProviderPool.contract.Call(opts, out, "getProviderReputation", provider)
+	err := _ProviderPool.contract.Call(opts, out, "getProviderReputation", _provider)
 	return *ret0, err
 }
 
 // GetProviderReputation is a free data retrieval call binding the contract method 0x729d98e9.
 //
-// Solidity: function getProviderReputation(address provider) constant returns(uint256)
-func (_ProviderPool *ProviderPoolSession) GetProviderReputation(provider common.Address) (*big.Int, error) {
-	return _ProviderPool.Contract.GetProviderReputation(&_ProviderPool.CallOpts, provider)
+// Solidity: function getProviderReputation(address _provider) constant returns(uint256)
+func (_ProviderPool *ProviderPoolSession) GetProviderReputation(_provider common.Address) (*big.Int, error) {
+	return _ProviderPool.Contract.GetProviderReputation(&_ProviderPool.CallOpts, _provider)
 }
 
 // GetProviderReputation is a free data retrieval call binding the contract method 0x729d98e9.
 //
-// Solidity: function getProviderReputation(address provider) constant returns(uint256)
-func (_ProviderPool *ProviderPoolCallerSession) GetProviderReputation(provider common.Address) (*big.Int, error) {
-	return _ProviderPool.Contract.GetProviderReputation(&_ProviderPool.CallOpts, provider)
+// Solidity: function getProviderReputation(address _provider) constant returns(uint256)
+func (_ProviderPool *ProviderPoolCallerSession) GetProviderReputation(_provider common.Address) (*big.Int, error) {
+	return _ProviderPool.Contract.GetProviderReputation(&_ProviderPool.CallOpts, _provider)
 }
 
-// GetProviderReputationQualified is a free data retrieval call binding the contract method 0x757f4a97.
+// GetStdProviderDeposit is a free data retrieval call binding the contract method 0x1c0d3ebd.
 //
-// Solidity: function getProviderReputationQualified() constant returns(uint256)
-func (_ProviderPool *ProviderPoolCaller) GetProviderReputationQualified(opts *bind.CallOpts) (*big.Int, error) {
+// Solidity: function getStdProviderDeposit() constant returns(uint256)
+func (_ProviderPool *ProviderPoolCaller) GetStdProviderDeposit(opts *bind.CallOpts) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
 	)
 	out := ret0
-	err := _ProviderPool.contract.Call(opts, out, "getProviderReputationQualified")
+	err := _ProviderPool.contract.Call(opts, out, "getStdProviderDeposit")
 	return *ret0, err
 }
 
-// GetProviderReputationQualified is a free data retrieval call binding the contract method 0x757f4a97.
+// GetStdProviderDeposit is a free data retrieval call binding the contract method 0x1c0d3ebd.
 //
-// Solidity: function getProviderReputationQualified() constant returns(uint256)
-func (_ProviderPool *ProviderPoolSession) GetProviderReputationQualified() (*big.Int, error) {
-	return _ProviderPool.Contract.GetProviderReputationQualified(&_ProviderPool.CallOpts)
+// Solidity: function getStdProviderDeposit() constant returns(uint256)
+func (_ProviderPool *ProviderPoolSession) GetStdProviderDeposit() (*big.Int, error) {
+	return _ProviderPool.Contract.GetStdProviderDeposit(&_ProviderPool.CallOpts)
 }
 
-// GetProviderReputationQualified is a free data retrieval call binding the contract method 0x757f4a97.
+// GetStdProviderDeposit is a free data retrieval call binding the contract method 0x1c0d3ebd.
 //
-// Solidity: function getProviderReputationQualified() constant returns(uint256)
-func (_ProviderPool *ProviderPoolCallerSession) GetProviderReputationQualified() (*big.Int, error) {
-	return _ProviderPool.Contract.GetProviderReputationQualified(&_ProviderPool.CallOpts)
+// Solidity: function getStdProviderDeposit() constant returns(uint256)
+func (_ProviderPool *ProviderPoolCallerSession) GetStdProviderDeposit() (*big.Int, error) {
+	return _ProviderPool.Contract.GetStdProviderDeposit(&_ProviderPool.CallOpts)
 }
 
 // IsProviderQualified is a free data retrieval call binding the contract method 0xb8296471.
 //
-// Solidity: function isProviderQualified(address provider) constant returns(bool)
-func (_ProviderPool *ProviderPoolCaller) IsProviderQualified(opts *bind.CallOpts, provider common.Address) (bool, error) {
+// Solidity: function isProviderQualified(address _provider) constant returns(bool)
+func (_ProviderPool *ProviderPoolCaller) IsProviderQualified(opts *bind.CallOpts, _provider common.Address) (bool, error) {
 	var (
 		ret0 = new(bool)
 	)
 	out := ret0
-	err := _ProviderPool.contract.Call(opts, out, "isProviderQualified", provider)
+	err := _ProviderPool.contract.Call(opts, out, "isProviderQualified", _provider)
 	return *ret0, err
 }
 
 // IsProviderQualified is a free data retrieval call binding the contract method 0xb8296471.
 //
-// Solidity: function isProviderQualified(address provider) constant returns(bool)
-func (_ProviderPool *ProviderPoolSession) IsProviderQualified(provider common.Address) (bool, error) {
-	return _ProviderPool.Contract.IsProviderQualified(&_ProviderPool.CallOpts, provider)
+// Solidity: function isProviderQualified(address _provider) constant returns(bool)
+func (_ProviderPool *ProviderPoolSession) IsProviderQualified(_provider common.Address) (bool, error) {
+	return _ProviderPool.Contract.IsProviderQualified(&_ProviderPool.CallOpts, _provider)
 }
 
 // IsProviderQualified is a free data retrieval call binding the contract method 0xb8296471.
 //
-// Solidity: function isProviderQualified(address provider) constant returns(bool)
-func (_ProviderPool *ProviderPoolCallerSession) IsProviderQualified(provider common.Address) (bool, error) {
-	return _ProviderPool.Contract.IsProviderQualified(&_ProviderPool.CallOpts, provider)
+// Solidity: function isProviderQualified(address _provider) constant returns(bool)
+func (_ProviderPool *ProviderPoolCallerSession) IsProviderQualified(_provider common.Address) (bool, error) {
+	return _ProviderPool.Contract.IsProviderQualified(&_ProviderPool.CallOpts, _provider)
 }
 
 // IsProviderRegistered is a free data retrieval call binding the contract method 0x1ead914e.
 //
-// Solidity: function isProviderRegistered(address provider) constant returns(bool)
-func (_ProviderPool *ProviderPoolCaller) IsProviderRegistered(opts *bind.CallOpts, provider common.Address) (bool, error) {
+// Solidity: function isProviderRegistered(address _provider) constant returns(bool)
+func (_ProviderPool *ProviderPoolCaller) IsProviderRegistered(opts *bind.CallOpts, _provider common.Address) (bool, error) {
 	var (
 		ret0 = new(bool)
 	)
 	out := ret0
-	err := _ProviderPool.contract.Call(opts, out, "isProviderRegistered", provider)
+	err := _ProviderPool.contract.Call(opts, out, "isProviderRegistered", _provider)
 	return *ret0, err
 }
 
 // IsProviderRegistered is a free data retrieval call binding the contract method 0x1ead914e.
 //
-// Solidity: function isProviderRegistered(address provider) constant returns(bool)
-func (_ProviderPool *ProviderPoolSession) IsProviderRegistered(provider common.Address) (bool, error) {
-	return _ProviderPool.Contract.IsProviderRegistered(&_ProviderPool.CallOpts, provider)
+// Solidity: function isProviderRegistered(address _provider) constant returns(bool)
+func (_ProviderPool *ProviderPoolSession) IsProviderRegistered(_provider common.Address) (bool, error) {
+	return _ProviderPool.Contract.IsProviderRegistered(&_ProviderPool.CallOpts, _provider)
 }
 
 // IsProviderRegistered is a free data retrieval call binding the contract method 0x1ead914e.
 //
-// Solidity: function isProviderRegistered(address provider) constant returns(bool)
-func (_ProviderPool *ProviderPoolCallerSession) IsProviderRegistered(provider common.Address) (bool, error) {
-	return _ProviderPool.Contract.IsProviderRegistered(&_ProviderPool.CallOpts, provider)
-}
-
-// ProviderDeposit is a free data retrieval call binding the contract method 0x230544a7.
-//
-// Solidity: function providerDeposit() constant returns(uint256)
-func (_ProviderPool *ProviderPoolCaller) ProviderDeposit(opts *bind.CallOpts) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := _ProviderPool.contract.Call(opts, out, "providerDeposit")
-	return *ret0, err
-}
-
-// ProviderDeposit is a free data retrieval call binding the contract method 0x230544a7.
-//
-// Solidity: function providerDeposit() constant returns(uint256)
-func (_ProviderPool *ProviderPoolSession) ProviderDeposit() (*big.Int, error) {
-	return _ProviderPool.Contract.ProviderDeposit(&_ProviderPool.CallOpts)
-}
-
-// ProviderDeposit is a free data retrieval call binding the contract method 0x230544a7.
-//
-// Solidity: function providerDeposit() constant returns(uint256)
-func (_ProviderPool *ProviderPoolCallerSession) ProviderDeposit() (*big.Int, error) {
-	return _ProviderPool.Contract.ProviderDeposit(&_ProviderPool.CallOpts)
-}
-
-// ProviderReputationInit is a free data retrieval call binding the contract method 0xf0611e38.
-//
-// Solidity: function providerReputationInit() constant returns(uint256)
-func (_ProviderPool *ProviderPoolCaller) ProviderReputationInit(opts *bind.CallOpts) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := _ProviderPool.contract.Call(opts, out, "providerReputationInit")
-	return *ret0, err
-}
-
-// ProviderReputationInit is a free data retrieval call binding the contract method 0xf0611e38.
-//
-// Solidity: function providerReputationInit() constant returns(uint256)
-func (_ProviderPool *ProviderPoolSession) ProviderReputationInit() (*big.Int, error) {
-	return _ProviderPool.Contract.ProviderReputationInit(&_ProviderPool.CallOpts)
-}
-
-// ProviderReputationInit is a free data retrieval call binding the contract method 0xf0611e38.
-//
-// Solidity: function providerReputationInit() constant returns(uint256)
-func (_ProviderPool *ProviderPoolCallerSession) ProviderReputationInit() (*big.Int, error) {
-	return _ProviderPool.Contract.ProviderReputationInit(&_ProviderPool.CallOpts)
-}
-
-// ProviderReputationQualified is a free data retrieval call binding the contract method 0x21521892.
-//
-// Solidity: function providerReputationQualified() constant returns(uint256)
-func (_ProviderPool *ProviderPoolCaller) ProviderReputationQualified(opts *bind.CallOpts) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := _ProviderPool.contract.Call(opts, out, "providerReputationQualified")
-	return *ret0, err
-}
-
-// ProviderReputationQualified is a free data retrieval call binding the contract method 0x21521892.
-//
-// Solidity: function providerReputationQualified() constant returns(uint256)
-func (_ProviderPool *ProviderPoolSession) ProviderReputationQualified() (*big.Int, error) {
-	return _ProviderPool.Contract.ProviderReputationQualified(&_ProviderPool.CallOpts)
-}
-
-// ProviderReputationQualified is a free data retrieval call binding the contract method 0x21521892.
-//
-// Solidity: function providerReputationQualified() constant returns(uint256)
-func (_ProviderPool *ProviderPoolCallerSession) ProviderReputationQualified() (*big.Int, error) {
-	return _ProviderPool.Contract.ProviderReputationQualified(&_ProviderPool.CallOpts)
+// Solidity: function isProviderRegistered(address _provider) constant returns(bool)
+func (_ProviderPool *ProviderPoolCallerSession) IsProviderRegistered(_provider common.Address) (bool, error) {
+	return _ProviderPool.Contract.IsProviderRegistered(&_ProviderPool.CallOpts, _provider)
 }
 
 // TokenContract is a free data retrieval call binding the contract method 0x55a373d6.

@@ -2,19 +2,9 @@
 
 pragma solidity^0.6.0;
 
-contract SimpleAuction {
-    
-    address marketContractAddress;
+import "./Owned.sol";
 
-    // 只有 Matket 合约才能调用
-    // 因为 Matket 合约预先做了供应商资格检查
-    modifier marketCall() {
-        require(
-            msg.sender == marketContractAddress,
-            "SimpleAuction: only market conctract can call this funciton"
-        );
-        _;
-    }
+contract SimpleAuction is Owned {
 
     // 两个状态：接受竞价 和 竞价结束
     enum States {
@@ -24,7 +14,6 @@ contract SimpleAuction {
 
     States public state;
 
-    uint public delpoymentOrderID;
     uint public highestUnitPrice;
     
     uint public createTime;
@@ -34,17 +23,12 @@ contract SimpleAuction {
     address provider;
 
     constructor(
-        address _marketContractAddress,
-        uint _delpoymentOrderID, 
         uint _highestUnitPrice,
         uint _biddingDuration) 
         public 
     {
-        marketContractAddress = _marketContractAddress;
-
         state = States.AcceptingBids;
         
-        delpoymentOrderID = _delpoymentOrderID;
         highestUnitPrice = _highestUnitPrice;
 
         createTime = now;
@@ -92,7 +76,7 @@ contract SimpleAuction {
     // 竞争最低出价
     function bid(address _provider, uint _unitPrice) 
         public
-        marketCall
+        onlyOwner  // 只允许拥有者调用
         timedTransitions
         atState(States.AcceptingBids) 
     {

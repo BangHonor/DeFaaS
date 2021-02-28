@@ -12,26 +12,6 @@ import (
 	sdkClient "github.com/FISCO-BCOS/go-sdk/client"
 )
 
-// 租户处理一个部署订单 的 有限状态机
-
-// State 租户状态
-// type State int
-
-const (
-	// Init ...
-	Init int = 0
-	// Bidding ...
-	Bidding
-	// Deploying ...
-	Deploying
-	// Fulfilling ...
-	Fulfilling
-	// Finished ...
-	Finished
-	// Missed ...
-	Missed
-)
-
 const (
 	// ToleranceDuration 与区块链时间的相差的容忍时间间隔
 	ToleranceDuration = 10 * time.Minute

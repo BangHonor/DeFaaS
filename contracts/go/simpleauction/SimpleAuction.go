@@ -28,32 +28,32 @@ var (
 )
 
 // SimpleAuctionABI is the input ABI used to generate the binding from.
-const SimpleAuctionABI = "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_marketContractAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_delpoymentOrderID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_highestUnitPrice\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_biddingDuration\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"auctionEnd\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_provider\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_unitPrice\",\"type\":\"uint256\"}],\"name\":\"bid\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"biddingDuration\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"createTime\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"delpoymentOrderID\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"highestUnitPrice\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"state\",\"outputs\":[{\"internalType\":\"enumSimpleAuction.States\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]"
+const SimpleAuctionABI = "[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_highestUnitPrice\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_biddingDuration\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"auctionEnd\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_provider\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_unitPrice\",\"type\":\"uint256\"}],\"name\":\"bid\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"biddingDuration\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"createTime\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"highestUnitPrice\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"state\",\"outputs\":[{\"internalType\":\"enumSimpleAuction.States\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"}]"
 
 // SimpleAuctionBin is the compiled bytecode used for deploying new contracts.
-var SimpleAuctionBin = "0x608060405234801561001057600080fd5b506040516108cb3803806108cb8339818101604052608081101561003357600080fd5b8101908080519060200190929190805190602001909291908051906020019092919080519060200190929190505050836000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555060008060146101000a81548160ff021916908360018111156100c057fe5b021790555082600181905550816002819055504260038190555080600481905550816005819055506000600660006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505050505061078e8061013d6000396000f3fe608060405234801561001057600080fd5b506004361061007d5760003560e01c80635d06978f1161005b5780635d06978f1461014a57806361dcd7ab14610168578063c19d93fb14610186578063c8e7b31d146101b25761007d565b80632a24f46c146100825780634840f2f0146100de57806359d667a5146100fc575b600080fd5b61008a6101d0565b60405180841515151581526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001828152602001935050505060405180910390f35b6100e6610325565b6040518082815260200191505060405180910390f35b6101486004803603604081101561011257600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291908035906020019092919050505061032b565b005b610152610599565b6040518082815260200191505060405180910390f35b61017061059f565b6040518082815260200191505060405180910390f35b61018e6105a5565b6040518082600181111561019e57fe5b60ff16815260200191505060405180910390f35b6101ba6105b8565b6040518082815260200191505060405180910390f35b60008060008060018111156101e157fe5b600060149054906101000a900460ff1660018111156101fc57fe5b14801561020e57506004546003540142115b1561021c5761021b6105be565b5b600180600181111561022a57fe5b600060149054906101000a900460ff16600181111561024557fe5b1461029b576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260368152602001806107236036913960400191505060405180910390fd5b60008073ffffffffffffffffffffffffffffffffffffffff16600660009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff161415905080600660009054906101000a900473ffffffffffffffffffffffffffffffffffffffff166005549450945094505050909192565b60025481565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff16146103d0576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252603b8152602001806106e8603b913960400191505060405180910390fd5b600060018111156103dd57fe5b600060149054906101000a900460ff1660018111156103f857fe5b14801561040a57506004546003540142115b15610418576104176105be565b5b600080600181111561042657fe5b600060149054906101000a900460ff16600181111561044157fe5b14610497576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260368152602001806107236036913960400191505060405180910390fd5b6002548211156104f2576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252604a81526020018061069e604a913960600191505060405180910390fd5b600554821061054c576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252603381526020018061066b6033913960400191505060405180910390fd5b8160058190555082600660006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550505050565b60015481565b60035481565b600060149054906101000a900460ff1681565b60045481565b600060018111156105cb57fe5b600060149054906101000a900460ff1660018111156105e657fe5b1415610615576001600060146101000a81548160ff0219169083600181111561060b57fe5b0217905550610668565b60018081111561062157fe5b600060149054906101000a900460ff16600181111561063c57fe5b1415610667576001600060146101000a81548160ff0219169083600181111561066157fe5b02179055505b5b56fe53696d706c6541756374696f6e3a20746865726520616c72656164792069732061206c6f7765722075696e742d70726963652e53696d706c6541756374696f6e3a2074686520756e69742d707269636520697320686967686572207468616e20686967686573742074686520637573746f6d657220616363657074656453696d706c6541756374696f6e3a206f6e6c79206d61726b657420636f6e6374726163742063616e2063616c6c20746869732066756e6369746f6e53696d706c6541756374696f6e3a2066756e6374696f6e2063616e6e6f742062652063616c6c65642061742074686973207374617465a264697066735822122040d46e20005969c88558fb747bdc09e13e96184d64c033c0d995fcd76ca30b0464736f6c634300060a0033"
+var SimpleAuctionBin = "0x608060405234801561001057600080fd5b506040516108db3803806108db8339818101604052604081101561003357600080fd5b810190808051906020019092919080519060200190929190505050336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555060008060146101000a81548160ff021916908360018111156100ac57fe5b0217905550816001819055504260028190555080600381905550816004819055506000600560006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555050506107bb806101206000396000f3fe608060405234801561001057600080fd5b506004361061007d5760003560e01c806361dcd7ab1161005b57806361dcd7ab1461014a5780638da5cb5b14610168578063c19d93fb146101b2578063c8e7b31d146101de5761007d565b80632a24f46c146100825780634840f2f0146100de57806359d667a5146100fc575b600080fd5b61008a6101fc565b60405180841515151581526020018373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168152602001828152602001935050505060405180910390f35b6100e6610351565b6040518082815260200191505060405180910390f35b6101486004803603604081101561011257600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff16906020019092919080359060200190929190505050610357565b005b6101526105e2565b6040518082815260200191505060405180910390f35b6101706105e8565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b6101ba61060d565b604051808260018111156101ca57fe5b60ff16815260200191505060405180910390f35b6101e6610620565b6040518082815260200191505060405180910390f35b600080600080600181111561020d57fe5b600060149054906101000a900460ff16600181111561022857fe5b14801561023a57506003546002540142115b1561024857610247610626565b5b600180600181111561025657fe5b600060149054906101000a900460ff16600181111561027157fe5b146102c7576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260368152602001806107506036913960400191505060405180910390fd5b60008073ffffffffffffffffffffffffffffffffffffffff16600560009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff161415905080600560009054906101000a900473ffffffffffffffffffffffffffffffffffffffff166004549450945094505050909192565b60015481565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff1614610419576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260198152602001807f4f6e6c79206f776e65722063616e2063616c6c20746869732e0000000000000081525060200191505060405180910390fd5b6000600181111561042657fe5b600060149054906101000a900460ff16600181111561044157fe5b14801561045357506003546002540142115b1561046157610460610626565b5b600080600181111561046f57fe5b600060149054906101000a900460ff16600181111561048a57fe5b146104e0576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260368152602001806107506036913960400191505060405180910390fd5b60015482111561053b576040517f08c379a000000000000000000000000000000000000000000000000000000000815260040180806020018281038252604a815260200180610706604a913960600191505060405180910390fd5b6004548210610595576040517f08c379a00000000000000000000000000000000000000000000000000000000081526004018080602001828103825260338152602001806106d36033913960400191505060405180910390fd5b8160048190555082600560006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550505050565b60025481565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b600060149054906101000a900460ff1681565b60035481565b6000600181111561063357fe5b600060149054906101000a900460ff16600181111561064e57fe5b141561067d576001600060146101000a81548160ff0219169083600181111561067357fe5b02179055506106d0565b60018081111561068957fe5b600060149054906101000a900460ff1660018111156106a457fe5b14156106cf576001600060146101000a81548160ff021916908360018111156106c957fe5b02179055505b5b56fe53696d706c6541756374696f6e3a20746865726520616c72656164792069732061206c6f7765722075696e742d70726963652e53696d706c6541756374696f6e3a2074686520756e69742d707269636520697320686967686572207468616e20686967686573742074686520637573746f6d657220616363657074656453696d706c6541756374696f6e3a2066756e6374696f6e2063616e6e6f742062652063616c6c65642061742074686973207374617465a2646970667358221220dee3b532f18ac1c66097ad9c2b811a74079353960f60ded38f32262561c8baf364736f6c634300060a0033"
 
 // DeploySimpleAuction deploys a new contract, binding an instance of SimpleAuction to it.
-func DeploySimpleAuction(auth *bind.TransactOpts, backend bind.ContractBackend, _marketContractAddress common.Address, _delpoymentOrderID *big.Int, _highestUnitPrice *big.Int, _biddingDuration *big.Int) (common.Address, *types.Transaction, *SimpleAuction, error) {
+func DeploySimpleAuction(auth *bind.TransactOpts, backend bind.ContractBackend, _highestUnitPrice *big.Int, _biddingDuration *big.Int) (common.Address, *types.Transaction, *SimpleAuction, error) {
 	parsed, err := abi.JSON(strings.NewReader(SimpleAuctionABI))
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
 
-	address, tx, contract, err := bind.DeployContract(auth, parsed, common.FromHex(SimpleAuctionBin), backend, _marketContractAddress, _delpoymentOrderID, _highestUnitPrice, _biddingDuration)
+	address, tx, contract, err := bind.DeployContract(auth, parsed, common.FromHex(SimpleAuctionBin), backend, _highestUnitPrice, _biddingDuration)
 	if err != nil {
 		return common.Address{}, nil, nil, err
 	}
 	return address, tx, &SimpleAuction{SimpleAuctionCaller: SimpleAuctionCaller{contract: contract}, SimpleAuctionTransactor: SimpleAuctionTransactor{contract: contract}, SimpleAuctionFilterer: SimpleAuctionFilterer{contract: contract}}, nil
 }
 
-func AsyncDeploySimpleAuction(auth *bind.TransactOpts, handler func(*types.Receipt, error), backend bind.ContractBackend, _marketContractAddress common.Address, _delpoymentOrderID *big.Int, _highestUnitPrice *big.Int, _biddingDuration *big.Int) (*types.Transaction, error) {
+func AsyncDeploySimpleAuction(auth *bind.TransactOpts, handler func(*types.Receipt, error), backend bind.ContractBackend, _highestUnitPrice *big.Int, _biddingDuration *big.Int) (*types.Transaction, error) {
 	parsed, err := abi.JSON(strings.NewReader(SimpleAuctionABI))
 	if err != nil {
 		return nil, err
 	}
 
-	tx, err := bind.AsyncDeployContract(auth, handler, parsed, common.FromHex(SimpleAuctionBin), backend, _marketContractAddress, _delpoymentOrderID, _highestUnitPrice, _biddingDuration)
+	tx, err := bind.AsyncDeployContract(auth, handler, parsed, common.FromHex(SimpleAuctionBin), backend, _highestUnitPrice, _biddingDuration)
 	if err != nil {
 		return nil, err
 	}
@@ -254,32 +254,6 @@ func (_SimpleAuction *SimpleAuctionCallerSession) CreateTime() (*big.Int, error)
 	return _SimpleAuction.Contract.CreateTime(&_SimpleAuction.CallOpts)
 }
 
-// DelpoymentOrderID is a free data retrieval call binding the contract method 0x5d06978f.
-//
-// Solidity: function delpoymentOrderID() constant returns(uint256)
-func (_SimpleAuction *SimpleAuctionCaller) DelpoymentOrderID(opts *bind.CallOpts) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := _SimpleAuction.contract.Call(opts, out, "delpoymentOrderID")
-	return *ret0, err
-}
-
-// DelpoymentOrderID is a free data retrieval call binding the contract method 0x5d06978f.
-//
-// Solidity: function delpoymentOrderID() constant returns(uint256)
-func (_SimpleAuction *SimpleAuctionSession) DelpoymentOrderID() (*big.Int, error) {
-	return _SimpleAuction.Contract.DelpoymentOrderID(&_SimpleAuction.CallOpts)
-}
-
-// DelpoymentOrderID is a free data retrieval call binding the contract method 0x5d06978f.
-//
-// Solidity: function delpoymentOrderID() constant returns(uint256)
-func (_SimpleAuction *SimpleAuctionCallerSession) DelpoymentOrderID() (*big.Int, error) {
-	return _SimpleAuction.Contract.DelpoymentOrderID(&_SimpleAuction.CallOpts)
-}
-
 // HighestUnitPrice is a free data retrieval call binding the contract method 0x4840f2f0.
 //
 // Solidity: function highestUnitPrice() constant returns(uint256)
@@ -304,6 +278,32 @@ func (_SimpleAuction *SimpleAuctionSession) HighestUnitPrice() (*big.Int, error)
 // Solidity: function highestUnitPrice() constant returns(uint256)
 func (_SimpleAuction *SimpleAuctionCallerSession) HighestUnitPrice() (*big.Int, error) {
 	return _SimpleAuction.Contract.HighestUnitPrice(&_SimpleAuction.CallOpts)
+}
+
+// Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
+//
+// Solidity: function owner() constant returns(address)
+func (_SimpleAuction *SimpleAuctionCaller) Owner(opts *bind.CallOpts) (common.Address, error) {
+	var (
+		ret0 = new(common.Address)
+	)
+	out := ret0
+	err := _SimpleAuction.contract.Call(opts, out, "owner")
+	return *ret0, err
+}
+
+// Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
+//
+// Solidity: function owner() constant returns(address)
+func (_SimpleAuction *SimpleAuctionSession) Owner() (common.Address, error) {
+	return _SimpleAuction.Contract.Owner(&_SimpleAuction.CallOpts)
+}
+
+// Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
+//
+// Solidity: function owner() constant returns(address)
+func (_SimpleAuction *SimpleAuctionCallerSession) Owner() (common.Address, error) {
+	return _SimpleAuction.Contract.Owner(&_SimpleAuction.CallOpts)
 }
 
 // State is a free data retrieval call binding the contract method 0xc19d93fb.

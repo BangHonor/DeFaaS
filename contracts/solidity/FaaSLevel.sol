@@ -62,7 +62,7 @@ contract FaaSLevel is Owned {
             return (false, 0, 0);
         }
 
-        ComputingSourceLevel memory cs = faaSLevels[_levelID];
+        ComputingSourceLevel storage cs = faaSLevels[_levelID];
         return (true, cs.core, cs.mem);
     }
 
