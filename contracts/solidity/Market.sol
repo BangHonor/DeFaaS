@@ -46,13 +46,13 @@ contract Market is Owned, FaaSLevel, FaaSTokenPay, ProviderPool {
     // ------------------------------------------------------------------------------------
 
     // 部署订单数量
-    uint public numDeploymentOrders;
+    uint private numDeploymentOrders;
     // 部署订单表：deploymentOrderID => DeploymentOrder
-    mapping(uint => DeploymentOrder) public deploymentOrders;
+    mapping(uint => DeploymentOrder) private deploymentOrders;
     // 部署订单的拍卖地址表: deploymentOrderID => SimpleAuction
-    mapping(uint => SimpleAuction) public auctions;
+    mapping(uint => SimpleAuction) private auctions;
     // 匹配成功的部署订单的租约表: deploymentOrderID(leaseID) => Lease
-    mapping(uint => Lease) public leases;
+    mapping(uint => Lease) private leases;
     // 部署订单的状态表：deploymentOrderID => orderState
     mapping(uint => OrderStates) private deploymentOrderStates;
 

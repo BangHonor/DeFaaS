@@ -1,5 +1,22 @@
 # dev-doc
 
+## 开发计划
+
+- 修改 Market
+- 修改 WP/SLA
+- 联调 Matket 和 WP/SLA
+- 设计命令行工具 cli，使用 cobra 编写
+- 根据命令行工具 cli 的需要，写客户端
+
+## 经济模型（是否可行）
+
+- 以给 maintainer 奖励的方式来发币
+- 以给 witness 奖励的方式来发币
+
+## Provider 客户端设计
+
+- bidder Pool
+- accessSecretKey Pool
 
 ## ERC20
 

@@ -7,7 +7,6 @@ import (
 	"math/big"
 
 	"defaas/contracts/go/faaslevel" // import faaslevel
-	"defaas/utils"
 
 	"github.com/FISCO-BCOS/go-sdk/client"
 	"github.com/FISCO-BCOS/go-sdk/conf"
@@ -30,8 +29,8 @@ func main() {
 	}
 
 	// deploy the contract
-	owner, _ := utils.GetAddressFromConfig(config)
-	address, tx, _instance, err := faaslevel.DeployFaaSLevel(client.GetTransactOpts(), client, owner)
+	// owner, _ := utils.GetAddressFromConfig(config)
+	address, tx, _instance, err := faaslevel.DeployFaaSLevel(client.GetTransactOpts(), client)
 	if err != nil {
 		log.Fatal(err)
 	}
