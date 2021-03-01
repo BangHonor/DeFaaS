@@ -9,36 +9,41 @@ import "./Owned.sol";
 
 contract WitnessPool is Owned, FaaSTokenPay {
 
-    enum WStates { Offline, Online, Candidate, Busy }
+    // enum WStates { Offline, Online, Candidate, Busy }
+    enum WStates { Offline, Online, Working }
 
     // ------------------------------------------------------------------------------------------------
         
     struct Witness {
+        WStates state;      // 当前状态
         bool registered;    // 是否注册
         uint index;         // 在 witnessAddrs 数组中的索引
-        
-        WStates state;    // 当前状态
-        
-        address SLAContract;   // 当前服务的 SLA 合约（被选中到服务该 SLA 合约）
-        uint confirmDeadline;  // Candidate 状态下的最晚确认时间
-        int8 reputation;       // 信誉值，初始为 100，当为 0 时 Witness 被封锁
+        uint reputation;    // 信誉值，初始为 100，当为 0 时 Witness 被封锁
+        uint depoist;       // 交付的押金
     }
 
-    // witness Online 数量
-    uint public onlineCounter = 0;
-    mapping(address => Witness) witnessPool;    
-    address [] public witnessAddrs;    // the address pool of witnesses
+    // SLA 合约信息
+    struct SLAInfo{
+        bool valid;
+        uint curBlockNum;
+        uint8 blkNeed;     // how many blocks needed for sortition
+    }
 
     // ------------------------------------------------------------------------------------------------
 
-    // SLA 合约的信息
-    struct SortitionInfo{
-        bool valid;
-        uint curBlockNum;
-        uint8 blkNeed;   // how many blocks needed for sortition
-    }
-    mapping(address => SortitionInfo) SLAContractPool;   // record the requester's initial block number. The sortition will be based on the hash value after this block.
-    
+    // 证人表
+    mapping(address => Witness) private witnessPool;    
+    address [] private witnessAddrs;
+
+    // 证人 Online 数量
+    uint private onlineCounter;
+    // 证人押金标准
+    uint public stdWitnessDepoist;
+    // 证人信誉初始值
+    uint public witnessReputationInit;
+
+    // SLA 合约表
+    mapping(address => SLAInfo) SLAContractPool;
     
     // ------------------------------------------------------------------------------------------------
 
@@ -46,14 +51,29 @@ contract WitnessPool is Owned, FaaSTokenPay {
         public
         FaaSTokenPay(_tokenContractAddress)
     {
+        onlineCounter         = 0;
+        stdWitnessDepoist     = 100;  // 100 token
+        witnessReputationInit = 100;
     }
 
     // ------------------------------------------------------------------------------------------------
 
-    // record the provider _who generates a SLA contract of address _contractAddr at time _time
     event SLAContractGenEvent(address indexed _who, uint _time, address _contractAddr);
-    
     event WitnessSelectedEvent(address indexed _who, uint _index, address _forWhom);
+
+    // ------------------------------------------------------------------------------------------------
+
+    function isAtWState(address _witness, WStates _state) public view returns (bool) {
+        return (witnessPool[_witness].state == _state);
+    }
+
+    modifier atWState(address _witness, WStates _state) {
+        require(
+            isAtWState(_witness, _state) == true,
+            "WitenssPool: function cannot be called at this state"
+        );
+        _;
+    }
 
     // ------------------------------------------------------------------------------------------------
 
@@ -80,10 +100,12 @@ contract WitnessPool is Owned, FaaSTokenPay {
         _;
     }
 
+    // 证人是否合格
     function isWitnessQualified(address _witness) public view returns (bool) {
         return (witnessPool[_witness].reputation > 0);
     }
 
+    // 证人合格
     modifier witnessQualified() {
         require(
             isWitnessQualified(msg.sender) == true,
@@ -92,62 +114,61 @@ contract WitnessPool is Owned, FaaSTokenPay {
         _;
     }
 
-    function isAtWState(address _witness, WStates _state) public view returns (bool) {
-        return (witnessPool[_witness].state == _state);
-    }
-
-    modifier atWState(address _witness, WStates _state) {
-        require(
-            isAtWState(_witness, _state) == true,
-            "WitenssPool: the witness is not at specific state"
-        );
-        _;
-    }
-
+    // ------------------------------------------------------------------------------------------------
 
     // 是否是有效的 SLA 合约
     function isValidSLAContract(address _sla) public view returns (bool) {
         return SLAContractPool[_sla].valid;
     }
 
-    // 检查有效的 SLA 合约
+    // 有效的 SLA 合约
     modifier validSLAContract() {
-        require(isValidSLAContract(msg.sender) == true, "");
+        require(isValidSLAContract(msg.sender) == true, "WitnessPool: invalid SLA contract");
         _;
     }
 
     // ------------------------------------------------------------------------------------------------
 
+    // 证人 API
     // 注册为证人
-    function register() 
+    function witnessLogin() 
         public 
         witenssUnRegistered
     {
-        // 锁定押金 TODO
+        // 交押金
+        require(
+            tokenContract.transferFrom(msg.sender, address(this), stdWitnessDepoist),
+            "WitnessPool: failed to lock witness depoist"
+        );
 
         witnessAddrs.push(msg.sender);
-        witnessPool[msg.sender].index = witnessAddrs.length - 1;
-
-        witnessPool[msg.sender].state = WStates.Offline;
-        witnessPool[msg.sender].reputation = 100; 
-        witnessPool[msg.sender].registered = true;
+        witnessPool[msg.sender] = Witness({
+            state: WStates.Offline,
+            registered: true,
+            index: witnessAddrs.length - 1,
+            reputation:  witnessReputationInit,
+            depoist: stdWitnessDepoist
+        });
     }
-
+    
     // 证人 API
-    // 查看证人的信息
-    // 返回：（当前状态，信誉值，确认截至时间 如果该证人被选中的话，选中该证人的 SLA 合约地址）
-    function getWitness(address _witness)
+    // 注销证人资格
+    function witenessLogout() 
         public
-        view
-        returns (WitnessPool.WStates, int8, uint, address)
+        witenssRegisterd
+        witnessQualified
     {
-        require(isWitnessRegistered(_witness), "WitnessPool: unregistered");
-
-        return (
-            witnessPool[_witness].state, 
-            witnessPool[_witness].reputation, 
-            witnessPool[_witness].confirmDeadline, 
-            witnessPool[_witness].SLAContract);
+        // 检查
+        uint _depoist = witnessPool[msg.sender].depoist;
+        // 生效
+        witnessPool[msg.sender].state = WStates.Offline;
+        witnessPool[msg.sender].registered = false;
+        witnessPool[msg.sender].depoist = 0;
+        // 交互：退还押金
+        require(
+            tokenContract.transfer(msg.sender, _depoist),
+            "WitnessPool: failed to refund the witness deposit"
+        );
     }
 
     // 证人 API
@@ -173,54 +194,55 @@ contract WitnessPool is Owned, FaaSTokenPay {
         onlineCounter--;
     }
 
-    // 证人 API
-    // 拒绝被选中为某个 SLA 合约的证人委员会成员
-    function reject()
-        public
-        witenssRegisterd
-        atWState(msg.sender, WStates.Candidate)
-    {   
-        require( 
-            now < witnessPool[msg.sender].confirmDeadline,
-            "WitnessPool:can not reject after the confirm deadline"
-        );
+    // // 证人 API
+    // // 拒绝被选中为某个 SLA 合约的证人委员会成员
+    // function reject()
+    //     public
+    //     witenssRegisterd
+    //     atWState(msg.sender, WStates.Candidate)
+    // {   
+    //     require( 
+    //         now < witnessPool[msg.sender].confirmDeadline,
+    //         "WitnessPool:can not reject after the confirm deadline"
+    //     );
 
-        witnessPool[msg.sender].state = WStates.Online;
-        onlineCounter++;
-    }
+    //     witnessPool[msg.sender].state = WStates.Online;
+    //     onlineCounter++;
+    // }
     
-    // 证人 API
-    // 撤销 Candidate 状态，在确认截止日期后，将其自身状态更改为 Online
-    // 由于没有及时确认，需要降低证人的声誉值
-    function reverse()
-        public
-        witenssRegisterd
-        atWState(msg.sender, WStates.Candidate)
-    {
-        require(
-            now > witnessPool[msg.sender].confirmDeadline,
-            "WitnessPool: can not reverse before the confirm deadline"
-        );
+    // // 证人 API
+    // // 撤销 Candidate 状态，在确认截止日期后，将其自身状态更改为 Online
+    // // 由于没有及时确认，需要降低证人的声誉值
+    // function reverse()
+    //     public
+    //     witenssRegisterd
+    //     atWState(msg.sender, WStates.Candidate)
+    // {
+    //     require(
+    //         now > witnessPool[msg.sender].confirmDeadline,
+    //         "WitnessPool: can not reverse before the confirm deadline"
+    //     );
 
-        witnessPool[msg.sender].reputation -= 10;
+    //     witnessPool[msg.sender].reputation -= 10;
         
-        if (isWitnessQualified(msg.sender) == false) {
-            witnessPool[msg.sender].state = WStates.Offline;   // 强制下线
-        } else{
-            witnessPool[msg.sender].state = WStates.Online;
-            onlineCounter++;
-        }
-    }
+    //     if (isWitnessQualified(msg.sender) == false) {
+    //         witnessPool[msg.sender].state = WStates.Offline;   // 强制下线
+    //     } else{
+    //         witnessPool[msg.sender].state = WStates.Online;
+    //         onlineCounter++;
+    //     }
+    // }
     
     // ------------------------------------------------------------------------------------------------
 
+    // Matket API
     // 产生一个 SLA 合约
     function genSLAContract() 
         public 
         onlyOwner
         returns (address)
     {
-        CloudSLA newSLAContract = new CloudSLA(this, msg.sender, address(0x0));
+        SLA4FaaS newSLAContract = new SLA4FaaS(this, msg.sender, address(0x0));
         address newSLAContractAddress = address(newSLAContract);
         SLAContractPool[newSLAContractAddress].valid = true; 
         
@@ -257,21 +279,21 @@ contract WitnessPool is Owned, FaaSTokenPay {
         returns
         (bool success)
     {
-        //make sure the request is invoked before this interface
+        // make sure the request is invoked before this interface
         require(SLAContractPool[msg.sender].curBlockNum != 0);
         // there should be more than 10 times of _N online witnesses
         require(onlineCounter >= _N+2);   //this is debug mode
-        //require(onlineCounter > 10*_N);
+        // require(onlineCounter > 10*_N);
         
-        //currently, the hash value can only be accessed within 255 depth. In this case, invoke 'request' again
+        // currently, the hash value can only be accessed within 255 depth. In this case, invoke 'request' again
         require( block.number < SLAContractPool[msg.sender].curBlockNum + 255);
         // there should be more than extra 2*blkNeed blocks generated  
         require( block.number > SLAContractPool[msg.sender].curBlockNum + 2*SLAContractPool[msg.sender].blkNeed );
+
         uint seed = 0;
-        for(uint bi = 0 ; bi<SLAContractPool[msg.sender].blkNeed ; bi++)
+        for(uint bi = 0 ; bi < SLAContractPool[msg.sender].blkNeed; bi++)
         {
-            // seed += (uint)(block.blockhash( SLAContractPool[msg.sender].curBlockNum + bi + 1 ));
-            seed += (uint)(blockhash( SLAContractPool[msg.sender].curBlockNum + bi + 1 ));
+            seed += (uint)( blockhash( SLAContractPool[msg.sender].curBlockNum + bi + 1 ) );
         }
             
         
@@ -284,7 +306,7 @@ contract WitnessPool is Owned, FaaSTokenPay {
                 sAddr != _provider && 
                 sAddr != _customer)
             {
-                witnessPool[sAddr].state = WStates.Candidate;
+                // witnessPool[sAddr].state = WStates.Candidate;
                 witnessPool[sAddr].confirmDeadline = now + 5 minutes;   // 5 minutes for confirmation
                 witnessPool[sAddr].SLAContract = msg.sender;
                 emit WitnessSelectedEvent(sAddr, witnessPool[sAddr].index, msg.sender);

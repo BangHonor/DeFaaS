@@ -81,14 +81,13 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
         uint unitPrice;    // FaaS 规格对应的单价
         // 费用
         uint providerServiceFee;       // 服务成功时，供应商的服务费用
-        uint customerLockFee;          // 租户的预付款
         uint customerWithdrawFee;      // 租户取回多出的预付款
         uint customerCompensationFee;  // 服务失败时，租户的补偿款
         uint witnessFee;               // 证人的费用
         uint maintainerFee;            // 区块链维护者的费用
         // 监督
         bool isViolatedSLA;            // 是否违反 SLA 合约
-        CloudSLA SLAContract;          // SLA 执行合约
+        address SLAContractAddress;    // SLA 执行合约的地址
     }
 
     // ------------------------------------------------------------------------------------
@@ -254,14 +253,14 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
         
         // 匹配失败
         if (_success == false) {
-                                                                                // 检查
+                                                                                 // 检查
             deploymentOrders[_deploymentOrderID].state = OrderStates.Finished;  // 生效：修改状态
             freeLockFee(_deploymentOrderID);                                    // 交互：退还预付款
 
             return (false);
         }
 
-        // 匹配成功, 创建新的部署信息
+        // 匹配成功, 创建新的待供应商填充的部署信息
         deploymentInfos[_deploymentOrderID] = DeploymentInfo({
             unitPrice: _unitPrice,
             provider: _provider,
@@ -348,8 +347,8 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
         public
         atOrderState(_deploymentOrderID, OrderStates.Deploying)
     {
-        // 与 SLA 合约交互 TODO
-        // leases[_deploymentOrderID].SLAContract.XXX()
+        // 生成 SLA 合约，由证人执行对供应商的监视
+        leases[_deploymentOrderID].SLAContractAddress = wpContract.genSLAContract();
 
         // 修改订单状态
         deploymentOrders[_deploymentOrderID].state= OrderStates.Fulfilling;
@@ -364,7 +363,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
         // 时间控制 TODO
 
         // 查看是否违约
-        leases[_deploymentOrderID].isViolatedSLA = leases[_deploymentOrderID].SLAContract.isViolatedSLA();
+        leases[_deploymentOrderID].isViolatedSLA = SLA4FaaS(leases[_deploymentOrderID].SLAContractAddress).isViolatedSLA();
 
         // 修改订单状态：进入已结算而未转账的状态
         deploymentOrders[_deploymentOrderID].state = OrderStates.Settled;
@@ -409,7 +408,6 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
         DeploymentOrder storage _order = deploymentOrders[_deploymentOrderID];
         DeploymentInfo  storage _info  = deploymentInfos[_deploymentOrderID];
 
-        // 新建租约
         uint _customerLockFee = calculateLockFee(_order.highestUnitPrice, _order.faaSDuration);  // 租户的预付款
         uint _customerPayFee = calculateServiceFee(_info.unitPrice, _order.faaSDuration );       // 租户的实际应付                 
         uint _customerWithdrawFee = _customerLockFee - _customerPayFee;                          // 租户应取回的预付款
@@ -418,24 +416,24 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
         uint _providerServiceFee = _customerPayFee - (_witnessFee + _maintainerFee);             // 服务成功时，供应商可得服务报酬
         uint _customerCompensationFee = _providerServiceFee;                                     // 服务失败时，租户可得的补偿款
 
-        // 新建 SLA 合约
-        CloudSLA _sla = CloudSLA(wpContract.genSLAContract());
-
         // 新建租约
         leases[_deploymentOrderID] = Lease({
+            //
             customer: _order.customer,
             provider: _info.provider,
+            //
             faaSLevelID: _order.faaSLevelID,
             faaSDuration: _order.faaSDuration,
             unitPrice: _info.unitPrice,
-            isViolatedSLA: false,
+            //
             providerServiceFee: _providerServiceFee,
-            customerLockFee: _customerLockFee,
             customerWithdrawFee: _customerWithdrawFee,
             customerCompensationFee: _customerCompensationFee,
             witnessFee: _witnessFee,
             maintainerFee: _maintainerFee,
-            SLAContract: _sla
+            //
+            isViolatedSLA: false,           // 待在 Fulfilling 状态填写
+            SLAContractAddress: address(0)  // 待在 Deploying  状态填写
         });
     }
 }
