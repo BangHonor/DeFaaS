@@ -63,7 +63,7 @@
 
 
 
-#### 2.2.2 发布部署信息
+#### 2.2.2 部署信息
 
 部署订单需要  Provider 提供部署信息 `DeploymentInfo`。
 
@@ -73,4 +73,20 @@
 -  `funcPath`，通常会是一个哈希值
 - `deploymentServerAddr` 接受部署请求的服务器 `deploymentServer` 的地址
 - `accessSecretKey` 访问密钥，一个经过 Customer 公钥加密的哈希值
+
+
+
+
+
+### 2.3 博弈
+
+#### 2.3.1 证人之间的囚徒困境
+
+
+
+#### 2.3.2 供应商之间的买方博弈
+
+
+
+
 

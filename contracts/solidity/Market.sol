@@ -119,7 +119,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
 
     // ------------------------------------------------------------------------------------
 
-    constructor(address _tokenContractAddress, address _witnessPoolContractAddress) 
+    constructor(address _tokenContractAddress) 
         ProviderPool(_tokenContractAddress)
         public
     {        
@@ -127,9 +127,8 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
         // 部署订单号计数， 有效的部署订单号从 1 开始，0 为无效的部署订单号
         numDeploymentOrders = 1;
 
-        // 交互合约初始化
-        wpContract = WitnessPool(_witnessPoolContractAddress);
-        // wpContract.setMarketContractAddress(address(this));  // 部署时动作，要求 Market 的部署者和 WitnessPool 的所有者相同
+        // 创建 WitnessPool 合约，Market 合约是 WitnessPool 合约的所有者
+        wpContract = new WitnessPool(_tokenContractAddress);
     }
   
     // ------------------------------------------------------------------------------------
