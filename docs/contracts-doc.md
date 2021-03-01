@@ -65,15 +65,12 @@
 
 #### 2.2.2 发布部署信息
 
-部署订单需要 Customer 和 Provider 双方提供部署信息。
+部署订单需要  Provider 提供部署信息 `DeploymentInfo`。
 
-- `Comfirming` 阶段
-  - Customer 需要发布以下信息：
-    -  `funcPath`，通常会是一个哈希值
-  - Provider 提供以下信息：
-    - `endAddr`
-    - `deploymentServerAddr` 接受部署请求的服务器 `deploymentServer` 的地址
-    - `accessSecretKey` 访问密钥，一个经过 Customer 公钥加密的哈希值
+`DeploymentInfo` 包括：
 
-
+- `endAddr`
+-  `funcPath`，通常会是一个哈希值
+- `deploymentServerAddr` 接受部署请求的服务器 `deploymentServer` 的地址
+- `accessSecretKey` 访问密钥，一个经过 Customer 公钥加密的哈希值
 

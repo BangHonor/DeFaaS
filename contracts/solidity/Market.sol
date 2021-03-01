@@ -60,6 +60,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
     // 部署信息
     struct DeploymentInfo {
         // 状态信息
+        uint unitPrice;            // 竞价中成交的单价
         address provider;          // 供应商
         bool isProviderConfirmed;  // 供应商已确认
         // 部署地址
@@ -87,7 +88,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
         uint maintainerFee;            // 区块链维护者的费用
         // 监督
         bool isViolatedSLA;            // 是否违反 SLA 合约
-        address SLAContractAddress;    // SLA 执行合约的地址
+        CloudSLA SLAContract;          // SLA 执行合约
     }
 
     // ------------------------------------------------------------------------------------
@@ -103,6 +104,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
     mapping(uint => Lease)           private leases;
 
     WitnessPool wpContract;
+    address private maintainerAddress = address(0);
     
     // ------------------------------------------------------------------------------------
 
@@ -112,7 +114,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
     // 新建租约事件
     event NewDeploymentOrderEvent(uint indexed _deploymentOrderID, address _auctionAddress);
     event AuctionEndEvent        (uint indexed _deploymentOrderID, bool _success, address _provider, uint _unitPrice);
-    event NewDeploymentInfoEvent (uint indexed _deploymentOrderID, address _customer, address _provider);
+    event NewDeploymentInfoEvent (uint indexed _deploymentOrderID);
     event NewLeaseEvent          (uint indexed _deploymentOrderID, address _customer, address _provider);
 
     // ------------------------------------------------------------------------------------
@@ -132,13 +134,8 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
   
     // ------------------------------------------------------------------------------------
 
-    // 租户 API
-    // 计算订单的预付款
-    function calculateLockFee(uint _highestUnitPrice, uint _faaSDuration) public pure returns (uint) {
-        return (_highestUnitPrice * _faaSDuration);
-    }
 
-    // API
+
     // 查询部署订单
     // 返回：（租户，FaaS规格，服务时长，租户可接受的最高出价）
     function getDeploymentOrder(uint _deploymentOrderID) 
@@ -157,6 +154,16 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
         );
     }
 
+    // 计算部署订单的服务费
+    function calculateServiceFee(uint _unitPrice, uint _faaSDuration) public pure returns (uint) {
+        return (_unitPrice * _faaSDuration);
+    }
+
+    // 计算部署订单的预付款：锁定双倍费用
+    function calculateLockFee(uint _highestUnitPrice, uint _faaSDuration) public pure returns (uint) {
+        return ( 2 * calculateServiceFee(_highestUnitPrice, _faaSDuration));
+    }
+
     // 退还预付款
     function freeLockFee(uint _deploymentOrderID) private {
         require(
@@ -167,9 +174,8 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
         );
 
         DeploymentOrder storage _order = deploymentOrders[_deploymentOrderID];
-        uint lockFee = calculateLockFee(_order.highestUnitPrice,  _order.faaSDuration);
         require(
-            tokenContract.transfer(_order.customer, lockFee),
+            tokenContract.transfer(_order.customer, calculateLockFee(_order.highestUnitPrice,  _order.faaSDuration)),
             "Market: failed to refund locked fee back to customer"
         );
     }
@@ -178,6 +184,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
 
     // 租户 API
     // 新建部署订单
+    // 返回：（部署订单 ID）
     function newDeploymentOrder(
         uint _faaSLevelID,
         uint _highestUnitPrice,
@@ -192,10 +199,9 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
         require(_biddingDuration < 1 hours, "");
 
         // 锁定预付款
-        uint lockFee = calculateLockFee(_highestUnitPrice, _faaSDuration);
         require(
-            tokenContract.transferFrom(msg.sender, address(this), lockFee) == true,
-            "lock fee before creating deployment order"
+            tokenContract.transferFrom(msg.sender, address(this), calculateLockFee(_highestUnitPrice, _faaSDuration)),
+            "Market: failed to lock fee before creating deployment order"
         );
 
         // 新订单的 ID
@@ -258,6 +264,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
 
         // 匹配成功, 创建新的部署信息
         deploymentInfos[_deploymentOrderID] = DeploymentInfo({
+            unitPrice: _unitPrice,
             provider: _provider,
             isProviderConfirmed: false,
             endAddr: "",
@@ -265,6 +272,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
             deployServerAddr: "",
             accessSecretKey: ""
         });
+        
         // 修改状态
         deploymentOrders[_deploymentOrderID].state = OrderStates.Confirming;
 
@@ -277,6 +285,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
     function providerConfirm(
         uint _deploymentOrderID,
         string memory _endAddr,
+        string memory _funcPath,
         string memory _deployServerAddr,
         string memory _accessSecretKey) 
         public
@@ -286,17 +295,31 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
             msg.sender == deploymentInfos[_deploymentOrderID].provider,
             "Matket: only provider can confirm"
         );
+
+        // 参数检查
+        require(bytes(_endAddr).length          < 100, "");
+        require(bytes(_funcPath).length         < 100, "");
+        require(bytes(_deployServerAddr).length < 100, "");
+        require(bytes(_accessSecretKey).length  < 100, "");
+
         deploymentInfos[_deploymentOrderID].endAddr = _endAddr;
+        deploymentInfos[_deploymentOrderID].funcPath = _funcPath;
         deploymentInfos[_deploymentOrderID].deployServerAddr = _deployServerAddr;
         deploymentInfos[_deploymentOrderID].accessSecretKey = _accessSecretKey;
+
+        // 确认
         deploymentInfos[_deploymentOrderID].isProviderConfirmed = true;
+
+        emit NewDeploymentInfoEvent(_deploymentOrderID);
     }
 
     // 租户 API
     // 在供应商确认部署订单之后，租户进行部署订单确认，同时获得部署信息
-    function customerConfirm(uint _deploymentOrderID, string memory _funcPath) 
+    // 返回（_endAddr，_funcPath，_deployServerAddr，_accessSecretKey）
+    function customerConfirm(uint _deploymentOrderID) 
         public
         atOrderState(_deploymentOrderID, OrderStates.Confirming)
+        returns(string memory, string memory, string memory, string memory)
     {
         require(
             msg.sender == deploymentOrders[_deploymentOrderID].customer,
@@ -308,129 +331,112 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
             "Market：provider has not confirmed yet"
         );
 
-        // 提供部署信息
-        deploymentInfos[_deploymentOrderID].funcPath = _funcPath;
-
+        // 新建租约
+        _newLease(_deploymentOrderID);
         // 产生事件
-        emit NewDeploymentInfoEvent(_deploymentOrderID, deploymentOrders[_deploymentOrderID].customer, deploymentInfos[_deploymentOrderID].provider);
-        
-        // TODO 新建租约
         emit NewLeaseEvent(_deploymentOrderID, deploymentOrders[_deploymentOrderID].customer, deploymentInfos[_deploymentOrderID].provider);
-
+        
         // 修改状态
         deploymentOrders[_deploymentOrderID].state = OrderStates.Deploying;
+
+        DeploymentInfo storage _info = deploymentInfos[_deploymentOrderID];
+        return (_info.endAddr, _info.funcPath, _info.deployServerAddr, _info.accessSecretKey);
     }
 
-    // function () {
-    //             Lease memory _lease = newLease(_deploymentOrderID, _provider, _unitPrice);
-    //     leases[_deploymentOrderID] = _lease;
-    //     emit NewLeaseEvent(_deploymentOrderID, _lease.customer, _lease.provider);
-    // }
+    // 租户 API
+    // 租户部署完成，开始履行部署订单
+    function fulfillDeploymentOrder(uint _deploymentOrderID)
+        public
+        atOrderState(_deploymentOrderID, OrderStates.Deploying)
+    {
+        // 与 SLA 合约交互 TODO
+        // leases[_deploymentOrderID].SLAContract.XXX()
 
-    // // 租户部署完成，开始履行部署订单
-    // function fulfillDeploymentOrder(uint _deploymentOrderID, string memory something)
-    //     public
-    //     atOrderState(_deploymentOrderID, OrderStates.Deploying)
-    // {
-    //     // 产生 SLA 执行合约
-    //     // TODO：详细的 SLA 内容 something
-    //     leases[_deploymentOrderID].SLAContractAddress = wpContract.genSLAContract();
+        // 修改订单状态
+        deploymentOrders[_deploymentOrderID].state= OrderStates.Fulfilling;
+    }
 
-    //     // 修改订单状态
-    //     deploymentOrderStates[_deploymentOrderID] = OrderStates.Fulfilling;
-    // }
+    // 按照 SLA 的返回结果对订单进行结算
+    // 履行时间结束，供应商完成部署订单
+    function settleDeploymentOrder(uint _deploymentOrderID) 
+        public
+        atOrderState(_deploymentOrderID, OrderStates.Fulfilling)
+    {
+        // 时间控制 TODO
 
-    // // 按照 SLA 的返回结果对订单进行结算
-    // // 履行时间结束，供应商完成部署订单
-    // function settleDeploymentOrder(uint _deploymentOrderID) 
-    //     public
-    //     atOrderState(_deploymentOrderID, OrderStates.Fulfilling)
-    // {
-    //     // TODO：控制时间
+        // 查看是否违约
+        leases[_deploymentOrderID].isViolatedSLA = leases[_deploymentOrderID].SLAContract.isViolatedSLA();
 
-    //     // 查看是否违约
-    //     leases[_deploymentOrderID].isViolatedSLA = CloudSLA(leases[_deploymentOrderID].SLAContractAddress).isViolatedSLA();
-
-    //     // 修改订单状态：进入已结算（未转账）的状态
-    //     deploymentOrderStates[_deploymentOrderID] = OrderStates.Settled;
-    // }
+        // 修改订单状态：进入已结算而未转账的状态
+        deploymentOrders[_deploymentOrderID].state = OrderStates.Settled;
+    }
 
 
-    // // 结束部署订单，完成转账
-    // function finishDeploymemtOrder(uint _deploymentOrderID) 
-    //     public
-    //     atOrderState(_deploymentOrderID, OrderStates.Settled)
-    // {
-    //     Lease memory _lease = leases[_deploymentOrderID];
+    // 结束部署订单，完成转账
+    function finishDeploymemtOrder(uint _deploymentOrderID) 
+        public
+        atOrderState(_deploymentOrderID, OrderStates.Settled)
+    {
+        Lease storage _lease = leases[_deploymentOrderID];
 
-    //     // 支付区块链维护者费用 TODO
-    //     address _maintainerAddress = address(0);
-    //     require(tokenContract.transfer(_maintainerAddress, _lease.maintainerFee), "");
+        // 支付区块链维护者费用
+        require(tokenContract.transfer(maintainerAddress, _lease.maintainerFee), "");
 
-    //     // 支付证人费用
-    //     require(tokenContract.transfer(address(wpContract), _lease.witnessFee), "");
+        // 支付证人费用
+        require(tokenContract.transfer(address(wpContract), _lease.witnessFee), "");
         
-    //     // 退回租户预付款多出的部分
-    //     require(tokenContract.transfer(_lease.customer, _lease.customerWithdrawFee), "");  
+        // 退回租户预付款多出的部分
+        require(tokenContract.transfer(_lease.customer, _lease.customerWithdrawFee), "");  
         
-    //     if (_lease.isViolatedSLA == true) {
-    //         // 如违约，退回租户补偿费
-    //         require(tokenContract.transfer(_lease.customer, _lease.customerWithdrawFee), "");
-    //     } else {
-    //         //  如不违约，支付供应商报酬
-    //         require(tokenContract.transfer(_lease.provider, _lease.providerServiceFee), "");
-    //     }
+        if (_lease.isViolatedSLA == true) {
+            // 如违约，退回租户补偿款
+            require(tokenContract.transfer(_lease.customer, _lease.customerWithdrawFee), "");
+        } else {
+            //  如不违约，支付供应商报酬
+            require(tokenContract.transfer(_lease.provider, _lease.providerServiceFee), "");
+        }
 
-    //     // 结算完成的订单状态为 Finished
-    //     deploymentOrderStates[_deploymentOrderID] = OrderStates.Finished;
-    // }
+        // 转账完成的订单状态为 Finished，整个订单流程结束
+        deploymentOrders[_deploymentOrderID].state = OrderStates.Finished;
+    }
 
 
-    // // ------------------------------------------------------------------------------------
+    // ------------------------------------------------------------------------------------
 
-    // // 新建租约
-    // // 返回租约ID
-    // function newLease(
-    //     uint _deploymentOrderID,
-    //     address _provider,
-    //     uint _unitPrice) 
-    //     internal
-    //     returns (Lease memory)
-    // {
-    //     uint _leaseID = _deploymentOrderID;  // leaseID 就是 deploymentOrderID
-    //     DeploymentOrder memory order = deploymentOrders[_deploymentOrderID];
+    function _newLease(uint _deploymentOrderID) 
+        private  
+        atOrderState(_deploymentOrderID, OrderStates.Confirming)
+    {
+        DeploymentOrder storage _order = deploymentOrders[_deploymentOrderID];
+        DeploymentInfo  storage _info  = deploymentInfos[_deploymentOrderID];
 
-    //     // 租户的服务款
-    //     uint _customerLockFee =  getDeploymentOrderLockFee(order.highestUnitPrice, order.faaSDuration);
-    //     // 租户的实际支付
-    //     uint _customerPayFee = order.faaSDuration * _unitPrice;
-    //     // 租户多出的预付款
-    //     uint _customerWithdrawFee = _customerLockFee - _customerPayFee;
-    //     // 证人费用 TODO
-    //     uint _witnessFee = 0;
-    //     // 区块链维护者费用 TODO
-    //     uint _maintainerFee = 0;
-    //     // 服务成功时，供应商可得服务报酬
-    //     uint _providerServiceFee = _customerPayFee - (_witnessFee + _maintainerFee);
-    //     // 服务失败时，租户可得的补偿款
-    //     uint _customerCompensationFee = _providerServiceFee;
+        // 新建租约
+        uint _customerLockFee = calculateLockFee(_order.highestUnitPrice, _order.faaSDuration);  // 租户的预付款
+        uint _customerPayFee = calculateServiceFee(_info.unitPrice, _order.faaSDuration );       // 租户的实际应付                 
+        uint _customerWithdrawFee = _customerLockFee - _customerPayFee;                          // 租户应取回的预付款
+        uint _witnessFee = 0;                                                                    // 证人费用 TODO
+        uint _maintainerFee = 0;                                                                 // 区块链维护者费用 TODO
+        uint _providerServiceFee = _customerPayFee - (_witnessFee + _maintainerFee);             // 服务成功时，供应商可得服务报酬
+        uint _customerCompensationFee = _providerServiceFee;                                     // 服务失败时，租户可得的补偿款
 
-    //     Lease memory _lease = Lease({
-    //         customer: order.customer,
-    //         provider: _provider,
-    //         faaSLevelID: order.faaSLevelID,
-    //         faaSDuration: order.faaSDuration,
-    //         unitPrice: _unitPrice,
-    //         isViolatedSLA: false,
-    //         providerServiceFee: _providerServiceFee,
-    //         customerLockFee: _customerLockFee,
-    //         customerWithdrawFee: _customerWithdrawFee,
-    //         customerCompensationFee: _customerCompensationFee,
-    //         witnessFee: _witnessFee,
-    //         maintainerFee: _maintainerFee,
-    //         SLAContractAddress: address(0)  // 在本函数中填充为 0
-    //     });
-        
-    //     return _lease;
-    // }
+        // 新建 SLA 合约
+        CloudSLA _sla = CloudSLA(wpContract.genSLAContract());
+
+        // 新建租约
+        leases[_deploymentOrderID] = Lease({
+            customer: _order.customer,
+            provider: _info.provider,
+            faaSLevelID: _order.faaSLevelID,
+            faaSDuration: _order.faaSDuration,
+            unitPrice: _info.unitPrice,
+            isViolatedSLA: false,
+            providerServiceFee: _providerServiceFee,
+            customerLockFee: _customerLockFee,
+            customerWithdrawFee: _customerWithdrawFee,
+            customerCompensationFee: _customerCompensationFee,
+            witnessFee: _witnessFee,
+            maintainerFee: _maintainerFee,
+            SLAContract: _sla
+        });
+    }
 }

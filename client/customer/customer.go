@@ -98,7 +98,7 @@ func (client *Client) Deploy(order *DeploymentOrder, function *Function) error {
 
 func (client *Client) newDeploymentOrder(order *DeploymentOrder) (deploymentOrderID *big.Int, err error) {
 
-	lockFee, err := client.market.GetDeploymentOrderLockFee(
+	lockFee, err := client.market.CalculateLockFee(
 		order.HighestUnitPrice,
 		timeDurationToSoliditySecond(order.FaaSDuration))
 
