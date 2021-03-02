@@ -45,7 +45,7 @@ contract WitnessManagement is FaaSTokenPay {
     address [] internal witnessAddrs;
 
     // 证人 Online 数量
-    uint internal onlineCounter;
+    uint internal numOnlineWitness;
 
     
     // ------------------------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ contract WitnessManagement is FaaSTokenPay {
         FaaSTokenPay(_tokenContractAddress)
         public
     {
-        onlineCounter              = 0;
+        numOnlineWitness           = 0;
         stdWitnessDepoist          = 100;  // 100 token
         witnessReputationInit      = 100;
         witnessReputationQualified = 1;
@@ -153,7 +153,7 @@ contract WitnessManagement is FaaSTokenPay {
         atWState(msg.sender, WStates.Offline)
     {   
         witnessPool[msg.sender].state = WStates.Online;
-        onlineCounter++;
+        numOnlineWitness++;
     }
     
     // 证人 API
@@ -164,7 +164,7 @@ contract WitnessManagement is FaaSTokenPay {
         atWState(msg.sender, WStates.Online)
     {
         witnessPool[msg.sender].state = WStates.Offline;
-        onlineCounter--;
+        numOnlineWitness--;
     }
 
     // 证人 API
