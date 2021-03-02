@@ -4,7 +4,7 @@ pragma solidity^0.6.0;
 
 import "./FaaSTokenPay.sol";
 
-contract ProviderPool is FaaSTokenPay {
+contract ProviderManagement is FaaSTokenPay {
 
     // 信誉值为 0 表示未注册
     struct Provider {

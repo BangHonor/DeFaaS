@@ -2,272 +2,203 @@
 
 pragma solidity^0.6.0;
 
-import "./FaaSTokenPay.sol";
-import "./SLA.sol";
 import "./Owned.sol";
+import "./FaaSTokenPay.sol";
+import "./WitnessManagement.sol";
+import "./SLA.sol";
 
 
-contract WitnessPool is Owned, FaaSTokenPay {
+contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
 
-    // enum WStates { Offline, Online, Candidate, Busy }
-    enum WStates { Offline, Online, Working }
+    enum SLAStates { Confirming, Monitoring, Finished }
 
-    // ------------------------------------------------------------------------------------------------
-        
-    struct Witness {
-        WStates state;      // 当前状态
-        bool registered;    // 是否注册
-        uint index;         // 在 witnessAddrs 数组中的索引
-        uint reputation;    // 信誉值，初始为 100，当为 0 时 Witness 被封锁
-        uint depoist;       // 交付的押金
+    function isAtSLAState(uint _slaID, SLAStates _state) public view returns (bool) {
+        return (SLAPool[_slaID].state == _state);
     }
 
-    // SLA 合约信息
-    struct SLAInfo{
-        bool valid;
-        uint curBlockNum;
-        uint8 blkNeed;     // how many blocks needed for sortition
-    }
-
-    // ------------------------------------------------------------------------------------------------
-
-    // 证人表
-    mapping(address => Witness) private witnessPool;    
-    address [] private witnessAddrs;
-
-    // 证人 Online 数量
-    uint private onlineCounter;
-    // 证人押金标准
-    uint public stdWitnessDepoist;
-    // 证人信誉初始值
-    uint public witnessReputationInit;
-
-    // SLA 合约表
-    mapping(address => SLAInfo) SLAContractPool;
-    
-    // ------------------------------------------------------------------------------------------------
-
-    constructor(address _tokenContractAddress)
-        public
-        FaaSTokenPay(_tokenContractAddress)
-    {
-        onlineCounter         = 0;
-        stdWitnessDepoist     = 100;  // 100 token
-        witnessReputationInit = 100;
-    }
-
-    // ------------------------------------------------------------------------------------------------
-
-    event SLAContractGenEvent(address indexed _who, uint _time, address _contractAddr);
-    event WitnessSelectedEvent(address indexed _who, uint _index, address _forWhom);
-
-    // ------------------------------------------------------------------------------------------------
-
-    function isAtWState(address _witness, WStates _state) public view returns (bool) {
-        return (witnessPool[_witness].state == _state);
-    }
-
-    modifier atWState(address _witness, WStates _state) {
+    modifier atSLAtate(uint _slaID, SLAStates _state) {
         require(
-            isAtWState(_witness, _state) == true,
+            isAtSLAtate(_slaID _state) == true,
             "WitenssPool: function cannot be called at this state"
         );
         _;
     }
 
+
     // ------------------------------------------------------------------------------------------------
 
-    // 证人是否已注册
-    function isWitnessRegistered(address _witness) public view returns (bool) {
-        return witnessPool[_witness].registered;
+    // 证人委员信息
+    struct MemberInfo {
+        bool isSelected;          // 是否被选择为证人委员
+        bool isReportViolation;   // 是否报告了 SLA 违约 
     }
+
+    // SLA 执行信息
+    struct SLAInfo {
+        // 状态
+        SLAStates state;     // SLA 状态
+        bool isViolated;     // 是否发生违约
+        // 监视内容
+        string funcToMonitor;   // 监视函数
+        // 监视开始时间
+        // 监视结束时间
+        // 证人委员会的抽选参数
+        uint curBlockNum;
+        uint8 blkNeed;                   // how many blocks needed for sortition
+        // 证人委员会
+        uint numWitness;                             // 证人委员会人数
+        uint numJudgeViolationRequired;              // 判定违约需要的人数
+        address[] committee;                         // 证人委员会
+        mapping(address => MemberInfo) memberInfos;  // 证人委员信息        
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    // SLA 表: slaID => SLA，使用上 slaID 就是 deploymentOrderID
+    mapping(uint => SLAInfo) SLAPool;
+
+    // 一次性囚徒困境博弈的 payoff
+    uint public rewardViolationReport    = 10;   //  10 token
+    uint public rewardViolationSilence   =  0;   //   0 token
+    uint public rewardNoviolationReport  =  0;   //   0 token
+    uint public rewardNoviolationSilence =  1;   //   1 token
+
+    // 非诚实证人降低的信誉值
+    uint public reputationDishonestReduced = 1;
     
-    // 检查已注册
-    modifier witenssRegisterd() {
-        require(
-            isWitnessRegistered(msg.sender) == true,
-            "WitnessPool: the address had not been registered"
-        );
-        _;
-    }
-
-    // 检查未注册
-    modifier witenssUnRegistered() {
-        require(
-            isWitnessRegistered(msg.sender) == false,
-            "WitnessPool: the address had been registered"
-        );
-        _;
-    }
-
-    // 证人是否合格
-    function isWitnessQualified(address _witness) public view returns (bool) {
-        return (witnessPool[_witness].reputation > 0);
-    }
-
-    // 证人合格
-    modifier witnessQualified() {
-        require(
-            isWitnessQualified(msg.sender) == true,
-            "WitnessPool: the witness is unqualified"
-        );
-        _;
-    }
-
     // ------------------------------------------------------------------------------------------------
 
-    // 是否是有效的 SLA 合约
-    function isValidSLAContract(address _sla) public view returns (bool) {
-        return SLAContractPool[_sla].valid;
-    }
-
-    // 有效的 SLA 合约
-    modifier validSLAContract() {
-        require(isValidSLAContract(msg.sender) == true, "WitnessPool: invalid SLA contract");
-        _;
-    }
-
-    // ------------------------------------------------------------------------------------------------
-
-    // 证人 API
-    // 注册为证人
-    function witnessLogin() 
-        public 
-        witenssUnRegistered
-    {
-        // 交押金
-        require(
-            tokenContract.transferFrom(msg.sender, address(this), stdWitnessDepoist),
-            "WitnessPool: failed to lock witness depoist"
-        );
-
-        witnessAddrs.push(msg.sender);
-        witnessPool[msg.sender] = Witness({
-            state: WStates.Offline,
-            registered: true,
-            index: witnessAddrs.length - 1,
-            reputation:  witnessReputationInit,
-            depoist: stdWitnessDepoist
-        });
-    }
-    
-    // 证人 API
-    // 注销证人资格
-    function witenessLogout() 
+    constructor(address _tokenContractAddress)
         public
-        witenssRegisterd
-        witnessQualified
+        WitnessManagement(_tokenContractAddress)
     {
-        // 检查
-        uint _depoist = witnessPool[msg.sender].depoist;
-        // 生效
-        witnessPool[msg.sender].state = WStates.Offline;
-        witnessPool[msg.sender].registered = false;
-        witnessPool[msg.sender].depoist = 0;
-        // 交互：退还押金
-        require(
-            tokenContract.transfer(msg.sender, _depoist),
-            "WitnessPool: failed to refund the witness deposit"
-        );
     }
 
-    // 证人 API
-    // 转换到可以被抽选的 Online 状态
-    function turnOn()
-        public
-        witenssRegisterd
-        witnessQualified
-        atWState(msg.sender, WStates.Offline)
-    {   
-        witnessPool[msg.sender].state = WStates.Online;
-        onlineCounter++;
-    }
-    
-    // 证人 API
-    // 转换到不被抽选的 Offline 状态
-    function turnOff()
-        public
-        witenssRegisterd
-        atWState(msg.sender, WStates.Online)
-    {
-        witnessPool[msg.sender].state = WStates.Offline;
-        onlineCounter--;
-    }
-
-    // // 证人 API
-    // // 拒绝被选中为某个 SLA 合约的证人委员会成员
-    // function reject()
-    //     public
-    //     witenssRegisterd
-    //     atWState(msg.sender, WStates.Candidate)
-    // {   
-    //     require( 
-    //         now < witnessPool[msg.sender].confirmDeadline,
-    //         "WitnessPool:can not reject after the confirm deadline"
-    //     );
-
-    //     witnessPool[msg.sender].state = WStates.Online;
-    //     onlineCounter++;
-    // }
-    
-    // // 证人 API
-    // // 撤销 Candidate 状态，在确认截止日期后，将其自身状态更改为 Online
-    // // 由于没有及时确认，需要降低证人的声誉值
-    // function reverse()
-    //     public
-    //     witenssRegisterd
-    //     atWState(msg.sender, WStates.Candidate)
-    // {
-    //     require(
-    //         now > witnessPool[msg.sender].confirmDeadline,
-    //         "WitnessPool: can not reverse before the confirm deadline"
-    //     );
-
-    //     witnessPool[msg.sender].reputation -= 10;
-        
-    //     if (isWitnessQualified(msg.sender) == false) {
-    //         witnessPool[msg.sender].state = WStates.Offline;   // 强制下线
-    //     } else{
-    //         witnessPool[msg.sender].state = WStates.Online;
-    //         onlineCounter++;
-    //     }
-    // }
-    
     // ------------------------------------------------------------------------------------------------
 
-    // Matket API
-    // 产生一个 SLA 合约
-    function genSLAContract() 
+    event WitnessSelectedEvent(address indexed _witness, uint _index);
+
+    // ------------------------------------------------------------------------------------------------
+
+    function isWitnessCommitteeMember(uint _slaID, address _witness) public view returns (bool) {
+        return (SLAPool[_slaID].memberInfos[_witness].isSelected == true);
+    }
+
+    modifier witnessCommitteeMember(uint _slaID) {
+        require(
+            isWitnessCommitteeMember(_slaID, msg.sender),
+            "WitnessPool: the witness is not a committee member "
+        );
+        _;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+
+    // Market API
+    // 新建一个 SLA 执行信息
+    function newSLA(uint _slaID) 
         public 
         onlyOwner
-        returns (address)
     {
-        SLA4FaaS newSLAContract = new SLA4FaaS(this, msg.sender, address(0x0));
-        address newSLAContractAddress = address(newSLAContract);
-        SLAContractPool[newSLAContractAddress].valid = true; 
-        
-        emit SLAContractGenEvent(msg.sender, now, newSLAContractAddress);
+        // 抽选
+        uint _curBlockNum = block.number; 
+        uint _blkNeed     = 2;  // 参考值
 
-        return newSLAContractAddress;
+        // SLA 执行信息初始化
+        SLAInfo storage _sla = SLAPool[_slaID];
+        _sla.state = SLAStates.Monitoring;
+        _sla.isViolated = false;
+        _sla.funcToMonitor = "";
+        _sla.curBlockNum = _curBlockNum;
+        _sla.blkNeed = _blkNeed;
+        _sla.numWitness = ;
+        _sla.numJudgeViolationRequired = ;
+        _sla.committee = ;
+
+        // 证人委员信息初始化
+        for(uint i = 0; i < _sla.committee.length; i++) {
+            address _witness = _sla.committee[i];
+            _sla.memberInfos[_witness].isSelected = true;
+            _sla.memberInfos[_witness].isReportViolation = false;
+        }
+    }
+
+    // 证人 API
+    // 为指定的 SLA 报告违约
+    function reportViolation(uint _slaID)
+        public
+        witenssRegisterd
+        witnessQualified
+        witnessCommitteeMember(_slaID)
+        atSLAState(_slaID, SLAStates.Monitoring)
+        // 时间检查 TODO
+    {
+        // 报告违约
+        SLAPool[_slaID].memberInfos[msg.sender].isReportViolation = true;
+    }
+
+    // ------------------------------------------------------------------------------------------------
+
+    // 判断是否违约，并产生证人奖励
+    function _judgeViolation(uint _slaID)
+        private
+        atSLAState(_slaID, SLAStates.Monitoring)
+        // 时间检查 TODO
+    {
+        SLA storage _sla = SLAPool[_slaID];
+        
+        // 计数
+        uint numReportViolation = 0;
+        for(uint i = 0; i < _sla.committee.length; i++) {
+            address _witness = _sla.committee[i];
+            if (_sla.memberInfos[_witness].isReportViolation == true) {
+                numReportViolation++;
+            }
+        }
+
+        // 记录监视结果
+        _sla.isViolated = (numReportViolation > _sla.numJudgeViolationRequired);
+
+        // 证人奖励结算
+        for(uint i = 0; i < _sla.committee.length; i++) {
+            address _witness = _sla.committee[i];
+
+            if(_sla.isViolated == true) {
+                // 违约了
+                if (_sla.memberInfos[_witness].isReportViolation == true) {
+                    // 报告违约
+                    witnessPool[_witness].reward += rewardViolationReport;  
+                } else{
+                    // 未报告违约
+                    witnessPool[_witness].reward += rewardViolationSilence;
+                    witnessPool[_witness].reputation -= reputationDishonestReduced;  // 减少信誉值
+                }
+            } else {
+                // 未违约
+                if (_sla.memberInfos[_witness].isReportViolation == true) {
+                    // 报告违约
+                    witnessPool[_witness].reward += rewardNoviolationReport;
+                    witnessPool[_witness].reputation -= reputationDishonestReduced;  // 减少信誉值
+                } else{
+                    // 未报告违约
+                    witnessPool[_witness].reward += rewardNoviolationSilence;  
+                }
+            }
+        }
+    }
+
+    // Matket API
+    function isViolatedSLA(uint _slaID)
+        public
+        // 时间检查
+        // 时间转换
+        atSLAState(_slaID, SLAStates.Finished)
+        returns (bool)
+    {
+        return SLAPool[_slaID].isViolated;
     }
     
-    /**
-     * Contract Interface::
-     * This is for SLA contract to submit a committee sortition request.
-     * _blkNeed: This is a number to specify how many blocks needed in the future for the committee sortition. 
-     *            Its range should be 2~255. The recommended value is 12.  
-     * */
-    function request(uint8 _blkNeed)
-        public 
-        validSLAContract
-        returns
-        (bool success)
-    {
-        //record current block number
-        SLAContractPool[msg.sender].curBlockNum = block.number;
-        SLAContractPool[msg.sender].blkNeed = _blkNeed;
-        return true;
-    }
     
     /**
      * Contract Interface::

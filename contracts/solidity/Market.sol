@@ -3,15 +3,14 @@
 pragma solidity^0.6.0;
 
 import "./FaaSTokenPay.sol";
-import "./ProviderPool.sol";
+import "./ProviderManagement.sol";
 import "./SimpleAuction.sol";
-import "./WitnessPool.sol";
-import "./SLA.sol";
+// import "./WitnessPool.sol";
 import "./SafeMath.sol";
 import "./Owned.sol";
 import "./FaaSLevel.sol";
 
-contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
+contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
 
     // ------------------------------------------------------------------------------------
 
@@ -95,14 +94,14 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
     // 部署订单数量
     uint private numDeploymentOrders;
 
-    // 部署订单表：deploymentOrderID => DeploymentOrder
-    // 部署信息表：deploymentOrderID => DeploymentInfo
+    // 部署订单表: deploymentOrderID => DeploymentOrder
+    // 部署信息表: deploymentOrderID => DeploymentInfo
     // 租约表:     deploymentOrderID => Lease
     mapping(uint => DeploymentOrder) private deploymentOrders;
     mapping(uint => DeploymentInfo)  private deploymentInfos;
     mapping(uint => Lease)           private leases;
 
-    WitnessPool wpContract;
+    // WitnessPool wpContract;
     address private maintainerAddress = address(0);
     
     // ------------------------------------------------------------------------------------
@@ -119,7 +118,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
     // ------------------------------------------------------------------------------------
 
     constructor(address _tokenContractAddress) 
-        ProviderPool(_tokenContractAddress)
+        ProviderManagement(_tokenContractAddress)
         public
     {        
         // 部署订单参数初始化
@@ -127,7 +126,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
         numDeploymentOrders = 1;
 
         // 创建 WitnessPool 合约，Market 合约是 WitnessPool 合约的所有者
-        wpContract = new WitnessPool(_tokenContractAddress);
+        // wpContract = new WitnessPool(_tokenContractAddress);
     }
   
     // ------------------------------------------------------------------------------------
@@ -348,7 +347,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
         atOrderState(_deploymentOrderID, OrderStates.Deploying)
     {
         // 生成 SLA 合约，由证人执行对供应商的监视
-        leases[_deploymentOrderID].SLAContractAddress = wpContract.genSLAContract();
+        // leases[_deploymentOrderID].SLAContractAddress = wpContract.genSLAContract();
 
         // 修改订单状态
         deploymentOrders[_deploymentOrderID].state= OrderStates.Fulfilling;
@@ -363,7 +362,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
         // 时间控制 TODO
 
         // 查看是否违约
-        leases[_deploymentOrderID].isViolatedSLA = SLA4FaaS(leases[_deploymentOrderID].SLAContractAddress).isViolatedSLA();
+        // leases[_deploymentOrderID].isViolatedSLA = SLA4FaaS(leases[_deploymentOrderID].SLAContractAddress).isViolatedSLA();
 
         // 修改订单状态：进入已结算而未转账的状态
         deploymentOrders[_deploymentOrderID].state = OrderStates.Settled;
@@ -381,7 +380,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderPool {
         require(tokenContract.transfer(maintainerAddress, _lease.maintainerFee), "");
 
         // 支付证人费用
-        require(tokenContract.transfer(address(wpContract), _lease.witnessFee), "");
+        // require(tokenContract.transfer(address(wpContract), _lease.witnessFee), "");
         
         // 退回租户预付款多出的部分
         require(tokenContract.transfer(_lease.customer, _lease.customerWithdrawFee), "");  
