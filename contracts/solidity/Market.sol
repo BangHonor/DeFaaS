@@ -49,7 +49,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         // 订单内容
         address customer;         // 租户地址
         uint faaSLevelID;         // FaaS 规格
-        uint faaSDuration;        // 服务时长
+        uint faaSDuration;        // 服务时长，该值以秒为单位
         uint highestUnitPrice;    // 租户可接受的最高单价
         // 竞价
         SimpleAuction auctionContract;  // 竞价合约
@@ -91,7 +91,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
 
     // ------------------------------------------------------------------------------------
 
-    // 部署订单数量
+    // 部署订单数量，并且是部署订单 ID 自增器
     uint private numDeploymentOrders;
 
     // 部署订单表: deploymentOrderID => DeploymentOrder
@@ -127,8 +127,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         public
     {        
         // 部署订单参数初始化
-        // 部署订单号计数， 有效的部署订单号从 1 开始，0 为无效的部署订单号
-        numDeploymentOrders = 1;
+        numDeploymentOrders = 0;
 
         // 创建 WitnessPool 合约，Market 合约是 WitnessPool 合约的所有者
         wpContract = new WitnessPool(_tokenContractAddress);
@@ -136,6 +135,15 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
   
     // ------------------------------------------------------------------------------------
 
+    modifier validDeploymentOrder(uint _deploymentOrderID) {
+        require(
+            _deploymentOrderID < numDeploymentOrders, 
+            "Market: invalid deployment order ID"
+        );
+        _;
+    }
+
+    // ------------------------------------------------------------------------------------
 
 
     // 查询部署订单
@@ -143,6 +151,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
     function getDeploymentOrder(uint _deploymentOrderID) 
         public
         view
+        validDeploymentOrder(_deploymentOrderID)
         returns (address, uint, uint, uint)
     {
         // 对于引用类型，状态变量向 storage 局部变量赋值时仅仅传递一个引用
@@ -158,7 +167,9 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
 
     // 计算部署订单的服务费
     function calculateServiceFee(uint _unitPrice, uint _faaSDuration) public pure returns (uint) {
-        return (_unitPrice * _faaSDuration);
+        // _faaSDuration 以秒为单位
+        // FaaS 费用以小时计价，不足整个小时部分按一小时计算
+        return (_unitPrice * ( (_faaSDuration + (1 hours) - 1) / (1 hours)) );
     }
 
     // 计算部署订单的预付款：锁定双倍费用
@@ -167,7 +178,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
     }
 
     // 退还预付款
-    function freeLockFee(uint _deploymentOrderID) private {
+    function _freeLockFee(uint _deploymentOrderID) private {
         require(
             isAtOrderStates(_deploymentOrderID, OrderStates.Bidding) || 
             isAtOrderStates(_deploymentOrderID, OrderStates.Confirming) || 
@@ -197,8 +208,9 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
     {
         // 参数检查
         require(_faaSLevelID < getFaaSLevelNumber(), "");
-        require(_faaSDuration < 100 days, "");
-        require(_biddingDuration < 1 hours, "");
+        require(_highestUnitPrice > 0, "");
+        require(_faaSDuration >= 1 days &&  _faaSDuration <= 100 days, "");
+        require(_biddingDuration >= 1 hours &&  _biddingDuration <= 7 days, "");
 
         // 锁定预付款
         require(
@@ -233,6 +245,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
     // 对部署订单竞价
     function bid(uint _deploymentOrderID, uint _unitPrice) 
         public
+        validDeploymentOrder(_deploymentOrderID)
         providerRegistered(msg.sender)
         providerQualified(msg.sender)
         atOrderState(_deploymentOrderID, OrderStates.Bidding)
@@ -259,7 +272,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         if (_success == false) {
                                                                                  // 检查
             deploymentOrders[_deploymentOrderID].state = OrderStates.Finished;  // 生效：修改状态
-            freeLockFee(_deploymentOrderID);                                    // 交互：退还预付款
+            _freeLockFee(_deploymentOrderID);                                    // 交互：退还预付款
 
             return (false);
         }
@@ -291,6 +304,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         string memory _deployServerAddr,
         string memory _accessSecretKey) 
         public
+        validDeploymentOrder(_deploymentOrderID)
         atOrderState(_deploymentOrderID, OrderStates.Confirming)
     {
         require(
@@ -299,10 +313,10 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         );
 
         // 参数检查
-        require(bytes(_endAddr).length          < 100, "");
-        require(bytes(_funcPath).length         < 100, "");
-        require(bytes(_deployServerAddr).length < 100, "");
-        require(bytes(_accessSecretKey).length  < 100, "");
+        require(bytes(_endAddr).length          > 0 && bytes(_endAddr).length          <= 256, "");
+        require(bytes(_funcPath).length         > 0 && bytes(_funcPath).length         <= 256, "");
+        require(bytes(_deployServerAddr).length > 0 && bytes(_deployServerAddr).length <= 256, "");
+        require(bytes(_accessSecretKey).length  > 0 && bytes(_accessSecretKey).length  <= 256, "");
 
         deploymentInfos[_deploymentOrderID].endAddr = _endAddr;
         deploymentInfos[_deploymentOrderID].funcPath = _funcPath;
@@ -320,6 +334,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
     // 返回（_endAddr，_funcPath，_deployServerAddr，_accessSecretKey）
     function customerConfirm(uint _deploymentOrderID) 
         public
+        validDeploymentOrder(_deploymentOrderID)
         atOrderState(_deploymentOrderID, OrderStates.Confirming)
         returns(string memory, string memory, string memory, string memory)
     {
@@ -349,6 +364,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
     // 租户部署完成，开始履行部署订单
     function fulfillDeploymentOrder(uint _deploymentOrderID)
         public
+        validDeploymentOrder(_deploymentOrderID)
         atOrderState(_deploymentOrderID, OrderStates.Deploying)
     {
         // 生成 SLA 监督，由证人执行对供应商的监视
@@ -372,6 +388,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
     // 履行时间结束，供应商完成部署订单
     function settleDeploymentOrder(uint _deploymentOrderID) 
         public
+        validDeploymentOrder(_deploymentOrderID)
         atOrderState(_deploymentOrderID, OrderStates.Fulfilling)
     {
         require(
@@ -390,6 +407,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
     // 结束部署订单，完成转账
     function finishDeploymemtOrder(uint _deploymentOrderID) 
         public
+        validDeploymentOrder(_deploymentOrderID)
         atOrderState(_deploymentOrderID, OrderStates.Settled)
     {
         Lease storage _lease = leases[_deploymentOrderID];

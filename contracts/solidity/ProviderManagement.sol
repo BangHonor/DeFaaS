@@ -116,7 +116,7 @@ contract ProviderManagement is FaaSTokenPay {
 
         // 支付押金，供应商应预先进行授权转账操作
         require(
-            tokenContract.transferFrom(msg.sender, address(this), getStdProviderDeposit()) == true,
+            tokenContract.transferFrom(msg.sender, address(this), providers[msg.sender].deposit) == true,
             "Market: failed to pay a register deposit"
         );    
     }
