@@ -52,11 +52,11 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
     // SLA 表: slaID => SLA，在使用时 slaID 就是 deploymentOrderID
     mapping(uint => SLAInfo) SLAPool;
 
-    // 一次性囚徒困境博弈的 payoff
-    uint public rewardViolationReport    = 10;   //  10 token
-    uint public rewardViolationSilence   =  0;   //   0 token
-    uint public rewardNoviolationReport  =  0;   //   0 token
-    uint public rewardNoviolationSilence =  1;   //   1 token
+    // 一次性的证人博弈 payoff
+    uint public rewardViolationReport    = 10;   // +10
+    uint public fineViolationSilence     =  0;   // -0
+    uint public fineNoviolationReport    =  1;   // -1
+    uint public rewardNoviolationSilence =  1;   // +1
 
     // 非诚实证人降低的信誉值
     uint public reputationDishonestReduced = 1;
@@ -233,21 +233,21 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
                 // 违约了
                 if (_sla.memberInfos[_witness].isReportViolation == true) {
                     // 报告违约
-                    witnessPool[_witness].reward += rewardViolationReport;  
+                    witnessPool[_witness].reward += rewardViolationReport;  // 获得奖励
                 } else{
                     // 未报告违约
-                    witnessPool[_witness].reward += rewardViolationSilence;
+                    witnessPool[_witness].depoist    -= fineViolationSilence;        // 扣罚押金         
                     witnessPool[_witness].reputation -= reputationDishonestReduced;  // 减少信誉值
                 }
             } else {
                 // 未违约
                 if (_sla.memberInfos[_witness].isReportViolation == true) {
                     // 报告违约
-                    witnessPool[_witness].reward += rewardNoviolationReport;
+                    witnessPool[_witness].reward     -= fineNoviolationReport;       // 扣罚押金
                     witnessPool[_witness].reputation -= reputationDishonestReduced;  // 减少信誉值
                 } else{
                     // 未报告违约
-                    witnessPool[_witness].reward += rewardNoviolationSilence;  
+                    witnessPool[_witness].reward += rewardNoviolationSilence;  // 获得奖励
                 }
             }
         }

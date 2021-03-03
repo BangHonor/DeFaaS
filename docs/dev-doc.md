@@ -2,11 +2,19 @@
 
 ## 开发计划
 
-- 修改 Market
-- 修改 WP/SLA
-- 联调 Matket 和 WP/SLA
+- 修改 Market `Done`
+- 修改 WP/SLA `Done`
+- 联调 Matket 和 WP/SLA `Done`
+- 改进 WP 合约的 report 为秘密报告
+- 单元测试 Market 合约函数
+- 单元测试 WP 合约函数
 - 设计命令行工具 cli，使用 cobra 编写
 - 根据命令行工具 cli 的需要，写客户端
+- 链端-客户端集成测试
+- docker 为函数实体
+- 生产环境部署
+- 生产环境测试
+
 
 ## 经济模型（是否可行）
 
