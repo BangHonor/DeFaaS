@@ -7,6 +7,15 @@ https://github.com/spf13/cobra
 
 ## cli 设计
 
+```bash
+cobra add account  -a kitchen -l mit
+cobra add init     -a kitchen -l mit
+cobra add customer -a kitchen -l mit
+cobra add provider -a kitchen -l mit
+cobra add witness  -a kitchen -l mit
+cobra add token    -a kitchen -l mit
+cobra add function -a kitchen -l mit
+```
 
 
 目录设计
