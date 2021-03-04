@@ -5,8 +5,11 @@ pragma solidity^0.6.0;
 import "./Owned.sol";
 import "./FaaSTokenPay.sol";
 import "./WitnessManagement.sol";
+import "./SafeMath.sol";
 
 contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
+
+    using SafeMath for uint;   // 注意到 uint 默认是 uint256
 
     enum SLAStates { Confirming, Monitoring, Finished }
 
