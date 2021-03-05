@@ -42,3 +42,6 @@ go.sum
 
 # idea
 .idea
+
+# cli 二进制
+cli/app/defaas

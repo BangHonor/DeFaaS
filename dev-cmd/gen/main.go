@@ -9,7 +9,7 @@ import (
 	"path"
 	"strings"
 
-	"defaas/utils"
+	"defaas/dev-cmd/utils"
 
 	"github.com/go-cmd/cmd"
 )
@@ -26,7 +26,7 @@ const (
 )
 
 // e.g.
-// go run cmd/gen/main.go  -name=FaaSToken
+// go run dev-cmd/gen/main.go -name=Market
 
 func main() {
 

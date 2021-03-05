@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"log"
 
-	"defaas/utils"
+	"defaas/dev-cmd/utils"
 
 	"github.com/FISCO-BCOS/go-sdk/conf"
 )

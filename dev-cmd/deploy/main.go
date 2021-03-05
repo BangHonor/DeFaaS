@@ -3,7 +3,7 @@ package main
 // 自动化部署合约
 
 import (
-	"defaas/utils"
+	"defaas/dev-cmd/utils"
 	"fmt"
 
 	"github.com/go-cmd/cmd"
@@ -11,17 +11,12 @@ import (
 
 // ----------------------------------------------------------------------
 
-// go run cmd/gen/main.go -name=FaaSLevel
-// go run cmd/gen/main.go -name=FaaSToken
-// go run cmd/gen/main.go -name=WitnessPool
-// go run cmd/gen/main.go -name=Market
-
+// go run dev-cmd/gen/main.go -name=FaaSToken
+// go run dev-cmd/gen/main.go -name=Market
 func genContracts() {
 
 	contractNames := []string{
-		"FaaSLevel",
 		"FaaSToken",
-		"WitnessPool",
 		"Market",
 	}
 

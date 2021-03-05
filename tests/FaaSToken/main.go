@@ -7,7 +7,7 @@ import (
 
 	// "defaas/contracts/go/faastoken"
 	"defaas/contracts/go/faastoken"
-	"defaas/utils"
+	"defaas/dev-cmd/utils"
 
 	sdkClient "github.com/FISCO-BCOS/go-sdk/client"
 	"github.com/FISCO-BCOS/go-sdk/conf"
