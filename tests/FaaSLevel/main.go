@@ -13,6 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+// go run tests/FaaSLevel/main.go
 func main() {
 
 	// load config

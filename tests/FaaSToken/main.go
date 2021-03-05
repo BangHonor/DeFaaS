@@ -14,6 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+// go run tests/FaaSToken/main.go
 func main() {
 
 	// load config

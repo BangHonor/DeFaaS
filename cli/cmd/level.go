@@ -25,7 +25,7 @@ THE SOFTWARE.
 import (
 	"fmt"
 
-	"defaas/faas/market"
+	"defaas/clients/market"
 
 	"github.com/spf13/cobra"
 
