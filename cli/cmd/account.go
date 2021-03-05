@@ -25,7 +25,6 @@ THE SOFTWARE.
 import (
 	"fmt"
 	"log"
-	"os"
 
 	devutils "defaas/dev-cmd/utils"
 
@@ -56,7 +55,7 @@ var generateCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		// 检查 account 目录
-		if err := checkAccountsDir(); err != nil {
+		if err := devutils.CheckDir(constAccountsDirPath); err != nil {
 			log.Fatal(err)
 		}
 
@@ -76,17 +75,4 @@ func init() {
 
 	// 添加子命令
 	accountCmd.AddCommand(generateCmd)
-}
-
-// ------------------------------------------------------------------------------------------------
-
-func checkAccountsDir() error {
-	stat, err := os.Stat(constAccountsDirPath)
-	if os.IsNotExist(err) {
-		return fmt.Errorf("directory '%s' does not exist", constAccountsDirPath)
-	}
-	if !stat.IsDir() {
-		return fmt.Errorf("'%s' should be a directory", constAccountsDirPath)
-	}
-	return nil
 }

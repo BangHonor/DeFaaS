@@ -3,6 +3,8 @@
 ## cobra 库
 
 https://github.com/spf13/cobra
+https://pkg.go.dev/github.com/spf13/cobra
+
 
 ```bash
 cobra add account  -a kitchen -l mit

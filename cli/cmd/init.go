@@ -24,35 +24,74 @@ THE SOFTWARE.
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"path"
 
 	"github.com/spf13/cobra"
+
+	devutils "defaas/dev-cmd/utils"
 )
 
 // initCmd represents the init command
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "initialize the template of defaas",
+	Long:  `Initialize the template of defaas`,
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("init called")
+		if err := initFaaSTemplate(); err != nil {
+			log.Fatal(err)
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(initCmd)
+}
 
-	// Here you will define your flags and configuration settings.
+func initFaaSTemplate() (err error) {
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// initCmd.PersistentFlags().String("foo", "", "A help for foo")
+	var workingDir string = "."
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// initCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	defer func() {
+		// 如果出错，执行回滚，删除创建的文件
+		if err != nil {
+			devutils.ClearDir(workingDir)
+		}
+	}()
+
+	// 要求工作目录是一个空目录
+	var isEmpty bool
+	isEmpty, err = devutils.IsDirEmpty(workingDir)
+	if err != nil {
+		return err
+	}
+	if !isEmpty {
+		err = fmt.Errorf("working directory is not empty, please use 'defaas init' in an empty directory")
+		return err
+	}
+
+	// 创建文件夹
+	if err = os.Mkdir(path.Join(workingDir, "tools"), os.ModePerm); err != nil {
+		return err
+	}
+	// TODO
+	fmt.Println("generate tools/")
+
+	if err := os.Mkdir(path.Join(workingDir, "accounts"), os.ModePerm); err != nil {
+		return err
+	}
+	// TODO
+	fmt.Println("generate accounts/")
+
+	if err := os.Mkdir(path.Join(workingDir, "functions"), os.ModePerm); err != nil {
+		return err
+	}
+	// TODO
+	fmt.Println("generate accounts/")
+
+	// test
+	err = fmt.Errorf("")
+	return err
 }
