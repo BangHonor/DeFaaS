@@ -1,0 +1,9 @@
+# 
+
+title = "DeFaaS Config"
+
+
+[contractsAddress]
+FaasToken = "0x123"
+Market = "0x123"
+WitnessPool = "0x123"

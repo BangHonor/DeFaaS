@@ -47,7 +47,7 @@ func generateExample() {
 
 func configExample() {
 	// load config
-	configs, err := conf.ParseConfigFile("config.toml")
+	configs, err := conf.ParseConfigFile("client-config.toml")
 	if err != nil {
 		log.Fatal(err)
 	}
