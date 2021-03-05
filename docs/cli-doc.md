@@ -16,7 +16,7 @@ cobra add function -a kitchen -l mit
 
 
 ```bash
-cd cli/defaas && go build && cd -
+cd cli/app && go build -o defaas && cd -
 ```
 
 
@@ -82,18 +82,6 @@ defaas account generate
 ```
 
 将在`mydir/accounts/` 目录下产生一个新的私钥文件，即产生一个新的地址账户。
-
-
-
-### switch
-
-切换当前使用的账户，要求目标账户的私钥文件在`mydir/accounts/` 目录下。
-
-```
-defaas account switch 0xYYYYYZZZZZZ
-```
-
-
 
 
 

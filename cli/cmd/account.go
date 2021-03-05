@@ -26,7 +26,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path"
 
 	devutils "defaas/dev-cmd/utils"
 
@@ -56,42 +55,17 @@ var generateCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 
+		// 检查 account 目录
+		if err := checkAccountsDir(); err != nil {
+			log.Fatal(err)
+		}
+
 		// 使用 FISCO BCOS 官方提供的 shell 脚本创建
 		// https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/docs/manual/account.html
 		devutils.RunCmd(devutilscmd.NewCmd(
 			"./tools/get_account.sh"))
 
 		fmt.Println("new address generated")
-	},
-}
-
-var switchCmd = &cobra.Command{
-	Use:   "switch [account]",
-	Short: "switch current account",
-	Long:  `switch current account to the specified account`,
-	Args: func(cmd *cobra.Command, args []string) error {
-		if err := cobra.ExactArgs(1)(cmd, args); err != nil {
-			return err
-		}
-		var addressHex string = args[0]
-		if len(addressHex) != 42 || addressHex[0:2] != "0x" {
-			return fmt.Errorf("invalid format, a 42-length string like '0x00000123456789ABCDEF00000123456789ABCDEF' is expected")
-		}
-		return nil
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-		if err := checkAccountsDir(); err != nil {
-			log.Fatal(err)
-		}
-		pemFilePath := getPemFilePath(args[0])
-		if err := checkPemFile(pemFilePath); err != nil {
-			log.Fatal(err)
-		}
-
-		// TODO switch
-
-		fmt.Printf("load pem file [%s]\n", pemFilePath)
-		fmt.Printf("switch current account to [%s]\n", args[0])
 	},
 }
 
@@ -102,14 +76,9 @@ func init() {
 
 	// 添加子命令
 	accountCmd.AddCommand(generateCmd)
-	accountCmd.AddCommand(switchCmd)
 }
 
 // ------------------------------------------------------------------------------------------------
-
-func getPemFilePath(addressHex string) string {
-	return path.Join(constAccountsDirPath, addressHex+".pem")
-}
 
 func checkAccountsDir() error {
 	stat, err := os.Stat(constAccountsDirPath)
@@ -118,17 +87,6 @@ func checkAccountsDir() error {
 	}
 	if !stat.IsDir() {
 		return fmt.Errorf("'%s' should be a directory", constAccountsDirPath)
-	}
-	return nil
-}
-
-func checkPemFile(pemFilePath string) error {
-	stat, err := os.Stat(pemFilePath)
-	if os.IsNotExist(err) {
-		return fmt.Errorf("file '%s' does not exist", pemFilePath)
-	}
-	if stat.IsDir() {
-		return fmt.Errorf("'%s' should be a file", pemFilePath)
 	}
 	return nil
 }
