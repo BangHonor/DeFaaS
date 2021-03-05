@@ -87,6 +87,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         uint maintainerFee;            // 区块链维护者的费用
         // 监督
         bool isViolatedSLA;            // 是否违反 SLA 合约
+        uint curBlockNum;              // 租约产生时的块号
     }
 
     // ------------------------------------------------------------------------------------
@@ -369,7 +370,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
     {
         // 生成 SLA 监督，由证人执行对供应商的监视
         wpContract.newSLA(
-            block.number,
+            leases[_deploymentOrderID].curBlockNum,
             deploymentInfos[_deploymentOrderID].provider, 
             deploymentOrders[_deploymentOrderID].customer,
             _deploymentOrderID,
@@ -468,7 +469,8 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
             witnessFee: _witnessFee,
             maintainerFee: _maintainerFee,
             //
-            isViolatedSLA: false          // 待在 Fulfilling 状态填写
+            isViolatedSLA: false,          // 待在 Fulfilling 状态填写
+            curBlockNum: block.number
         });
     }
 }
