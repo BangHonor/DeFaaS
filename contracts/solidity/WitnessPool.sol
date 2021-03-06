@@ -279,16 +279,19 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
             "WintnessPool: not enough online witness"
         );
 
-        uint _pivotBlockNum = block.number - ( block.number - _curBlockNum ) / 256 - _blockNeed;
+        // 除数 1024 是一个缩小系数
+        uint _pivotBlockNum = block.number - ( block.number - _curBlockNum ) / 1024 - _blockNeed;
 
         // https://solidity-cn.readthedocs.io/zh/develop/units-and-global-variables.html
         // solidity 文档：基于可扩展因素，区块哈希不是对所有区块都有效。你仅仅可以访问最近 256 个区块的哈希，其余的哈希均为零。
+        // 如果 ( block.number - _curBlockNum ) > 1024（缩小系数）* 256（EVM blockhash 深度限制）= 2^18, 那么该 require 会失败
         require(
             block.number < _pivotBlockNum + 255,
             "WitnessPool: blockhash can only be accessed within 255 depth"
         );
 
         // 抽选算法生成种子要求 _pivotBlockNum 后面 _blockNeed 数量的区块已经产生
+        // 事实上，该 require 总是成功的
         require(
             block.number > _pivotBlockNum + _blockNeed,
             "WintnessPool: no more blockNeed blocks generated"
@@ -296,7 +299,6 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
 
         // 种子随机性： 未来区块的哈希（各方参与行为）
         uint _seed = 0;
-        _seed += numOnlineWitness; 
         for(uint bi = 0 ; bi < _blockNeed; bi++)
         {
             _seed += (uint)( blockhash( _pivotBlockNum + bi + 1 ) );
