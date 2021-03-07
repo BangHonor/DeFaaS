@@ -29,8 +29,6 @@ import (
 	"path"
 
 	"github.com/spf13/cobra"
-
-	devutils "defaas/dev-cmd/utils"
 )
 
 // initCmd represents the init command
@@ -54,44 +52,42 @@ func initFaaSTemplate() (err error) {
 
 	var workingDir string = "."
 
-	defer func() {
-		// 如果出错，执行回滚，删除创建的文件
-		if err != nil {
-			devutils.ClearDir(workingDir)
-		}
-	}()
+	// defer func() {
+	// 	// 如果出错，执行回滚，删除创建的文件
+	// 	if err != nil {
+	// 		devutils.ClearDir(workingDir)
+	// 	}
+	// }()
 
 	// 要求工作目录是一个空目录
-	var isEmpty bool
-	isEmpty, err = devutils.IsDirEmpty(workingDir)
-	if err != nil {
-		return err
-	}
-	if !isEmpty {
-		err = fmt.Errorf("working directory is not empty, please use 'defaas init' in an empty directory")
-		return err
-	}
+	// var isEmpty bool
+	// isEmpty, err = devutils.IsDirEmpty(workingDir)
+	// if err != nil {
+	// 	return err
+	// }
+	// if !isEmpty {
+	// 	err = fmt.Errorf("working directory is not empty, please use 'defaas init' in an empty directory")
+	// 	return err
+	// }
 
 	// 创建文件夹
-	if err = os.Mkdir(path.Join(workingDir, "tools"), os.ModePerm); err != nil {
-		return err
-	}
-	// TODO
-	fmt.Println("generate tools/")
+	// if err = os.Mkdir(path.Join(workingDir, "tools"), os.ModePerm); err != nil {
+	// 	return err
+	// }
+	// // TODO
+	// fmt.Println("generate tools/")
 
 	if err := os.Mkdir(path.Join(workingDir, "accounts"), os.ModePerm); err != nil {
 		return err
 	}
 	// TODO
-	fmt.Println("generate accounts/")
+	fmt.Println("generate directory accounts/")
 
 	if err := os.Mkdir(path.Join(workingDir, "functions"), os.ModePerm); err != nil {
 		return err
 	}
 	// TODO
-	fmt.Println("generate accounts/")
+	fmt.Println("generate directory functions/")
 
-	// test
-	err = fmt.Errorf("")
-	return err
+	return nil
 }
