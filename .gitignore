@@ -45,3 +45,4 @@ go.sum
 
 # cli 二进制
 cli/app/defaas
+cli/app/defaas-cli
