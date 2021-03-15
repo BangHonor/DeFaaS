@@ -26,8 +26,7 @@ func f1() {
 func f2() {
 	// client, err := ethclient.Dial("https://goerli.infura.io/v3/1d69d7036ac046af9e31ff2a789d74c0")
 
-	// 默认是 ipc
-	client, err := ethclient.Dial("/home/kitchen/geth-learn/private_chain/data-0/geth.ipc")
+	client, err := ethclient.Dial("http://127.0.0.1:8545")
 
 	if err != nil {
 		log.Fatal(err)
@@ -62,6 +61,6 @@ func f3() {
 
 func main() {
 	f1()
-	// f2()
+	f2()
 	f3()
 }

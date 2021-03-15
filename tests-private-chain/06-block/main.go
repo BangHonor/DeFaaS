@@ -10,7 +10,8 @@ import (
 
 func main() {
 
-	client, err := ethclient.Dial("/home/kitchen/geth-learn/private_chain/data-0/geth.ipc")
+	client, err := ethclient.Dial("http://127.0.0.1:8545")
+
 	if err != nil {
 		log.Fatal(err)
 	}

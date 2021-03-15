@@ -24,7 +24,8 @@ func main() {
 	// client, err := ethclient.Dial("https://mainnet.infura.io/v3/1d69d7036ac046af9e31ff2a789d74c0")
 	// client, err := ethclient.Dial("https://goerli.infura.io/v3/1d69d7036ac046af9e31ff2a789d74c0")
 
-	client, err := ethclient.Dial("/home/kitchen/geth-learn/private_chain/data-0/geth.ipc")
+	client, err := ethclient.Dial("http://127.0.0.1:8545")
+
 	if err != nil {
 		log.Fatal(err)
 	}
