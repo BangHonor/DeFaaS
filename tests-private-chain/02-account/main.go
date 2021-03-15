@@ -57,6 +57,23 @@ func f3() {
 		log.Fatal(err)
 	}
 	fmt.Println(balance)
+
+	fromAddress := "0xf38f26975aec981583ae8e4029f640c1b0d7f91a"
+	account = common.HexToAddress(fromAddress)
+	balance, err = client.BalanceAt(context.Background(), account, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(balance, "of", fromAddress)
+
+	toAddress := "0x4592d8f8d7b001e72cb26a73e4fa1806a51ac79d"
+	account = common.HexToAddress(toAddress)
+	balance, err = client.BalanceAt(context.Background(), account, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(balance, "of", toAddress)
+
 }
 
 func main() {

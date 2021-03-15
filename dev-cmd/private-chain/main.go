@@ -1,6 +1,6 @@
 package main
 
-// 自动构建 eth 私有网络
+// 自动构建，运行生产环境 eth 私有网络
 
 import (
 	"flag"
