@@ -46,3 +46,8 @@ go.sum
 # cli 二进制
 cli/app/defaas
 cli/app/defaas-cli
+
+
+
+# 私有 eth 网络节点数据
+private_chain/data-*

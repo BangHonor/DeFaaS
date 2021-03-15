@@ -11,4 +11,5 @@ require (
 	github.com/rodaine/table v1.0.1
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.6.2
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 )
