@@ -8,7 +8,7 @@ contract FaaSTokenPay {
 
     FaaSToken public tokenContract;
 
-    constructor(address _tokenContractAddress) public {
+    constructor(address _tokenContractAddress) {
         // 合约地址初始化
         tokenContract = FaaSToken(_tokenContractAddress);
     }

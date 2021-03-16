@@ -23,7 +23,7 @@ THE SOFTWARE.
 */
 
 import (
-	"defaas/clients/market"
+	"defaas/client/market"
 	"fmt"
 
 	// "defaas/clients/market"

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"defaas/clients/config"
+	"defaas/client/config"
 	"fmt"
 	"log"
 )

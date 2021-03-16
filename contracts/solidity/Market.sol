@@ -125,7 +125,6 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
 
     constructor(address _tokenContractAddress) 
         ProviderManagement(_tokenContractAddress)
-        public
     {        
         // 部署订单参数初始化
         numDeploymentOrders = 0;

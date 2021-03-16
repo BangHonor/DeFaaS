@@ -25,7 +25,6 @@ contract ProviderManagement is FaaSTokenPay {
 
     constructor(address _tokenContractAddress) 
         FaaSTokenPay(_tokenContractAddress)
-        public
     {
         // 供应商参数初始化 TODO
         stdProviderDeposit = 100; // 100 token

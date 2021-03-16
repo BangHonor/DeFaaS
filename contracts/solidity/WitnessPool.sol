@@ -75,7 +75,6 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
     // ------------------------------------------------------------------------------------------------
 
     constructor(address _tokenContractAddress)
-        public
         WitnessManagement(_tokenContractAddress)
     {}
 

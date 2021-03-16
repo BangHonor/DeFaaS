@@ -23,10 +23,10 @@ go run dev-cmd/gen/main.go -name=HelloWorld
 
 ## 一键 部署合约上链
 
-根据 config 配置完成集成部署。
+TODO 首先，需要填写配置。
 
 ```bash
-go run dev-cmd/deployContracts/main.go
+go run dev-cmd/deploy/main.go
 ```
 
 --------

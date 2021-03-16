@@ -25,14 +25,15 @@ const (
 	goDir       = "./contracts/go"
 )
 
-// e.g.
 // go run dev-cmd/gen/main.go -name=Market
+// go run dev-cmd/gen/main.go -name=WitnessPool
+// go run dev-cmd/gen/main.go -name=FaaSToken
 
 func main() {
 
 	var smartContractName string
 
-	flag.StringVar(&smartContractName, "name", "HelloWorld", "smart contract name")
+	flag.StringVar(&smartContractName, "name", "", "smart contract name")
 	flag.Parse()
 
 	binName := path.Join(binAbiDir, smartContractName+".bin")
@@ -43,7 +44,8 @@ func main() {
 
 	// Create Cmd, buffered output
 	binAbiGenCmd := cmd.NewCmd(
-		"./tools/solc-0.6.10",
+		// "./tools/solc-0.6.10",
+		"solc",
 		"--bin",
 		"--abi",
 		"-o",
@@ -59,7 +61,7 @@ func main() {
 	utils.RunCmd(cmd.NewCmd("mkdir", "-p", goPkgDir))
 
 	goGenCmd := cmd.NewCmd(
-		"./tools/abigen",
+		"abigen",
 		"--bin", binName,
 		"--abi", abiName,
 		"--pkg", lowerSmartContractName,

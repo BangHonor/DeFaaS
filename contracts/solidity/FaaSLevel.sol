@@ -26,7 +26,6 @@ contract FaaSLevel is Owned {
     event addFaaSLevelEvent(uint indexed index, uint core, uint mem);
 
     constructor() 
-        public 
     {
         numFaaSLevels = 0;
 

@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/go-cmd/cmd"
 )
@@ -24,36 +23,31 @@ func RunCmd(_cmd *cmd.Cmd) {
 	}
 	fmt.Println()
 
-	statusChan := _cmd.Start()
-
-	// Print last line of stdout every 2s
-	ticker := time.NewTicker(2 * time.Second)
-	go func() {
-		for range ticker.C {
-			status := _cmd.Status()
-			n := len(status.Stdout)
-			if n > 0 {
-				fmt.Println(status.Stdout[n-1])
-			}
-		}
-	}()
-
+	// listen SIGINT and SIGTERM from terminal
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	// run the cmd
+	statusChan := _cmd.Start()
 
 	select {
 	case status := <-statusChan:
 		{
 			if status.Exit != 0 {
+
 				// Print each line of STDERR from Cmd
 				for _, line := range status.Stderr {
 					fmt.Println(line)
 				}
+				log.Fatal(errors.New("RunCmd"))
 
-				err := errors.New("runCmd")
-				log.Fatal(err)
 			} else {
-				fmt.Println("[dev-cmd] done")
+
+				// Print each line of STDOUT from Cmd
+				for _, line := range status.Stdout {
+					fmt.Println(line)
+				}
+
 			}
 		}
 	case <-sigs:

@@ -12,7 +12,6 @@ contract FaaSToken is Context, ERC20 {
 
     constructor() 
         ERC20("FaaSToken", "FST") 
-        public 
     {
         // TODO
     }

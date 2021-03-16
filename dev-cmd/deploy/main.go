@@ -9,15 +9,20 @@ import (
 	"github.com/go-cmd/cmd"
 )
 
+// go run dev-cmd/deploy/main.go
+func main() {
+	genContracts()
+	// deployContracts()
+}
+
 // ----------------------------------------------------------------------
 
-// go run dev-cmd/gen/main.go -name=FaaSToken
-// go run dev-cmd/gen/main.go -name=Market
 func genContracts() {
 
 	contractNames := []string{
 		"FaaSToken",
 		"Market",
+		"WitnessPool",
 	}
 
 	for _, name := range contractNames {
@@ -27,24 +32,13 @@ func genContracts() {
 		utils.RunCmd(cmd.NewCmd(
 			"go",
 			"run",
-			"cmd/gen/main.go",
+			"dev-cmd/gen/main.go",
 			"-name="+name))
 
 		fmt.Println()
 	}
 }
 
-// ----------------------------------------------------------------------
-
-func deployContracts() {
-	// TODO
-}
-
-// ----------------------------------------------------------------------
-
-// go run cmd/deployContracts/main.go
-
-func main() {
-	genContracts()
-	deployContracts()
-}
+// func deployContracts() {
+// 	// TODO
+// }

@@ -25,7 +25,6 @@ contract SimpleAuction is Owned {
     constructor(
         uint _highestUnitPrice,
         uint _biddingDuration) 
-        public 
     {
         state = States.AcceptingBids;
         

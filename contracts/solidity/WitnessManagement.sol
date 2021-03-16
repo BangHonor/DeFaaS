@@ -52,7 +52,6 @@ contract WitnessManagement is FaaSTokenPay {
 
     constructor(address _tokenContractAddress) 
         FaaSTokenPay(_tokenContractAddress)
-        public
     {
         numOnlineWitness           = 0;
         stdWitnessDepoist          = 100;  // 100 token
