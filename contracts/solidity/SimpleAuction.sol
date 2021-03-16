@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity^0.6.0;
+pragma solidity>=0.6.0;
 
 import "./Owned.sol";
 
@@ -31,7 +31,7 @@ contract SimpleAuction is Owned {
         
         highestUnitPrice = _highestUnitPrice;
 
-        createTime = now;
+        createTime = block.timestamp;
         biddingDuration = _biddingDuration;
 
         // init value
@@ -60,7 +60,7 @@ contract SimpleAuction is Owned {
 
     // 根据时间的状态转换
     modifier timedTransitions() {
-        if (state == States.AcceptingBids && now > createTime + biddingDuration) {
+        if (state == States.AcceptingBids && block.timestamp > createTime + biddingDuration) {
                 nextState();
         }
         _;

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity^0.6.0;
+pragma solidity>=0.6.0;
 
 import "./Owned.sol";
 import "./FaaSTokenPay.sol";
@@ -117,7 +117,7 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
     // 在监视时间中
     modifier inMonitoringTime(uint _slaID) {
         require(
-            now < SLAPool[_slaID].monitoringBeginTime + SLAPool[_slaID].monitoringDuration, 
+            block.timestamp < SLAPool[_slaID].monitoringBeginTime + SLAPool[_slaID].monitoringDuration, 
             "WitnessPool: monitoring time exceeded"
         );
         _;
@@ -126,7 +126,7 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
     // 监视结束检查
     modifier monitoringEndTrigger(uint _slaID) {
         SLAInfo storage _sla = SLAPool[_slaID];
-        if (_sla.state == SLAStates.Monitoring && now > _sla.monitoringBeginTime + _sla.monitoringDuration) {
+        if (_sla.state == SLAStates.Monitoring && block.timestamp > _sla.monitoringBeginTime + _sla.monitoringDuration) {
             // 监视结束
             _judgeViolation(_slaID);
             _releaseWitnessCommittee(_slaID);
@@ -161,7 +161,7 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
         _sla.isViolated = false;
         
         _sla.funcToMonitor       = _funcToMonitor;
-        _sla.monitoringBeginTime = now + 1 minutes;
+        _sla.monitoringBeginTime = block.timestamp + 1 minutes;
         _sla.monitoringDuration  = _monitoringDuration;
 
         _sla.numReportRequired = stdNumReportRequired;

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity^0.6.0;
+pragma solidity>=0.6.0;
 
 import "./FaaSTokenPay.sol";
 import "./ProviderManagement.sol";
@@ -341,13 +341,11 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
     {
         require(
             msg.sender == deploymentOrders[_deploymentOrderID].customer,
-            "Matket: only customer can confirm"
-        );
+            "Market: only customer can confirm");
 
         // 要求供应商确认在前
         require(deploymentInfos[_deploymentOrderID].isProviderConfirmed == true,
-            "Market：provider has not confirmed yet"
-        );
+            "Market: provider has not confirmed yet");
 
         // 新建租约
         _newLease(_deploymentOrderID);
@@ -379,7 +377,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         
         emit NewSLAEvent(_deploymentOrderID);
 
-        leases[_deploymentOrderID].faaSFulfillTime = now;
+        leases[_deploymentOrderID].faaSFulfillTime = block.timestamp;
 
         // 修改订单状态
         deploymentOrders[_deploymentOrderID].state= OrderStates.Fulfilling;
@@ -393,7 +391,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         atOrderState(_deploymentOrderID, OrderStates.Fulfilling)
     {
         require(
-            now > leases[_deploymentOrderID].faaSFulfillTime + leases[_deploymentOrderID].faaSDuration,
+            block.timestamp > leases[_deploymentOrderID].faaSFulfillTime + leases[_deploymentOrderID].faaSDuration,
             "Matket: FaaS is still fulfilling"
         );
 

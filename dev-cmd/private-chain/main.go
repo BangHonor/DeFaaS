@@ -57,7 +57,7 @@ func main() {
 
 	} else if actionName == "run" {
 
-		// 私有测试网络：运行一个区块链阶段
+		// 为私有网络运行一个区块链节点
 		// 如需多个节点连接：见文档 https://geth.ethereum.org/docs/interface/peer-to-peer
 
 		// --nodiscover

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.6.0;
+pragma solidity>=0.6.0;
 
 // copy from https://github.com/vittominacori/erc20-generator/blob/master/dist/StandardERC20.dist.sol
 
