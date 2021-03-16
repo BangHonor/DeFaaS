@@ -76,8 +76,26 @@ func f3() {
 
 }
 
+func f4() {
+
+	fmt.Println("ws")
+	client, err := ethclient.Dial("ws://127.0.0.1:8546")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	account := common.HexToAddress("0x71c7656ec7ab88b098defb751b7401b5f6d8976f")
+	balance, err := client.BalanceAt(context.Background(), account, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(balance)
+}
+
 func main() {
 	f1()
 	f2()
 	f3()
+	f4()
 }

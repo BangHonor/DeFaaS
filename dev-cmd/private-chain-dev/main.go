@@ -21,22 +21,27 @@ const (
 	httpRPCAddr = "127.0.0.1"
 )
 
-// go run dev-cmd/private-chain-dev/main.go
-
-// dev 模式生成的账户密码为空，即 ""
-
 func main() {
 
 	devNodeCmd := cmd.NewCmd(
 		"geth",
+
 		"--datadir", devChainDir,
+
 		"--dev",
 		"--identity", "dev-node",
+
 		"--http",
 		"--http.addr", "127.0.0.1",
 		"--http.port", "8545",
 		"--http.api", "eth,web3,miner,admin,personal,net",
-		"--http.corsdomain", "*")
+		"--http.corsdomain", "*",
+
+		"--ws",
+		"--ws.addr", "127.0.0.1",
+		"--ws.port", "8546",
+		"--ws.api", "eth,web3,miner,admin,personal,net",
+		"--ws.origins", "*")
 
 	utils.RunCmd(devNodeCmd)
 	fmt.Println("[dev-cmd] run dev done")

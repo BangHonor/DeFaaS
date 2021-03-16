@@ -20,34 +20,38 @@
 - docker 为函数实体
 
 
-## Provider 客户端设计
+## 实现细节
+
+### Provider 客户端设计
 
 - bidder Pool
 - accessSecretKey Pool
 
-## ERC20
+### ERC20
 
 - https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md
 - https://blog.51cto.com/13784902/2324024
 - （标准实现）https://github.com/OpenZeppelin/openzeppelin-contracts/tree/master/contracts/token/ERC20
 - （可用实现）https://github.com/vittominacori/erc20-generator/tree/master/dist
 
--------------
 
-## 使用代币支付
+### 使用代币支付
 
 - https://ethfans.org/ajian1984/articles/816
 
 
 
--------------
-
-
-## 客户端调用合约
+### 客户端调用合约
 
 1. 连接到区块链（client）
 2. 构造合约实例（instance），需要地址（address），连接（client）
 3. 调用合约函数
+
+
+
+### 客户端监听合约事件
+
+- https://goethereumbook.org/zh/event-subscribe/
 
 -------------
 
@@ -97,24 +101,54 @@
 
 ## 坑
 
-- 坑一：solidity
-    - solidity 版本
-    - 引用类型（结构体，数组，映射）需要显式指定数据位置
-    - 对于引用类型，状态变量向 storage 局部变量赋值时仅仅传递一个引用
-    - 多重继承已最后继承的为主，故从左往右从祖先写到父亲
-    - 外部创建合约 SC 的 sender 是 SC 的部署者，内部创建合约 SC 的部署者是 new SC 的合约
+### solidity
 
-- 坑三：无处不在的安全漏洞
-    - 整数溢出
-        - SafeMath
-    - 恶意重入
-        - 在你合约中状态变量进行各种变化后再调用外部函数，这样，你的合约就不会轻易被滥用的重入 (reentrancy) 所影响
-        - 多发生在 withdraw 函数
-        - 解决方法：“检查-生效-交互”（Checks-Effects-Interactions）模式
-    - 非对称加密
-- 坑四：token 的 approveAndCall 是糟糕的转帐方式
+- solidity 版本
+- 引用类型（结构体，数组，映射）需要显式指定数据位置
+- 对于引用类型，状态变量向 storage 局部变量赋值时仅仅传递一个引用
+- 多重继承已最后继承的为主，故从左往右从祖先写到父亲
+- 外部创建合约 SC 的 sender 是 SC 的部署者，内部创建合约 SC 的部署者是 new SC 的合约
 
-------------
+### 安全漏洞
+
+- 整数溢出
+    - SafeMath
+- 恶意重入
+    - 在你合约中状态变量进行各种变化后再调用外部函数，这样，你的合约就不会轻易被滥用的重入 (reentrancy) 所影响
+    - 多发生在 withdraw 函数
+    - 解决方法：“检查-生效-交互”（Checks-Effects-Interactions）模式
+- 非对称加密
+
+
+
+## TODO
+
+### 生产环境中的安全配置
+
+开发环境下，使用的连接是不安全。
+
+在生产环境，需要做一些安全工作：
+
+- 配置 SSL
+
+    - 把 http 配置为 https
+
+    - 把 ws 配置为 wss
+
+
+    解决方案：反向代理 https://ethereum.stackexchange.com/questions/26026/how-to-ssl-ethereum-geth-node
+
+
+- 访问限制
+
+    - http.corsdomain 的跨域限制
+
+    - ws.origins 的访问限制
+
+    解决方案：仍然通过代理服务器来处理，不在 geth 节点这一层解决。
+
+
+
 
 
 

@@ -42,9 +42,7 @@ func main() {
 	goPkgDir := path.Join(goDir, lowerSmartContractName) // Go语言的 pkg 路径只能小写
 	goName := path.Join(goPkgDir, smartContractName+".go")
 
-	// Create Cmd, buffered output
 	binAbiGenCmd := cmd.NewCmd(
-		// "./tools/solc-0.6.10",
 		"solc",
 		"--bin",
 		"--abi",

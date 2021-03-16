@@ -30,3 +30,31 @@ go run dev-cmd/deploy/main.go
 ```
 
 --------
+
+
+## 启动开发模式的 eth private network
+
+注意：
+- **开发模式** （dev mode）的 eth private network 会在关闭后清空区块数据，其次启动将从零开始。
+- 开发模式生成的账户密码为空，即 ""
+
+```bash
+go run dev-cmd/private-chain-dev/main.go
+```
+
+
+## 一键部署 private network
+
+构建创世区块
+
+```bash
+go run dev-cmd/private-chain/main.go -action=build
+```
+
+
+启动一个节点，形成仅有一个节点的网络
+
+```bash
+go run dev-cmd/private-chain/main.go -action=run
+```
+

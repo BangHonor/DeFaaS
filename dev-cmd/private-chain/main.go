@@ -6,7 +6,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"path"
 
 	"defaas/dev-cmd/utils"
 
@@ -19,18 +18,12 @@ func init() {
 }
 
 const (
-	chainNetworkID = "666666"
-	chainDir       = "./private_chain"
-	genesisDataDir = "data-0"
-	httpRPCAddr    = "127.0.0.1"
+	chainNetworkID    = "666666"
+	chainDir          = "./private_chain"
+	genesisDataDir    = chainDir + "/" + "data-0"
+	genesisConfigFile = chainDir + "/" + "genesis.json"
+	httpRPCAddr       = "127.0.0.1"
 )
-
-// go run dev-cmd/private-chain/main.go -action=build
-// go run dev-cmd/private-chain/main.go -action=run
-
-func wrap(name string) string {
-	return path.Join(chainDir, name)
-}
 
 func main() {
 
@@ -44,13 +37,12 @@ func main() {
 		// 构建创世区块
 
 		utils.RunCmd(cmd.NewCmd(
-			"rm", "-rf", wrap(genesisDataDir)))
+			"rm", "-rf", genesisDataDir))
 
 		genesisCmd := cmd.NewCmd(
 			"geth",
-			"--datadir", wrap(genesisDataDir),
-			"init",
-			wrap("genesis.json"))
+			"--datadir", genesisDataDir,
+			"init", genesisConfigFile)
 
 		utils.RunCmd(genesisCmd)
 		fmt.Println("[dev-cmd] build genesis done")
@@ -74,7 +66,7 @@ func main() {
 
 		node0Cmd := cmd.NewCmd(
 			"geth",
-			"--datadir", wrap(genesisDataDir),
+			"--datadir", genesisDataDir,
 			"--networkid", chainNetworkID,
 			"--port", "30303",
 			"--identity", "node-0",
