@@ -21,6 +21,13 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// 获取 chainID
+	chainID, err := client.NetworkID(context.Background())
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("chainID", chainID)
+
 	// 加载一个账户的私钥
 	privateKeyFile := "./tmp/dev/data/keystore/UTC--2021-03-15T08-50-30.516148546Z--f38f26975aec981583ae8e4029f640c1b0d7f91a"
 	password := ""
@@ -28,13 +35,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// 获取 chainID
-	chainID, err := client.NetworkID(context.Background())
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(chainID)
 
 	// 构造一个授权事务
 	auth, err := bind.NewTransactorWithChainID(bytes.NewBuffer(keyjson), password, chainID)
@@ -49,6 +49,16 @@ func main() {
 	}
 	fmt.Printf("Contract pending deploy: 0x%x\n", address)
 	fmt.Printf("Transaction waiting to be mined: 0x%x\n\n", tx.Hash())
+
+	// wait for a while
+
+	_, isPending, err := client.TransactionByHash(context.Background(), tx.Hash())
+	if err != nil {
+		log.Fatal(err)
+	}
+	if !isPending {
+		fmt.Println("tx is mined")
+	}
 
 	totolSupply, err := instance.TotalSupply(&bind.CallOpts{Pending: true})
 	if err != nil {

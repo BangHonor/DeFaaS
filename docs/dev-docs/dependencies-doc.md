@@ -4,7 +4,7 @@
 
 ### go
 
-1.15.8
+1.16.2
 
 
 ### solc
@@ -16,15 +16,35 @@ Version: 0.8.1+commit.df193b15.Linux.g++
 
 github.com/ethereum/go-ethereum v1.10.1
 
+
 ### geth
 
 Version: 1.9.25-stable
+
 Git Commit: e7872729012a4871397307b12cc3f4772ffcbec6
+
 Git Commit Date: 20201211
+
 Architecture: amd64
+
 Protocol Versions: [65 64 63]
+
 Go Version: go1.16
+
 Operating System: linux
+
+
+### K8S
+
+- https://kubernetes.io/zh/docs/home/
+
+
+
+### OpenFaaS
+
+
+- https://docs.openfaas.com/
+
 
 --------------------
 
@@ -40,6 +60,10 @@ Operating System: linux
 ### go-ethereum
 
 - 用Go来做以太坊开发 https://goethereumbook.org/zh/
+
+- bind https://pkg.go.dev/github.com/ethereum/go-ethereum@v1.10.1/accounts/abi/bind#CallOpts
+
+
 
 ### geth
 

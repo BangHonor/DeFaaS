@@ -1,6 +1,6 @@
 module defaas
 
-go 1.15
+go 1.16
 
 require (
 	github.com/StackExchange/wmi v0.0.0-20210224194228-fe8f1750fd46 // indirect
@@ -27,7 +27,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
-	github.com/onsi/ginkgo v1.15.1 // indirect
+	github.com/onsi/ginkgo v1.15.2 // indirect
 	github.com/onsi/gomega v1.11.0 // indirect
 	github.com/pelletier/go-toml v1.8.1 // indirect
 	github.com/peterh/liner v1.2.1 // indirect
@@ -44,12 +44,11 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.7.1
 	github.com/status-im/keycard-go v0.0.0-20200402102358-957c09536969 // indirect
-	github.com/tklauser/go-sysconf v0.3.4 // indirect
+	github.com/tklauser/go-sysconf v0.3.5 // indirect
 	github.com/tyler-smith/go-bip39 v1.1.0 // indirect
 	golang.org/x/crypto v0.0.0-20210314154223-e6e6c4f2bb5b
-	golang.org/x/net v0.0.0-20210315170653-34ac3e1c2000 // indirect
+	golang.org/x/net v0.0.0-20210316092652-d523dce5a7f4 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20210315160823-c6e025ad8005 // indirect
 	golang.org/x/text v0.3.5 // indirect
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba // indirect
 	google.golang.org/protobuf v1.25.0 // indirect

@@ -6,8 +6,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/big"
+	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 
 	"defaas/contracts/go/faastoken"
@@ -42,33 +45,54 @@ func main() {
 		log.Fatalf("Failed to create authorized transactor: %v", err)
 	}
 
-	// 部署
-	address, tx, instance, err := faastoken.DeployFaaSToken(auth, client)
-	if err != nil {
-		log.Fatalf("Failed to deploy new token contract: %v", err)
-	}
-	fmt.Printf("Contract pending deploy: 0x%x\n", address)
-	fmt.Printf("Transaction waiting to be mined: 0x%x\n\n", tx.Hash())
-
-	// wait for a while
-
-	_, isPending, err := client.TransactionByHash(context.Background(), tx.Hash())
+	contractAddress := common.HexToAddress("0x26e0fa32260d3fc55fd5f3292bc7de35f5d8592f")
+	instance, err := faastoken.NewFaaSToken(contractAddress, client)
 	if err != nil {
 		log.Fatal(err)
 	}
-	if !isPending {
-		fmt.Println("tx is mined")
+
+	session := faastoken.FaaSTokenSession{
+		Contract: instance,
+		CallOpts: bind.CallOpts{
+			Pending: true,
+		},
+		TransactOpts: bind.TransactOpts{
+			From:    auth.From,
+			Signer:  auth.Signer,
+			Context: context.TODO(),
+		},
 	}
 
-	tokenSymbol, err := instance.Symbol(&bind.CallOpts{Pending: true})
+	sink := make(chan *faastoken.FaaSTokenTransfer)
+
+	sub, err := session.Contract.FaaSTokenFilterer.WatchTransfer(nil, sink, nil, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("token symbol:", tokenSymbol)
 
-	totolSupply, err := instance.TotalSupply(&bind.CallOpts{Pending: true})
-	if err != nil {
-		log.Fatalf("Failed to retrieve pending name: %v", err)
+	go func() {
+		for {
+			select {
+			case err := <-sub.Err():
+				log.Fatal(err)
+			case t := <-sink:
+				fmt.Println(t.From)
+				fmt.Println(t.To)
+				fmt.Println(t.Value)
+			}
+		}
+	}()
+
+	// queryAddress := common.HexToAddress("f38f26975aec981583ae8e4029f640c1b0d7f91a")
+
+	for i := int64(1); i <= 5; i++ {
+
+		_, err := session.Mint(big.NewInt(i * 100))
+		if err != nil {
+			log.Fatal(err)
+		}
+
 	}
-	fmt.Println("totolSupply:", totolSupply)
+
+	time.Sleep(500 * time.Millisecond)
 }
