@@ -23,10 +23,8 @@ THE SOFTWARE.
 */
 
 import (
-	"defaas/client/market"
+	"defaas/client/faaslevel"
 	"fmt"
-
-	// "defaas/clients/market"
 
 	"github.com/spf13/cobra"
 
@@ -50,7 +48,7 @@ var listCmd = &cobra.Command{
 	Long:  `list FaaS levels`,
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		levels, _ := market.GetFaaSLevels()
+		levels, _ := faaslevel.GetFaaSLevels()
 		tablePrintFaaSLevels(levels)
 	},
 }
@@ -71,7 +69,7 @@ func init() {
 	// levelCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func tablePrintFaaSLevels(levels []market.FaaSLevel) {
+func tablePrintFaaSLevels(levels []faaslevel.FaaSLevel) {
 	headerFmt := color.New(color.FgGreen, color.Underline).SprintfFunc()
 	columnFmt := color.New(color.FgYellow).SprintfFunc()
 

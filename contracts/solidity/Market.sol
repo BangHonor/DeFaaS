@@ -103,10 +103,10 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
     mapping(uint => Lease)           private leases;
 
     // WitnessPool 合约
-    WitnessPool wpContract;
+    WitnessPool public wpContract;
 
     // 维护者地址
-    address private maintainerAddress = address(0);
+    address private maintainerAddress = address(0x1);
     
     // ------------------------------------------------------------------------------------
 

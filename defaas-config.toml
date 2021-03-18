@@ -1,8 +1,5 @@
-# DeFaaS 配置文件
-
-title = "DeFaaS Config"
 
 [contracts]
-FaasToken = "0xbb8990586d4de6634f97a094591644fae047502c"
-Market = "0xc79a7fd8448609d2f6de564a3aad153eace6ae97"
-WitnessPool = "0xeee6ea03067cee5835ab898417b80484d4fd8a67"
+  faastoken = "0xCFCE41BF2F4E7035f8fAB8D2a055122c08D47D86"
+  market = "0x947733c0E004ed6537026E077d0C2c32D0464131"
+  witnesspool = "0x8f42a52548D60Ab286A31A376a5bB5867673Af4d"

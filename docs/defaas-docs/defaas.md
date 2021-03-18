@@ -762,7 +762,7 @@ FaaS 平台的经济系统的这种自我限制，在《资本论》中被论述
 - Nebula: A Blockchain Based Decentralized Sharing Computing Platform https://link.springer.com/chapter/10.1007%2F978-981-15-2777-7_58
 - ChainFaaS: An Open Blockchain-BasedServerless Platform
 
-
+- Golem https://github.com/golemfactory
 
 
 
