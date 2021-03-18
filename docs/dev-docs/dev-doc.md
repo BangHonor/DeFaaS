@@ -150,7 +150,7 @@
 
 
 
-git push origin master
+ git config --local http.proxy 127.0.0.1:8889 && git push origin master
 
 
 
