@@ -8,8 +8,10 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+type FaaSTokenSession = faastoken.FaaSTokenSession
+
 // NewFaaSTokenSeesion ...
-func NewFaaSTokenSeesion(backend bind.ContractBackend, address common.Address, auth *bind.TransactOpts) (*faastoken.FaaSTokenSession, error) {
+func NewFaaSTokenSeesion(backend bind.ContractBackend, address common.Address, auth *bind.TransactOpts) (*FaaSTokenSession, error) {
 
 	instance, err := faastoken.NewFaaSToken(address, backend)
 	if err != nil {

@@ -8,6 +8,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+type MarketSeesion = market.MarketSession
+
 // NewMarketSeesion ...
 func NewMarketSeesion(backend bind.ContractBackend, address common.Address, auth *bind.TransactOpts) (*market.MarketSession, error) {
 

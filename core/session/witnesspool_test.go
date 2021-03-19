@@ -14,7 +14,7 @@ func getSimWitnessPool() (*bind.TransactOpts, *backends.SimulatedBackend, common
 	auth, blockchain, _, marketSession := getSimMarket()
 
 	address, _ := marketSession.WpContract()
-	session, _ := NewWitnessPoolSeesion(blockchain, address, auth)
+	session, _ := NewWitnessPoolSession(blockchain, address, auth)
 
 	return auth, blockchain, address, session
 }

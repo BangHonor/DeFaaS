@@ -8,8 +8,10 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-// NewWitnessPoolSeesion ...
-func NewWitnessPoolSeesion(backend bind.ContractBackend, address common.Address, auth *bind.TransactOpts) (*witnesspool.WitnessPoolSession, error) {
+type WitnessPoolSession = witnesspool.WitnessPoolSession
+
+// NewWitnessPoolSession ...
+func NewWitnessPoolSession(backend bind.ContractBackend, address common.Address, auth *bind.TransactOpts) (*witnesspool.WitnessPoolSession, error) {
 
 	instance, err := witnesspool.NewWitnessPool(address, backend)
 	if err != nil {
