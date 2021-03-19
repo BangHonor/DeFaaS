@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"log"
 
-	"defaas/dev-cmd/utils"
+	devutils "defaas/dev-cmd/utils"
 
 	"github.com/go-cmd/cmd"
 )
@@ -36,7 +36,7 @@ func main() {
 
 		// 构建创世区块
 
-		utils.RunCmd(cmd.NewCmd(
+		devutils.RunCmd(cmd.NewCmd(
 			"rm", "-rf", genesisDataDir))
 
 		genesisCmd := cmd.NewCmd(
@@ -44,7 +44,7 @@ func main() {
 			"--datadir", genesisDataDir,
 			"init", genesisConfigFile)
 
-		utils.RunCmd(genesisCmd)
+		devutils.RunCmd(genesisCmd)
 		fmt.Println("[dev-cmd] build genesis done")
 
 	} else if actionName == "run" {
@@ -78,7 +78,7 @@ func main() {
 			"--http.api", "eth,web3,miner,admin,personal,net",
 			"--http.corsdomain", "*")
 
-		utils.RunCmd(node0Cmd)
+		devutils.RunCmd(node0Cmd)
 		fmt.Println("[dev-cmd] run node0 done")
 
 	}

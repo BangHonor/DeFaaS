@@ -9,7 +9,7 @@ import (
 	"path"
 	"strings"
 
-	"defaas/dev-cmd/utils"
+	devutils "defaas/dev-cmd/utils"
 
 	"github.com/go-cmd/cmd"
 )
@@ -51,12 +51,12 @@ func main() {
 		path.Join(solidityDir, smartContractName+".sol"),
 		"--overwrite")
 
-	utils.RunCmd(binAbiGenCmd)
+	devutils.RunCmd(binAbiGenCmd)
 
 	fmt.Printf("[gen] %s \n", binName)
 	fmt.Printf("[gen] %s \n", abiName)
 
-	utils.RunCmd(cmd.NewCmd("mkdir", "-p", goPkgDir))
+	devutils.RunCmd(cmd.NewCmd("mkdir", "-p", goPkgDir))
 
 	goGenCmd := cmd.NewCmd(
 		"abigen",
@@ -66,7 +66,7 @@ func main() {
 		"--type", smartContractName,
 		"--out", goName)
 
-	utils.RunCmd(goGenCmd)
+	devutils.RunCmd(goGenCmd)
 
 	fmt.Printf("[gen] %s \n", goName)
 }

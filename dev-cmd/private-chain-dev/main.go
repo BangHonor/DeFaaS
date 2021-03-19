@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	"defaas/dev-cmd/utils"
+	devutils "defaas/dev-cmd/utils"
 
 	"github.com/go-cmd/cmd"
 )
@@ -43,7 +43,7 @@ func main() {
 		"--ws.api", "eth,web3,miner,admin,personal,net",
 		"--ws.origins", "*")
 
-	utils.RunCmd(devNodeCmd)
+	devutils.RunCmd(devNodeCmd)
 	fmt.Println("[dev-cmd] run dev done")
 
 }

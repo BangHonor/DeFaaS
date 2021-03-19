@@ -1,8 +1,12 @@
 
 [contracts]
-faastoken = "0x70D863465a706dc76f193602bAB420dcF553C17a"
-market = "0x358eE4ff5596e1F76AD7B2676a929bC9a010f5AC"
-witnesspool = "0xe6445c30b018213E20Af2C24ad9a007247D39238"
+faastoken = "0x6a24B7A341188489f19e62c1229FFF2630820EBE"
+market = "0x6298F5F7799AD5F3762F2e755D26FbeaC0597B60"
+witnesspool = "0xB81A47AF831A0F572B3214a858F54299DD906DB9"
+
+[network]
+httpurls = ["http://127.0.0.1:8545", "http://127.0.0.1:8545"]
+wsurls = ["ws://127.0.0.1:8546", "ws://127.0.0.1:8546"]
 
 [tests]
 haha = "233"

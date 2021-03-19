@@ -3,22 +3,20 @@ package main
 // 自动化部署合约
 
 import (
-	"bytes"
-	"context"
-	"time"
-
-	"defaas/contracts/go/faastoken"
-	"defaas/contracts/go/market"
-	"defaas/core/config"
-	"defaas/dev-cmd/utils"
-
 	"fmt"
-	"io/ioutil"
 	"log"
+	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/go-cmd/cmd"
+
+	"defaas/contracts/go/faastoken"
+	"defaas/contracts/go/market"
+	"defaas/core/config"
+
+	corehelper "defaas/core/helper"
+	devutils "defaas/dev-cmd/utils"
 )
 
 const (
@@ -47,7 +45,7 @@ func genContracts() {
 
 	for _, name := range contractNames {
 
-		utils.RunCmd(cmd.NewCmd(
+		devutils.RunCmd(cmd.NewCmd(
 			"go",
 			"run",
 			"dev-cmd/gen/main.go",
@@ -55,29 +53,6 @@ func genContracts() {
 
 		fmt.Println()
 	}
-}
-
-func getAuthFromKeyStore(keyStoreFilePath, password string, client *ethclient.Client) (*bind.TransactOpts, error) {
-
-	// 获取 chainID
-	chainID, err := client.NetworkID(context.Background())
-	if err != nil {
-		return nil, err
-	}
-
-	// 加载私钥
-	keyjson, err := ioutil.ReadFile(keyStoreFilePath)
-	if err != nil {
-		return nil, err
-	}
-
-	// 构造一个授权事务
-	auth, err := bind.NewTransactorWithChainID(bytes.NewBuffer(keyjson), password, chainID)
-	if err != nil {
-		return nil, err
-	}
-
-	return auth, nil
 }
 
 func deployContracts() {
@@ -88,7 +63,7 @@ func deployContracts() {
 		log.Fatal(err)
 	}
 
-	auth, err := getAuthFromKeyStore(deployerKeyStoreFilePath, deployerPassword, client)
+	auth, err := corehelper.GetAuthFromKeyStore(deployerKeyStoreFilePath, deployerPassword, client)
 	if err != nil {
 		log.Fatal(err)
 	}

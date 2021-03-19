@@ -21,6 +21,10 @@ FaasToken = "0xbb8990586d4de6634f97a094591644fae047502c"
 Market = "0xc79a7fd8448609d2f6de564a3aad153eace6ae97"
 WitnessPool = "0xeee6ea03067cee5835ab898417b80484d4fd8a67"
 
+[network]
+httpurls = ["http://127.0.0.1:8545", "http://127.0.0.1:8545"]
+wsurls = ["ws://127.0.0.1:8546", "ws://127.0.0.1:8546"]
+
 `)
 
 func checkTestConfig1(dfc *DeFaaSConfig) bool {
@@ -32,6 +36,21 @@ func checkTestConfig1(dfc *DeFaaSConfig) bool {
 		return false
 	}
 	if !strings.EqualFold(dfc.WitnessPoolContractAddress.Hex(), "0xeee6ea03067cee5835ab898417b80484d4fd8a67") {
+		return false
+	}
+
+	if !(dfc.HttpURLs[0] == "http://127.0.0.1:8545") {
+		return false
+	}
+	if !(dfc.HttpURLs[1] == "http://127.0.0.1:8545") {
+		return false
+	}
+
+	if !(dfc.WsURLs[0] == "ws://127.0.0.1:8546") {
+		return false
+	}
+
+	if !(dfc.WsURLs[1] == "ws://127.0.0.1:8546") {
 		return false
 	}
 
