@@ -23,13 +23,10 @@ THE SOFTWARE.
 */
 
 import (
-	"defaas/client/faaslevel"
+	// "defaas/client/faaslevel"
 	"fmt"
 
 	"github.com/spf13/cobra"
-
-	"github.com/fatih/color"
-	"github.com/rodaine/table"
 )
 
 // levelCmd represents the level command
@@ -48,8 +45,8 @@ var listCmd = &cobra.Command{
 	Long:  `list FaaS levels`,
 	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		levels, _ := faaslevel.GetFaaSLevels()
-		tablePrintFaaSLevels(levels)
+		// levels, _ := faaslevel.GetFaaSLevels()
+		// tablePrintFaaSLevels(levels)
 	},
 }
 
@@ -69,16 +66,16 @@ func init() {
 	// levelCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func tablePrintFaaSLevels(levels []faaslevel.FaaSLevel) {
-	headerFmt := color.New(color.FgGreen, color.Underline).SprintfFunc()
-	columnFmt := color.New(color.FgYellow).SprintfFunc()
+// func tablePrintFaaSLevels(levels []faaslevel.FaaSLevel) {
+// 	headerFmt := color.New(color.FgGreen, color.Underline).SprintfFunc()
+// 	columnFmt := color.New(color.FgYellow).SprintfFunc()
 
-	tbl := table.New("ID", "Core", "Mem")
-	tbl.WithHeaderFormatter(headerFmt).WithFirstColumnFormatter(columnFmt)
+// 	tbl := table.New("ID", "Core", "Mem")
+// 	tbl.WithHeaderFormatter(headerFmt).WithFirstColumnFormatter(columnFmt)
 
-	for _, level := range levels {
-		tbl.AddRow(level.ID, level.Core, level.Mem)
-	}
+// 	for _, level := range levels {
+// 		tbl.AddRow(level.ID, level.Core, level.Mem)
+// 	}
 
-	tbl.Print()
-}
+// 	tbl.Print()
+// }

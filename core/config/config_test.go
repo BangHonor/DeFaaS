@@ -99,7 +99,7 @@ func TestWriteConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := WriteConfig(tmpfile.Name(),
+	if err := WriteContractAddress(tmpfile.Name(),
 		common.HexToAddress("0x0000000000000000000000000000000000000001"),
 		common.HexToAddress("0x0000000000000000000000000000000000000002"),
 		common.HexToAddress("0x0000000000000000000000000000000000000003")); err != nil {

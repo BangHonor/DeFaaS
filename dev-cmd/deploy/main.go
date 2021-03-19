@@ -7,9 +7,9 @@ import (
 	"context"
 	"time"
 
-	"defaas/client/config"
 	"defaas/contracts/go/faastoken"
 	"defaas/contracts/go/market"
+	"defaas/core/config"
 	"defaas/dev-cmd/utils"
 
 	"fmt"
@@ -119,12 +119,12 @@ func deployContracts() {
 	fmt.Println("[deploy] WitnessPool contract is deployed at", witnesspoolContractAddress)
 
 	// 写入配置文件
-	if err := config.WriteConfig(
+	if err := config.WriteContractAddress(
 		defaasConfigFilePath,
 		faastokenContractAddress,
 		marketContractAddress,
 		witnesspoolContractAddress); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("[deploy] contract address is written to", defaasConfigFilePath)
+	fmt.Println("[deploy] contract address is written to file", defaasConfigFilePath)
 }

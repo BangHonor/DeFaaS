@@ -71,9 +71,20 @@ func ParseConfig(in io.Reader) (*DeFaaSConfig, error) {
 	return fc, nil
 }
 
-func WriteConfig(configFilePath string, faastokenContractAddress, marketContractAddress, witnesspoolContractAddress common.Address) error {
+// WriteContractAddress ...
+// 修改配置文件中的合约地址, 不改变配置文件的其他字段
+func WriteContractAddress(configFilePath string, faastokenContractAddress, marketContractAddress, witnesspoolContractAddress common.Address) error {
+
+	// https://github.com/spf13/viper#writing-config-files
+
+	f, err := os.OpenFile(configFilePath, os.O_RDONLY, 0666)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
 
 	viper.SetConfigType("toml")
+	viper.ReadConfig(f)
 
 	viper.Set(faastokenKey, faastokenContractAddress.Hex())
 	viper.Set(marketKey, marketContractAddress.Hex())
