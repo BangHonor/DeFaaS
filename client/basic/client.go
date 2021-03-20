@@ -5,22 +5,26 @@ import (
 	"defaas/core/config"
 	"defaas/core/helper"
 	"defaas/core/session"
+	"errors"
 	"io/ioutil"
 	"math/big"
+	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 type BasicClient struct {
-	rawClinet   *ethclient.Client
-	faastoken   *session.FaaSTokenSession
-	market      *session.MarketSeesion
-	witnesspool *session.WitnessPoolSession
+	Key          *keystore.Key
+	DeFaaSConfig *config.DeFaaSConfig
 
-	key *keystore.Key
+	RawClinet   *ethclient.Client
+	FaaSToken   *session.FaaSTokenSession
+	Market      *session.MarketSeesion
+	WitnessPool *session.WitnessPoolSession
 }
 
 func NewBasicClientWithFile(configFilePath, keyStoreFilePath string, password string) (*BasicClient, error) {
@@ -51,16 +55,17 @@ func NewBasicClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*BasicClient, 
 	)
 
 	client := &BasicClient{}
-	client.key = key
+	client.Key = key
+	client.DeFaaSConfig = dfc
 
 	// connect to eth network
-	client.rawClinet, err = helper.GetETHClient(dfc.WsURLs)
+	client.RawClinet, err = helper.GetETHClient(dfc.WsURLs)
 	if err != nil {
 		return nil, err
 	}
 
 	// get chainID
-	chainID, err := client.rawClinet.NetworkID(context.TODO())
+	chainID, err := client.RawClinet.NetworkID(context.TODO())
 	if err != nil {
 		return nil, err
 	}
@@ -72,17 +77,17 @@ func NewBasicClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*BasicClient, 
 	}
 
 	// build session
-	client.faastoken, err = session.NewFaaSTokenSeesion(client.rawClinet, dfc.FaaSTokenContractAddress, auth)
+	client.FaaSToken, err = session.NewFaaSTokenSeesion(client.RawClinet, dfc.FaaSTokenContractAddress, auth)
 	if err != nil {
 		return nil, err
 	}
 
-	client.market, err = session.NewMarketSeesion(client.rawClinet, dfc.MarketContractAddress, auth)
+	client.Market, err = session.NewMarketSeesion(client.RawClinet, dfc.MarketContractAddress, auth)
 	if err != nil {
 		return nil, err
 	}
 
-	client.witnesspool, err = session.NewWitnessPoolSession(client.rawClinet, dfc.WitnessPoolContractAddress, auth)
+	client.WitnessPool, err = session.NewWitnessPoolSession(client.RawClinet, dfc.WitnessPoolContractAddress, auth)
 	if err != nil {
 		return nil, err
 	}
@@ -90,6 +95,106 @@ func NewBasicClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*BasicClient, 
 	return client, nil
 }
 
-func (client *BasicClient) BalanceOf(address common.Address) (*big.Int, error) {
-	return big.NewInt(0), nil
+const (
+	NumBlockToWaitRecommended int = 2
+)
+
+func (client *BasicClient) ComfirmTxByPolling(txHash common.Hash, numBlockToWait int) error {
+
+	checkPeddingTimeout := time.NewTimer(1 * time.Minute)
+	checkPeddingTicker := time.NewTicker(1 * time.Second)
+	defer checkPeddingTimeout.Stop()
+	defer checkPeddingTicker.Stop()
+
+	// wait for pedding
+CheckPeddingLoop:
+
+	for {
+		select {
+
+		case <-checkPeddingTimeout.C:
+			return errors.New("chekc pedding time out")
+
+		case <-checkPeddingTicker.C:
+
+			_, isPending, err := client.RawClinet.TransactionByHash(context.TODO(), txHash)
+			if err != nil {
+				return err
+			}
+
+			if !isPending {
+				break CheckPeddingLoop
+			}
+		}
+	}
+
+	// record currnet blockNumber
+	curHeader, err := client.RawClinet.HeaderByNumber(context.TODO(), nil)
+	if err != nil {
+		return err
+	}
+
+	waitBlockTimeout := time.NewTimer(1 * time.Minute)
+	waitBlockTicker := time.NewTicker(1 * time.Second)
+	defer waitBlockTimeout.Stop()
+	defer waitBlockTicker.Stop()
+
+	// wait fot blocks
+WaitBlockLoop:
+
+	for {
+		select {
+		case <-waitBlockTimeout.C:
+			return errors.New("wait block time out")
+		case <-waitBlockTicker.C:
+			header, err := client.RawClinet.HeaderByNumber(context.TODO(), nil)
+			if err != nil {
+				return err
+			}
+			if -1 == big.NewInt(int64(numBlockToWait)).Cmp(header.Number.Sub(header.Number, curHeader.Number)) {
+				break WaitBlockLoop
+			}
+		}
+	}
+
+	return nil
+}
+
+func (client *BasicClient) ComfirmTxBySubscription(txHash common.Hash, numBlockToWait int) error {
+
+	headers := make(chan *types.Header)
+	headerSub, err := client.RawClinet.SubscribeNewHead(context.TODO(), headers)
+	if err != nil {
+		return err
+	}
+	defer headerSub.Unsubscribe()
+
+	// wait for pedding
+SubLoop:
+	for {
+		select {
+
+		case err := <-headerSub.Err():
+			return err
+
+		case <-headers:
+
+			_, isPending, err := client.RawClinet.TransactionByHash(context.TODO(), txHash)
+			if err != nil {
+				return err
+			}
+
+			if !isPending {
+				break SubLoop
+			}
+
+		}
+	}
+
+	// wait for blocks
+	for i := 0; i < numBlockToWait; i++ {
+		<-headers
+	}
+
+	return nil
 }

@@ -151,6 +151,29 @@
 
 
 
+## eth
+
+
+### gas
+
+nonce: 记录发起交易的账户已执行交易总数。Nonce的值随着每个新交易的执行不断增加，这能让网络了解执行交易需要遵循的顺序，并且作为交易的重放保护。
+
+gasPrice:该交易每单位gas的价格，Gas价格目前以Gwei为单位（即10^9wei），其范围是大于0.1Gwei，可进行灵活设置
+
+gasLimit:该交易支付的最高gas上限。该上限能确保在出现交易执行问题（比如陷入无限循环）之时，交易账户不会耗尽所有资金。一旦交易执行完毕，剩余所有gas会返还至交易账户。
+
+to：该交易被送往的地址（调用的合约地址或转账对方的账户地址）。
+value：交易发送的以太币总量。
+
+data: 若该交易是以太币交易，则data为空；若是部署合约，则data为合约的bytecode；若是合约调用，则需要从合约ABI中获取函数签名，并取函数签名hash值前4字节与所有参数的编码方式值进行拼接而成，具体参见文章https://github.com/linjie-1/guigulive-operation/wiki/Ethereum%E7%9A%84%E5%90%88%E7%BA%A6ABI%E6%8B%93%E5%B1%95
+
+
+### wait for pedding
+
+https://medium.com/kinblog/go-ethereum-pending-wait-for-it-balance-936a9fb1c6e2
+
+
+
 ## TODO
 
 ### 生产环境中的安全配置
@@ -179,18 +202,10 @@
 
 
 
-
- git config --local http.proxy 127.0.0.1:8889 && git push origin master
-
-
-
-
-
 -------------
 
 
-gasLimit，代表了这个交易的执行最多被允许使用的计算步骤
-
-gasPrice，单位 gas 的用以太币计算的价格
 
 
+
+git config --local http.proxy 127.0.0.1:8889 && git push origin master

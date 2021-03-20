@@ -166,6 +166,18 @@ contract WitnessManagement is FaaSTokenPay {
         numOnlineWitness--;
     }
 
+
+    // 证人 API
+    // 查询奖励
+    function witnessQueryReward() 
+        public
+        view
+        witenssRegisterd
+        returns (uint)
+    {
+        return witnessPool[msg.sender].reward;
+    }
+
     // 证人 API
     // 取出奖励
     function witnessDrawReward() 
