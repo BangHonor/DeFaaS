@@ -9,6 +9,7 @@ require (
 	github.com/btcsuite/btcd v0.21.0-beta // indirect
 	github.com/cespare/cp v1.1.1 // indirect
 	github.com/deckarep/golang-set v1.7.1 // indirect
+	github.com/dyrkin/fsm v0.0.0-20200122091000-a8e19481365d
 	github.com/ethereum/go-ethereum v1.10.1
 	github.com/gballet/go-libpcsclite v0.0.0-20191108122812-4678299bea08 // indirect
 	github.com/go-cmd/cmd v1.3.0

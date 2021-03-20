@@ -170,9 +170,14 @@ data: 若该交易是以太币交易，则data为空；若是部署合约，则d
 
 ### wait for pedding
 
+相关讨论
+
 https://medium.com/kinblog/go-ethereum-pending-wait-for-it-balance-936a9fb1c6e2
 
 
+truffle 的实现
+
+https://github.com/trufflesuite/truffle/blob/500fdcc35202839ac785f7b0fe3de623cbcac074/packages/deployer/src/deployment.js#L79
 
 ## TODO
 

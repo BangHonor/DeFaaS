@@ -2,8 +2,6 @@ package customer
 
 import (
 	basic "defaas/client/basic"
-
-	"github.com/ethereum/go-ethereum/common"
 )
 
 type CustomerClient struct {
@@ -19,9 +17,4 @@ func NewCustomerClient() (*CustomerClient, error) {
 	}
 
 	return client, nil
-}
-
-func (client *CustomerClient) Deploy() error {
-	client.FaaSToken.BalanceOf(common.HexToAddress("0x01"))
-	return nil
 }
