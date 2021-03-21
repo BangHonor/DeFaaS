@@ -9,6 +9,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind/backends"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -71,4 +72,9 @@ func NewSim() (*bind.TransactOpts, *backends.SimulatedBackend) {
 	blockchain := backends.NewSimulatedBackend(alloc, 1<<32)
 
 	return auth, blockchain
+}
+
+func EqualAddress(s, t common.Address) bool {
+	// you can directly compare two arrays of the same length, in Go
+	return (s == t)
 }

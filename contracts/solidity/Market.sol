@@ -54,6 +54,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         string publicKey;         // 公钥
         // 竞价
         SimpleAuction auctionContract;  // 竞价合约
+        bool isMatch;
     }
 
     // 部署信息
@@ -113,6 +114,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
     // 新建部署订单事件
     event NewDeploymentOrderEvent(
         address indexed _customer, 
+        uint indexed _nonce,
         uint indexed _deploymentOrderID, 
         uint _faasLevelID,
         uint _highestUnitPrice,
@@ -131,6 +133,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
     // 新建部署信息事件
     event NewDeploymentInfoEvent (
         uint indexed _deploymentOrderID,
+        address indexed _provider,
         string funcPath,
         string deployPath,
         string accessKey);
@@ -170,7 +173,9 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
 
     // 租户 API
     // 新建部署订单
+    // nonce 用于区别同一租户的不同新建请求
     function newDeploymentOrder(
+        uint _nonce,
         uint _faasLevelID,
         uint _highestUnitPrice,
         uint _faasDuration,
@@ -205,13 +210,15 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
             highestUnitPrice: _highestUnitPrice,
             faasDuration: _faasDuration,
             publicKey: _publicKey,
-            auctionContract: _auction
+            auctionContract: _auction,
+            isMatch: false
         });
 
         DeploymentOrder storage _order = deploymentOrders[_deploymentOrderID];
 
         emit NewDeploymentOrderEvent(
             _order.customer, 
+            _nonce,
             _deploymentOrderID, 
             _order.faasLevelID,
             _order.highestUnitPrice,
@@ -258,12 +265,16 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         if (_success == false) {
                                                                                  // 检查
             deploymentOrders[_deploymentOrderID].state = OrderStates.Finished;  // 生效：修改状态
+            deploymentOrders[_deploymentOrderID].isMatch = false;
             _freeLockFee(_deploymentOrderID);                                   // 交互：退还预付款
 
             return;   // 返回
         }
 
-        // 匹配成功, 创建新的待供应商填充的部署信息
+        // 匹配成功
+        deploymentOrders[_deploymentOrderID].isMatch = true;
+
+        // 创建新的待供应商填充的部署信息
         deploymentInfos[_deploymentOrderID] = DeploymentInfo({
             unitPrice: _unitPrice,
             isProviderPublish: false,
@@ -289,10 +300,13 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         validDeploymentOrderID(_deploymentOrderID)
         atOrderState(_deploymentOrderID, OrderStates.Confirming)
     {
-        // TODO 超时退还预付款
+        // TODO 检查超时
+        // 如果超时 退还预付款 结束订单流程
+
+        DeploymentInfo storage _info = deploymentInfos[_deploymentOrderID];
 
         require(
-            msg.sender == deploymentInfos[_deploymentOrderID].provider,
+            msg.sender == _info.provider,
             "Matket: only provider can publish deployment information"
         );
 
@@ -301,15 +315,17 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         require(bytes(_deployPath).length > 0 && bytes(_deployPath).length <= 256, "");
         require(bytes(_accessKey).length  > 0 && bytes(_accessKey).length  <= 256, "");
 
-        deploymentInfos[_deploymentOrderID].funcPath = _funcPath;
-        deploymentInfos[_deploymentOrderID].deployPath = _deployPath;
-        deploymentInfos[_deploymentOrderID].accessKey = _accessKey;
+
+        _info.funcPath = _funcPath;
+        _info.deployPath = _deployPath;
+        _info.accessKey = _accessKey;
 
         // 确认
-        deploymentInfos[_deploymentOrderID].isProviderPublish = true;
+        _info.isProviderPublish = true;
 
         emit NewDeploymentInfoEvent(
             _deploymentOrderID,
+            _info.provider,
             _funcPath,
             _deployPath,
             _accessKey);
@@ -492,4 +508,26 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
             _order.highestUnitPrice
         );
     }
+
+    function queryMatch(uint _deploymentOrderID)
+        public  
+        view
+        validDeploymentOrderID(_deploymentOrderID)
+        returns (bool)
+    {
+        return deploymentOrders[_deploymentOrderID].isMatch;
+    }
+
+    function queryLease(uint _deploymentOrderID)
+        public
+        view
+        validDeploymentOrderID(_deploymentOrderID)
+        returns (address, address)
+    {
+        DeploymentOrder storage _order = deploymentOrders[_deploymentOrderID];
+        DeploymentInfo  storage _info  = deploymentInfos[_deploymentOrderID];
+
+        return (_order.customer, _info.provider);
+    }
+
 }

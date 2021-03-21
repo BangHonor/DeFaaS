@@ -34,16 +34,7 @@ Go Version: go1.16
 Operating System: linux
 
 
-### K8S
 
-- https://kubernetes.io/zh/docs/home/
-
-
-
-### OpenFaaS
-
-
-- https://docs.openfaas.com/
 
 
 --------------------
@@ -120,4 +111,21 @@ Operating System: linux
 - 官方文档 https://docs.docker.com/
 
 - 实践文档 https://yeasy.gitbook.io/docker_practice/
+
+
+
+### K8S
+
+- https://kubernetes.io/zh/docs/home/
+
+
+
+### OpenFaaS
+
+
+- https://docs.openfaas.com/
+
+
+
+----------------------
 

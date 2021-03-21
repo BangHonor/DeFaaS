@@ -13,16 +13,20 @@ type FaaSLevel struct {
 }
 
 type DeploymentOrder struct {
+	Customer         common.Address
+	Nonce            *big.Int
 	FaaSLevelID      *big.Int
 	HighestUnitPrice *big.Int
 	FaaSDuration     *big.Int
 	BiddingDuration  *big.Int
+	PublicKey        string
 }
 
 type DeploymentInfo struct {
-	EndAddr          string
-	DeployServerAddr string
-	AccessSecreKey   string
+	Provider   common.Address
+	FuncPath   string
+	DeployPath string
+	AccessKey  string
 }
 
 type Lease struct {
