@@ -77,6 +77,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         uint customerCompensationFee;  // 服务失败时，租户的补偿款
         uint platformChargeFee;        // 平台手续费
         // 服务内容
+        bytes32 fulfillKey;               // 用于确认租户在供应商上完成部署
         uint faasFulfillStartTime;     // 供应商开始履行服务的时间
         // 监测
         // TODO 添加一些监测参数
@@ -333,7 +334,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
 
     // 租户 API
     // 在供应商确认部署订单之后，租户进行确认，生成租约
-    function confirmDeploymentInfo(uint _deploymentOrderID) 
+    function confirmDeploymentInfo(uint _deploymentOrderID, bytes32 _fulfillKey) 
         public
         validDeploymentOrderID(_deploymentOrderID)
         atOrderState(_deploymentOrderID, OrderStates.Confirming)
@@ -365,6 +366,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
             customerWithdrawFee: _customerWithdrawFee,
             customerCompensationFee: _customerCompensationFee,
             platformChargeFee: _platformChargeFee,
+            fulfillKey: _fulfillKey,
             faasFulfillStartTime: 0,        // 待填写
             isViolatedSLA: false,      // 待填写
             curBlockNum: block.number
@@ -381,7 +383,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
 
     // 租户 API
     // 租户部署完成，开始履行部署订单
-    function fulfillDeploymentOrder(uint _deploymentOrderID)
+    function fulfillDeploymentOrder(uint _deploymentOrderID, bytes32 _fulfillSecretKey)
         public
         validDeploymentOrderID(_deploymentOrderID)
         atOrderState(_deploymentOrderID, OrderStates.Deploying)
@@ -391,6 +393,12 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         DeploymentOrder storage _order = deploymentOrders[_deploymentOrderID];
         DeploymentInfo  storage _info  = deploymentInfos[_deploymentOrderID];
         Lease storage _lease = leases[_deploymentOrderID];
+
+        // 检验
+        // see: https://docs.soliditylang.org/en/develop/abi-spec.html#non-standard-packed-mode
+        require(
+            _lease.fulfillKey == sha256(abi.encodePacked(_fulfillSecretKey)),
+            "Market: wrong fulfill secret key");
 
         // 记录时间
         _lease.faasFulfillStartTime = block.timestamp;

@@ -167,7 +167,6 @@ func (client *BasicClient) ComfirmTxBySubscription(txHash common.Hash, numBlockT
 	if err != nil {
 		return err
 	}
-	defer headerSub.Unsubscribe()
 
 	// wait for pedding
 SubLoop:

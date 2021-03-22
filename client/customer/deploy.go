@@ -133,7 +133,7 @@ func (client *CustomerClient) Deploy(order *data.DeploymentOrder, task interface
 	// TODO check `info.DeployPath` before confirm
 
 	// 4b confirm
-	txConfirm, err := client.Market.ConfirmDeploymentInfo(id)
+	txConfirm, err := client.Market.ConfirmDeploymentInfo(id, order.FulfillKey)
 
 	if err != nil {
 		return nil
@@ -154,6 +154,7 @@ func (client *CustomerClient) Deploy(order *data.DeploymentOrder, task interface
 	// 5a off-chain deploying
 	// TODO
 	// Adapter
+	// send `order.FulfillSecretKey` to provider
 
 	// watch new SLA event
 	sinkNewSLA := make(chan *market.MarketNewSLAEvent)

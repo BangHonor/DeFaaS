@@ -20,6 +20,8 @@ type DeploymentOrder struct {
 	FaaSDuration     *big.Int
 	BiddingDuration  *big.Int
 	PublicKey        string
+	FulfillSecretKey [32]byte
+	FulfillKey       [32]byte // FulfillKey = sha256.Sum256(FulfillSecretKey)
 }
 
 type DeploymentInfo struct {
