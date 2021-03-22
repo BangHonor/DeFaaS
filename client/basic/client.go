@@ -7,6 +7,7 @@ import (
 	"defaas/core/session"
 	"errors"
 	"io/ioutil"
+	"log"
 	"math/big"
 	"time"
 
@@ -15,6 +16,10 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
+)
+
+const (
+	NumBlockToWaitRecommended int = 1
 )
 
 type BasicClient struct {
@@ -50,6 +55,8 @@ func NewBasicClientWithFile(configFilePath, keyStoreFilePath string, password st
 
 func NewBasicClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*BasicClient, error) {
 
+	log.Println("[basic] ------------------- new basic client .... --------------------------")
+
 	var (
 		err error
 	)
@@ -63,12 +70,14 @@ func NewBasicClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*BasicClient, 
 	if err != nil {
 		return nil, err
 	}
+	log.Println("[basic] connect to blockchain network")
 
 	// get chainID
 	chainID, err := client.RawClinet.NetworkID(context.TODO())
 	if err != nil {
 		return nil, err
 	}
+	log.Println("[basic] chainID", chainID)
 
 	// build a auth
 	auth, err := bind.NewKeyedTransactorWithChainID(key.PrivateKey, chainID)
@@ -81,25 +90,28 @@ func NewBasicClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*BasicClient, 
 	if err != nil {
 		return nil, err
 	}
+	log.Println("[basic] set up a session of [FaaSToekn] contarct")
 
 	client.Market, err = session.NewMarketSeesion(client.RawClinet, dfc.MarketContractAddress, auth)
 	if err != nil {
 		return nil, err
 	}
+	log.Println("[basic] set up a session of [Market] contarct")
 
 	client.WitnessPool, err = session.NewWitnessPoolSession(client.RawClinet, dfc.WitnessPoolContractAddress, auth)
 	if err != nil {
 		return nil, err
 	}
+	log.Println("[basic] set up a session of [WitnessPool] contarct")
+
+	log.Println("[basic] ------------------- new basic client done --------------------------")
 
 	return client, nil
 }
 
-const (
-	NumBlockToWaitRecommended int = 2
-)
-
 func (client *BasicClient) ComfirmTxByPolling(txHash common.Hash, numBlockToWait int) error {
+
+	log.Printf("[basic] comfirm tx [%v] for pedding ...", txHash)
 
 	checkPeddingTimeout := time.NewTimer(1 * time.Minute)
 	checkPeddingTicker := time.NewTicker(1 * time.Second)
@@ -128,6 +140,10 @@ CheckPeddingLoop:
 		}
 	}
 
+	log.Printf("[basic] comfirm tx [%v] for pedding done", txHash)
+
+	log.Printf("[basic] comfirm tx [%v] for waiting [%v] blocks ...", txHash, numBlockToWait)
+
 	// record currnet blockNumber
 	curHeader, err := client.RawClinet.HeaderByNumber(context.TODO(), nil)
 	if err != nil {
@@ -151,16 +167,20 @@ WaitBlockLoop:
 			if err != nil {
 				return err
 			}
-			if -1 == big.NewInt(int64(numBlockToWait)).Cmp(header.Number.Sub(header.Number, curHeader.Number)) {
+			if big.NewInt(int64(numBlockToWait)).Cmp(header.Number.Sub(header.Number, curHeader.Number)) <= 0 {
 				break WaitBlockLoop
 			}
 		}
 	}
 
+	log.Printf("[basic] comfirm tx [%v] for waiting [%v] blocks done", txHash, numBlockToWait)
+
 	return nil
 }
 
 func (client *BasicClient) ComfirmTxBySubscription(txHash common.Hash, numBlockToWait int) error {
+
+	log.Printf("[basic] comfirm tx [%v] for pedding ...", txHash)
 
 	headers := make(chan *types.Header)
 	headerSub, err := client.RawClinet.SubscribeNewHead(context.TODO(), headers)
@@ -168,10 +188,15 @@ func (client *BasicClient) ComfirmTxBySubscription(txHash common.Hash, numBlockT
 		return err
 	}
 
+	checkPeddingTimeout := time.NewTimer(1 * time.Minute)
+
 	// wait for pedding
-SubLoop:
+CheckPeddingSubLoop:
 	for {
 		select {
+
+		case <-checkPeddingTimeout.C:
+			return errors.New("chekc pedding time out")
 
 		case err := <-headerSub.Err():
 			return err
@@ -184,16 +209,22 @@ SubLoop:
 			}
 
 			if !isPending {
-				break SubLoop
+				break CheckPeddingSubLoop
 			}
 
 		}
 	}
 
+	log.Printf("[basic] comfirm tx [%v] for pedding done", txHash)
+
+	log.Printf("[basic] comfirm tx [%v] for waiting [%v] blocks ...", txHash, numBlockToWait)
+
 	// wait for blocks
 	for i := 0; i < numBlockToWait; i++ {
 		<-headers
 	}
+
+	log.Printf("[basic] comfirm tx [%v] for waiting [%v] blocks done", txHash, numBlockToWait)
 
 	return nil
 }

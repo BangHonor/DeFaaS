@@ -22,7 +22,7 @@ import (
 const (
 	// dev config
 	ethClientRawURL          = "ws://127.0.0.1:8546"
-	deployerKeyStoreFilePath = "./tmp/dev/data/keystore/UTC--2021-03-15T08-50-30.516148546Z--f38f26975aec981583ae8e4029f640c1b0d7f91a"
+	deployerKeyStoreFilePath = "./tmp/dev/data/keystore/UTC--2021-03-22T16-13-33.324948003Z--18f3ed9cc0c0727390d38202bd74446c0ded47a0"
 	deployerPassword         = ""
 	defaasConfigFilePath     = "./defaas-config.toml"
 )

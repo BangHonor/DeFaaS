@@ -3,8 +3,11 @@ package provider
 import (
 	"context"
 	"defaas/client/basic"
+	"defaas/core/config"
+	"log"
 	"math/big"
 
+	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/gogf/gf/container/gmap"
 )
 
@@ -18,11 +21,11 @@ type ProviderClient struct {
 	quit context.CancelFunc
 }
 
-func NewProviderClient() (*ProviderClient, error) {
+func NewProviderClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*ProviderClient, error) {
 
 	client := &ProviderClient{}
 
-	_basicClient, err := basic.NewBasicClient(nil, nil)
+	_basicClient, err := basic.NewBasicClient(dfc, key)
 	if err != nil {
 		return nil, err
 	}
@@ -40,11 +43,19 @@ func (client *ProviderClient) Start() error {
 	ctx, cancel := context.WithCancel(context.Background())
 	client.quit = cancel
 
+	log.Println("[provider] start bidding ...")
+
 	if err := client.Bidding(ctx); err != nil {
 		return err
 	}
 
+	log.Panicln("[provider] start bidding done")
+
+	log.Println("[provider] start deploy server ...")
+
 	// go client.StartDeployServer()
+
+	log.Panicln("[provider] start deploy serve done")
 
 	return nil
 }

@@ -14,15 +14,10 @@ import (
 type BidFilter struct {
 	LongestFaaSDuration *big.Int
 	LowestUnitPrice     *big.Int
-
-	// TODO more filter field
 }
 
 // Check checks whether the new deployment order is legal.
 func (f *BidFilter) Check(event *market.MarketNewDeploymentOrderEvent) bool {
-
-	// TODO
-
 	return true
 }
 
@@ -33,8 +28,6 @@ func (f *BidFilter) Filter(event *market.MarketNewDeploymentOrderEvent) bool {
 		return false
 	}
 
-	// TODO more filter rule
-
 	return true
 }
 
@@ -42,7 +35,6 @@ func (f *BidFilter) Filter(event *market.MarketNewDeploymentOrderEvent) bool {
 
 // BidStrategy is a bidding strategy, including bids for different FaaS levels.
 type BidStrategy struct {
-	// TODO
 }
 
 // ------------------------------------------------------------------------------------------------
