@@ -15,11 +15,12 @@ type FaaSLevel struct {
 type DeploymentOrderState int
 
 const (
-	Bidding    DeploymentOrderState = 1
-	Confirming DeploymentOrderState = 2
-	Deploying  DeploymentOrderState = 3
-	Fulfilling DeploymentOrderState = 4
-	Finished   DeploymentOrderState = 5
+	InitState       DeploymentOrderState = 0
+	BiddingState    DeploymentOrderState = 1
+	ConfirmingState DeploymentOrderState = 2
+	DeployingState  DeploymentOrderState = 3
+	FulfillingState DeploymentOrderState = 4
+	FinishedState   DeploymentOrderState = 5
 )
 
 type DeploymentOrder struct {
@@ -36,6 +37,7 @@ type DeploymentOrder struct {
 
 type DeploymentInfo struct {
 	Provider   common.Address
+	UnitPrice  *big.Int
 	FuncPath   string
 	DeployPath string
 	AccessKey  string

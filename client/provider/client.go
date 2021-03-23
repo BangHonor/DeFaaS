@@ -72,7 +72,7 @@ func NewProviderClient(dfc *defaasconfig.DeFaaSConfig, pc *ProviderConfig, key *
 
 	client.providerConfig = pc
 
-	client.itemPool = gmap.NewHashMap(true) // `trur` means concurrent-safety
+	client.itemPool = gmap.NewHashMap(true) // `true` means concurrent-safety
 
 	return client, nil
 }
