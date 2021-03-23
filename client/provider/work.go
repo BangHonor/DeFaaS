@@ -93,67 +93,73 @@ func (client *ProviderClient) Bidder(ctx context.Context, fromWatcherCh <-chan *
 			case <-ctx.Done():
 				return
 
-			case item := <-fromWatcherCh:
+			case _item := <-fromWatcherCh:
 
-				// change the state
-				item.State = data.BiddingState
+				//  start a new goroutine to do this time-heavy-cost task
+				go func(item *DeploymentItem) {
 
-				item.Info.Provider = client.Key.Address
-				item.Info.UnitPrice = item.Order.HighestUnitPrice
+					// change the state
+					item.State = data.BiddingState
 
-				// bid for this order
-				txBid, err := client.Market.Bid(item.ID, item.Info.UnitPrice) // TODO smarter bidding strategy
-				if err != nil {
-					errCh <- err
-					continue
-				}
-				if err := client.ComfirmTxByPolling(txBid.Hash(), basic.NumBlockToWaitRecommended); err != nil {
-					errCh <- err
-					continue
-				}
+					item.Info.Provider = client.Key.Address
+					item.Info.UnitPrice = item.Order.HighestUnitPrice
 
-				// watch bidding end event
-				sink := make(chan *market.MarketBiddingEndEvent)
-				sub, err := client.Market.Contract.WatchBiddingEndEvent(nil, sink, []*big.Int{item.ID}, nil, nil)
-				if err != nil {
-					errCh <- err
-					continue
-				}
-
-				// wait for bidding end event
-				select {
-
-				case <-ctx.Done():
-					// this select done
-
-				case err := <-sub.Err():
-					errCh <- err
-
-				case event := <-sink:
-
-					// -------------- event --------------------
-					// DeploymentOrderID *big.Int
-					// Provider          common.Address
-					// Success           bool
-					// FaasLevelID       *big.Int
-					// UnitPrice         *big.Int
-
-					// check whether I win the bidding
-					if event.Success && helper.EqualAddress(item.Info.Provider, event.Provider) {
-
-						// I win the bidding
-						// send the bidden item to next processing stage
-						toPublisherCh <- item
-
-						log.Printf("[provider/bidder] win the bidding of a deployment order, ID [%v]\n", item.ID)
-
-					} else {
-
-						client.itemPool.Remove(item.ID)
-
-						log.Printf("[provider/bidder] failed to bid for a deployment order, ID [%v]\n", item.ID)
+					// bid for this order
+					txBid, err := client.Market.Bid(item.ID, item.Info.UnitPrice) // TODO smarter bidding strategy
+					if err != nil {
+						errCh <- err
+						return
 					}
-				}
+					if err := client.ComfirmTxByPolling(txBid.Hash(), basic.NumBlockToWaitRecommended); err != nil {
+						errCh <- err
+						return
+					}
+
+					log.Printf("[provider/bidder] bid with unit price [%v] for a deployment order, ID [%v]\n", item.Info.UnitPrice, item.ID)
+
+					// watch bidding end event
+					sink := make(chan *market.MarketBiddingEndEvent)
+					sub, err := client.Market.Contract.WatchBiddingEndEvent(nil, sink, []*big.Int{item.ID}, nil, nil)
+					if err != nil {
+						errCh <- err
+						return
+					}
+
+					// wait for bidding end event
+					select {
+
+					case <-ctx.Done():
+						// this select done
+
+					case err := <-sub.Err():
+						errCh <- err
+
+					case event := <-sink:
+
+						// -------------- event --------------------
+						// DeploymentOrderID *big.Int
+						// Provider          common.Address
+						// Success           bool
+						// FaasLevelID       *big.Int
+						// UnitPrice         *big.Int
+
+						// check whether I win the bidding
+						if event.Success && helper.EqualAddress(item.Info.Provider, event.Provider) {
+
+							// I win the bidding
+							// send the bidden item to next processing stage
+							toPublisherCh <- item
+
+							log.Printf("[provider/bidder] win the bidding of a deployment order, ID [%v]\n", item.ID)
+
+						} else {
+
+							client.itemPool.Remove(item.ID)
+
+							log.Printf("[provider/bidder] failed to bid for a deployment order, ID [%v]\n", item.ID)
+						}
+					}
+				}(_item)
 
 			}
 		}
@@ -172,59 +178,66 @@ func (client *ProviderClient) Publisher(ctx context.Context, fromBidderCh <-chan
 			case <-ctx.Done():
 				return
 
-			case item := <-fromBidderCh:
+			case _item := <-fromBidderCh:
 
-				item.State = data.ConfirmingState
+				//  start a new goroutine to do this time-heavy-cost task
+				go func(item *DeploymentItem) {
 
-				item.Info.FuncPath = "funcPath"
-				item.Info.DeployPath = client.providerConfig.DeployPath
-				item.Info.AccessKey = "accessKey"
+					item.State = data.ConfirmingState
 
-				// publish
-				txPublish, err := client.Market.PublishDeploymentInfo(item.ID, item.Info.FuncPath, item.Info.DeployPath, item.Info.AccessKey)
-				if err != nil {
-					errCh <- err
-					continue
-				}
-				if err := client.ComfirmTxByPolling(txPublish.Hash(), basic.NumBlockToWaitRecommended); err != nil {
-					errCh <- err
-					continue
-				}
+					item.Info.FuncPath = "funcPath"
+					item.Info.DeployPath = client.providerConfig.DeployPath
+					item.Info.AccessKey = "accessKey"
 
-				// watch new lease event
-				sink := make(chan *market.MarketNewLeaseEvent)
-				sub, err := client.Market.Contract.WatchNewLeaseEvent(nil, sink,
-					[]*big.Int{item.ID},
-					[]common.Address{item.Order.Customer},
-					[]common.Address{item.Info.Provider})
-				if err != nil {
-					errCh <- err
-					continue
-				}
-
-				// wait for new lease event
-				select {
-
-				case <-ctx.Done():
-					// this select done
-
-				case err := <-sub.Err():
-					errCh <- err
-
-				case event := <-sink:
-
-					// -------------- event --------------------
-					// DeploymentOrderID *big.Int
-					// Customer          common.Address
-					// Provider          common.Address
-
-					if helper.EqualAddress(item.Order.Customer, event.Customer) && helper.EqualAddress(item.Info.Provider, event.Provider) {
-
-						log.Printf("[provider/publisher] new lease, ID [%v]\n", item.ID)
-						toFulfillerCh <- item
-
+					// publish
+					txPublish, err := client.Market.PublishDeploymentInfo(item.ID, item.Info.FuncPath, item.Info.DeployPath, item.Info.AccessKey)
+					if err != nil {
+						errCh <- err
+						return
 					}
-				}
+					if err := client.ComfirmTxByPolling(txPublish.Hash(), basic.NumBlockToWaitRecommended); err != nil {
+						errCh <- err
+						return
+					}
+
+					log.Printf("[provider/publisher] publish a new deployment info for the order, ID [%v]\n", item.ID)
+
+					// watch new lease event
+					sink := make(chan *market.MarketNewLeaseEvent)
+					sub, err := client.Market.Contract.WatchNewLeaseEvent(nil, sink,
+						[]*big.Int{item.ID},
+						[]common.Address{item.Order.Customer},
+						[]common.Address{item.Info.Provider})
+					if err != nil {
+						errCh <- err
+						return
+					}
+
+					// wait for new lease event
+					select {
+
+					case <-ctx.Done():
+						// this select done
+
+					case err := <-sub.Err():
+						errCh <- err
+
+					case event := <-sink:
+
+						// -------------- event --------------------
+						// DeploymentOrderID *big.Int
+						// Customer          common.Address
+						// Provider          common.Address
+
+						if helper.EqualAddress(item.Order.Customer, event.Customer) && helper.EqualAddress(item.Info.Provider, event.Provider) {
+
+							log.Printf("[provider/publisher] new lease, ID [%v]\n", item.ID)
+							toFulfillerCh <- item
+
+						}
+					}
+				}(_item)
+
 			}
 		}
 	}()
@@ -232,10 +245,36 @@ func (client *ProviderClient) Publisher(ctx context.Context, fromBidderCh <-chan
 	return nil
 }
 
-func (client *ProviderClient) Fulfiller(ctx context.Context, inCh <-chan *DeploymentItem, outCh chan<- *DeploymentItem, errCh chan error) error {
+func (client *ProviderClient) Fulfiller(ctx context.Context, fromPublisherCh <-chan *DeploymentItem, toFinisherCh chan<- *DeploymentItem, errCh chan error) error {
+
+	go func() {
+
+		for {
+			select {
+
+			case <-ctx.Done():
+				return
+
+			case _item := <-fromPublisherCh:
+
+				//  start a new goroutine to do this time-heavy-cost task
+				go func(item *DeploymentItem) {
+
+					item.State = data.DeployingState
+
+					// TODO
+
+				}(_item)
+			}
+		}
+	}()
+
 	return nil
 }
 
-func (client *ProviderClient) Finisher(ctx context.Context, inCh <-chan *DeploymentItem, errCh chan error) error {
+func (client *ProviderClient) Finisher(ctx context.Context, fromFulfillerCh <-chan *DeploymentItem, errCh chan error) error {
+
+	// do nothing
+
 	return nil
 }
