@@ -3,6 +3,7 @@ package wintess
 import (
 	basic "defaas/client/basic"
 	"defaas/core/config"
+	"io/ioutil"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
@@ -14,14 +15,23 @@ type WitnessClient struct {
 
 func NewWitnessClientWithFile(configFilePath, keyStoreFilePath string, password string) (*WitnessClient, error) {
 
-	// init
-	_basicClient, _ := basic.NewBasicClientWithFile(configFilePath, keyStoreFilePath, password)
-
-	client := &WitnessClient{
-		BasicClient: *_basicClient,
+	// parse defaas config
+	dfc, err := config.ParseConfigFile(configFilePath)
+	if err != nil {
+		return nil, err
 	}
 
-	return client, nil
+	// decrypt keystore
+	keyjson, err := ioutil.ReadFile(keyStoreFilePath)
+	if err != nil {
+		return nil, err
+	}
+	key, err := keystore.DecryptKey(keyjson, password)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewWitnessClient(dfc, key)
 }
 
 func NewWitnessClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*WitnessClient, error) {

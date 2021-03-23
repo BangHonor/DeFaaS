@@ -12,6 +12,16 @@ type FaaSLevel struct {
 	Mem  *big.Int
 }
 
+type DeploymentOrderState int
+
+const (
+	Bidding    DeploymentOrderState = 1
+	Confirming DeploymentOrderState = 2
+	Deploying  DeploymentOrderState = 3
+	Fulfilling DeploymentOrderState = 4
+	Finished   DeploymentOrderState = 5
+)
+
 type DeploymentOrder struct {
 	Customer         common.Address
 	Nonce            *big.Int

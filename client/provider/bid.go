@@ -1,13 +1,8 @@
 package provider
 
 import (
-	"context"
-	"defaas/client/basic"
 	"defaas/contracts/go/market"
-	"defaas/core/helper"
-	"log"
 	"math/big"
-	"sync"
 )
 
 // BidFilter is afilter rule for bidding new deployment order.
@@ -39,121 +34,121 @@ type BidStrategy struct {
 
 // ------------------------------------------------------------------------------------------------
 
-type Bidder struct {
-	sync.Mutex
-	Err      chan error
-	Filter   *BidFilter
-	Strategy *BidStrategy
-}
+// type Bidder struct {
+// 	sync.Mutex
+// 	Err      chan error
+// 	Filter   *BidFilter
+// 	Strategy *BidStrategy
+// }
 
-func (client *ProviderClient) Bidding(ctx context.Context) error {
+// func (client *ProviderClient) Bidding(ctx context.Context) error {
 
-	filter := &BidFilter{}
-	strategy := &BidStrategy{}                                                  // TODO support as a parameter
-	bidder, err := client.NewBidder(ctx, client.sinkBiddenID, filter, strategy) // start a daemons for bidding
+// 	filter := &BidFilter{}
+// 	strategy := &BidStrategy{}                                                  // TODO support as a parameter
+// 	bidder, err := client.NewBidder(ctx, client.sinkBiddenID, filter, strategy) // start a daemons for bidding
 
-	if err != nil {
-		return err
-	}
+// 	if err != nil {
+// 		return err
+// 	}
 
-	// start a gorountine
-	// customer of of bidden deployment order
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case err := <-bidder.Err:
-				// just print err
-				log.Println(err)
-			case id := <-client.sinkBiddenID:
-				go client.Publish(ctx, id)
-			}
-		}
-	}()
+// 	// start a gorountine
+// 	// customer of of bidden deployment order
+// 	go func() {
+// 		for {
+// 			select {
+// 			case <-ctx.Done():
+// 				return
+// 			case err := <-bidder.Err:
+// 				// just print err
+// 				log.Println(err)
+// 			case id := <-client.sinkBiddenID:
+// 				go client.Publish(ctx, id)
+// 			}
+// 		}
+// 	}()
 
-	return nil
-}
+// 	return nil
+// }
 
-func (client *ProviderClient) NewBidder(ctx context.Context, sinkBiddenID chan<- *big.Int, filter *BidFilter, strategy *BidStrategy) (*Bidder, error) {
+// func (client *ProviderClient) NewBidder(ctx context.Context, sinkBiddenID chan<- *big.Int, filter *BidFilter, strategy *BidStrategy) (*Bidder, error) {
 
-	subBid := &Bidder{
-		Err:      make(chan error),
-		Filter:   filter,
-		Strategy: strategy,
-	}
+// 	subBid := &Bidder{
+// 		Err:      make(chan error),
+// 		Filter:   filter,
+// 		Strategy: strategy,
+// 	}
 
-	// construct subscription of event `new deployemnt order`
-	sinkNewOrder := make(chan *market.MarketNewDeploymentOrderEvent)
-	subNewOrder, err := client.Market.Contract.MarketFilterer.WatchNewDeploymentOrderEvent(
-		nil, sinkNewOrder, nil, nil, nil)
+// 	// construct subscription of event `new deployemnt order`
+// 	sinkNewOrder := make(chan *market.MarketNewDeploymentOrderEvent)
+// 	subNewOrder, err := client.Market.Contract.MarketFilterer.WatchNewDeploymentOrderEvent(
+// 		nil, sinkNewOrder, nil, nil, nil)
 
-	if err != nil {
-		return nil, err
-	}
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	bidFor := func(ctx context.Context, id *big.Int, unitPirce *big.Int) {
+// 	bidFor := func(ctx context.Context, id *big.Int, unitPirce *big.Int) {
 
-		// bid for
-		txBid, err := client.Market.Bid(id, unitPirce)
-		if err != nil {
-			subBid.Err <- err
-		}
-		if err := client.ComfirmTxByPolling(txBid.Hash(), basic.NumBlockToWaitRecommended); err != nil {
-			subBid.Err <- err
-		}
+// 		// bid for
+// 		txBid, err := client.Market.Bid(id, unitPirce)
+// 		if err != nil {
+// 			subBid.Err <- err
+// 		}
+// 		if err := client.ComfirmTxByPolling(txBid.Hash(), basic.NumBlockToWaitRecommended); err != nil {
+// 			subBid.Err <- err
+// 		}
 
-		// watch bidding end event
-		sinkBiddingEnd := make(chan *market.MarketBiddingEndEvent)
-		subBiddingEnd, err := client.Market.Contract.WatchBiddingEndEvent(nil, sinkBiddingEnd, []*big.Int{id}, nil, nil)
-		if err != nil {
-			subBid.Err <- err
-			return
-		}
+// 		// watch bidding end event
+// 		sinkBiddingEnd := make(chan *market.MarketBiddingEndEvent)
+// 		subBiddingEnd, err := client.Market.Contract.WatchBiddingEndEvent(nil, sinkBiddingEnd, []*big.Int{id}, nil, nil)
+// 		if err != nil {
+// 			subBid.Err <- err
+// 			return
+// 		}
 
-		select {
+// 		select {
 
-		case <-ctx.Done():
-			return
+// 		case <-ctx.Done():
+// 			return
 
-		case err := <-subBiddingEnd.Err():
-			subBid.Err <- err
-			return
+// 		case err := <-subBiddingEnd.Err():
+// 			subBid.Err <- err
+// 			return
 
-		case event := <-sinkBiddingEnd:
+// 		case event := <-sinkBiddingEnd:
 
-			if helper.EqualAddress(client.Key.Address, event.Provider) {
-				// bidding successfully
-				sinkBiddenID <- id
-			}
-			return
-		}
+// 			if helper.EqualAddress(client.Key.Address, event.Provider) {
+// 				// bidding successfully
+// 				sinkBiddenID <- id
+// 			}
+// 			return
+// 		}
 
-	}
+// 	}
 
-	// watch new order
-	// producer of bidden deployment order
-	go func() {
-		for {
-			select {
+// 	// watch new order
+// 	// producer of bidden deployment order
+// 	go func() {
+// 		for {
+// 			select {
 
-			case <-ctx.Done():
-				return
+// 			case <-ctx.Done():
+// 				return
 
-			case err := <-subNewOrder.Err():
-				subBid.Err <- err
-				return
+// 			case err := <-subNewOrder.Err():
+// 				subBid.Err <- err
+// 				return
 
-			case event := <-sinkNewOrder:
+// 			case event := <-sinkNewOrder:
 
-				if subBid.Filter.Check(event) && subBid.Filter.Filter(event) {
-					go bidFor(
-						ctx, event.DeploymentOrderID, event.HighestUnitPrice)
-				}
+// 				if subBid.Filter.Check(event) && subBid.Filter.Filter(event) {
+// 					go bidFor(
+// 						ctx, event.DeploymentOrderID, event.HighestUnitPrice)
+// 				}
 
-			}
-		}
-	}()
+// 			}
+// 		}
+// 	}()
 
-	return subBid, nil
-}
+// 	return subBid, nil
+// }

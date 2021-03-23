@@ -2,17 +2,24 @@ package provider
 
 import (
 	"context"
-	"math/big"
 )
 
-func (client *ProviderClient) Publish(ctx context.Context, id *big.Int) {
+func (client *ProviderClient) Watcher(ctx context.Context, outCh chan<- *DeploymentItem, errCh chan error) error {
+	return nil
+}
 
-	// publish
+func (client *ProviderClient) Bidder(ctx context.Context, inCh <-chan *DeploymentItem, outCh chan<- *DeploymentItem, errCh chan error) error {
+	return nil
+}
 
-	// <- notify
-	// wait for deploying
+func (client *ProviderClient) Publisher(ctx context.Context, inCh <-chan *DeploymentItem, outCh chan<- *DeploymentItem, errCh chan error) error {
+	return nil
+}
 
-	// run faas
+func (client *ProviderClient) Fulfiller(ctx context.Context, inCh <-chan *DeploymentItem, outCh chan<- *DeploymentItem, errCh chan error) error {
+	return nil
+}
 
-	// fulfill
+func (client *ProviderClient) Finisher(ctx context.Context, inCh <-chan *DeploymentItem, errCh chan error) error {
+	return nil
 }

@@ -1,13 +1,11 @@
 package provider
 
-import "testing"
+// func TestNewProviderClient(t *testing.T) {
 
-func TestNewProviderClient(t *testing.T) {
+// 	provider, err := NewProviderClient(nil, nil)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
 
-	provider, err := NewProviderClient(nil, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	_ = provider
-}
+// 	_ = provider
+// }
