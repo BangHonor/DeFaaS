@@ -12,18 +12,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-// https://github.com/dyrkin/fsm
-
-const (
-	InitState       = "Init"
-	BiddingState    = "Bidding"
-	ConfirmingState = "Confirming"
-	DeployingState  = "Deploying"
-	FulfillingState = "Fulfilling"
-	SettledState    = "Settled"
-	FinishedState   = "Finished"
-)
-
 func (client *CustomerClient) Deploy(order *data.DeploymentOrder, task interface{}) error {
 
 	// overall

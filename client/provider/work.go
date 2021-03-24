@@ -13,7 +13,7 @@ import (
 )
 
 // Watcher watches `NewDeploymentOrderEvent` from `Market` contract
-func (client *ProviderClient) Watcher(ctx context.Context, toBidderCh chan<- *DeploymentItem, errCh chan error) error {
+func (client *ProviderClient) Watcher(ctx context.Context, toBidderCh chan<- *data.DeploymentItem, errCh chan error) error {
 
 	sink := make(chan *market.MarketNewDeploymentOrderEvent)
 	sub, err := client.Market.Contract.MarketFilterer.WatchNewDeploymentOrderEvent(
@@ -58,7 +58,7 @@ func (client *ProviderClient) Watcher(ctx context.Context, toBidderCh chan<- *De
 				// FulfillSecretKey [32]byte
 				// FulfillKey       [32]byte
 
-				item := &DeploymentItem{}
+				item := &data.DeploymentItem{}
 
 				item.State = data.InitState
 				item.ID = event.DeploymentOrderID
@@ -83,7 +83,7 @@ func (client *ProviderClient) Watcher(ctx context.Context, toBidderCh chan<- *De
 	return nil
 }
 
-func (client *ProviderClient) Bidder(ctx context.Context, fromWatcherCh <-chan *DeploymentItem, toPublisherCh chan<- *DeploymentItem, errCh chan error) error {
+func (client *ProviderClient) Bidder(ctx context.Context, fromWatcherCh <-chan *data.DeploymentItem, toPublisherCh chan<- *data.DeploymentItem, errCh chan error) error {
 
 	go func() {
 
@@ -96,7 +96,7 @@ func (client *ProviderClient) Bidder(ctx context.Context, fromWatcherCh <-chan *
 			case _item := <-fromWatcherCh:
 
 				//  start a new goroutine to do this time-heavy-cost task
-				go func(item *DeploymentItem) {
+				go func(item *data.DeploymentItem) {
 
 					// change the state
 					item.State = data.BiddingState
@@ -168,7 +168,7 @@ func (client *ProviderClient) Bidder(ctx context.Context, fromWatcherCh <-chan *
 	return nil
 }
 
-func (client *ProviderClient) Publisher(ctx context.Context, fromBidderCh <-chan *DeploymentItem, toFulfillerCh chan<- *DeploymentItem, errCh chan error) error {
+func (client *ProviderClient) Publisher(ctx context.Context, fromBidderCh <-chan *data.DeploymentItem, toFulfillerCh chan<- *data.DeploymentItem, errCh chan error) error {
 
 	go func() {
 
@@ -181,12 +181,12 @@ func (client *ProviderClient) Publisher(ctx context.Context, fromBidderCh <-chan
 			case _item := <-fromBidderCh:
 
 				//  start a new goroutine to do this time-heavy-cost task
-				go func(item *DeploymentItem) {
+				go func(item *data.DeploymentItem) {
 
 					item.State = data.ConfirmingState
 
 					item.Info.FuncPath = "funcPath"
-					item.Info.DeployPath = client.providerConfig.DeployPath
+					item.Info.DeployPath = GetDeployPathFromProviderConfig(client.providerConfig)
 					item.Info.AccessKey = "accessKey"
 
 					// publish
@@ -201,6 +201,9 @@ func (client *ProviderClient) Publisher(ctx context.Context, fromBidderCh <-chan
 					}
 
 					log.Printf("[provider/publisher] publish a new deployment info for the order, ID [%v]\n", item.ID)
+
+					// register to deploy server
+					client.DeployServerRegisterDeploying(item)
 
 					// watch new lease event
 					sink := make(chan *market.MarketNewLeaseEvent)
@@ -245,7 +248,7 @@ func (client *ProviderClient) Publisher(ctx context.Context, fromBidderCh <-chan
 	return nil
 }
 
-func (client *ProviderClient) Fulfiller(ctx context.Context, fromPublisherCh <-chan *DeploymentItem, toFinisherCh chan<- *DeploymentItem, errCh chan error) error {
+func (client *ProviderClient) Fulfiller(ctx context.Context, fromPublisherCh <-chan *data.DeploymentItem, toFinisherCh chan<- *data.DeploymentItem, errCh chan error) error {
 
 	go func() {
 
@@ -258,11 +261,27 @@ func (client *ProviderClient) Fulfiller(ctx context.Context, fromPublisherCh <-c
 			case _item := <-fromPublisherCh:
 
 				//  start a new goroutine to do this time-heavy-cost task
-				go func(item *DeploymentItem) {
+				go func(item *data.DeploymentItem) {
 
 					item.State = data.DeployingState
 
-					// TODO
+					// wait...
+					fulfillSecretKey := client.DeployServerWaitForDeploying(item)
+
+					item.Order.FulfillSecretKey = fulfillSecretKey
+					// check fulfillKey
+
+					txFulfill, err := client.Market.FulfillDeploymentOrder(item.ID, item.Order.FulfillSecretKey)
+					if err != nil {
+						errCh <- err
+						return
+					}
+					if err := client.ComfirmTxByPolling(txFulfill.Hash(), basic.NumBlockToWaitRecommended); err != nil {
+						errCh <- err
+						return
+					}
+
+					item.State = data.FulfillingState
 
 				}(_item)
 			}
@@ -272,9 +291,20 @@ func (client *ProviderClient) Fulfiller(ctx context.Context, fromPublisherCh <-c
 	return nil
 }
 
-func (client *ProviderClient) Finisher(ctx context.Context, fromFulfillerCh <-chan *DeploymentItem, errCh chan error) error {
+func (client *ProviderClient) Finisher(ctx context.Context, fromFulfillerCh <-chan *data.DeploymentItem, errCh chan error) error {
 
-	// do nothing
+	// DO NOTHING NOW
+
+	// for {
+	// 	select {
+	// 	case <-ctx.Done():
+	// 	case _item := <-fromFulfillerCh:
+	// 		go func(item *data.DeploymentItem) {
+	// 			// watch finished event
+	// 			item.State = data.FinishedState
+	// 		}(_item)
+	// 	}
+	// }
 
 	return nil
 }

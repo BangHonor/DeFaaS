@@ -2,6 +2,7 @@ package data
 
 import (
 	"math/big"
+	"sync"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -47,4 +48,13 @@ type Lease struct {
 	Customer           common.Address
 	Provider           common.Address
 	IsProviderViolated bool
+}
+
+type DeploymentItem struct {
+	sync.Mutex
+
+	ID    *big.Int
+	State DeploymentOrderState
+	Order DeploymentOrder
+	Info  DeploymentInfo
 }

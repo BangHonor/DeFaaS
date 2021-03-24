@@ -1,26 +1,25 @@
 package provider
 
 import (
-	"log"
 	"testing"
-	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func TestNewDeployServer(t *testing.T) {
+func TestParseDeployPath(t *testing.T) {
 
-	s, err := NewDeployServer("", 1)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := s.Start(); err != nil {
-		t.Fatal(err)
-	}
+	assert := assert.New(t)
 
-	log.Println("haha")
+	adapter := "docker"
+	serverAddr := "127.0.0.1:60666"
+	serverEntry := "deploy"
 
-	time.Sleep(1 * time.Minute)
+	deployPath := "docker|127.0.0.1:60666|deploy"
 
-	if err := s.Stop(); err != nil {
-		t.Fatal(err)
-	}
+	assert.Equal(deployPath, GetDeployPath(adapter, serverAddr, serverEntry))
+
+	_adapter, _serverAddr, _serverEntry := ParseDeployPath(GetDeployPath(adapter, serverAddr, serverEntry))
+	assert.Equal(adapter, _adapter)
+	assert.Equal(serverAddr, _serverAddr)
+	assert.Equal(serverEntry, _serverEntry)
 }

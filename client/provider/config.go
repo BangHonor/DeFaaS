@@ -1,7 +1,9 @@
 package provider
 
 type ProviderConfig struct {
-	DeployPath string
+	Adapter     string
+	ServerAddr  string
+	ServerEntry string
 }
 
 func ParseConfigFile(providerConfigFilePath string) (*ProviderConfig, error) {

@@ -1,100 +1,75 @@
 package provider
 
 import (
-	"fmt"
-	"log"
+	"defaas/core/data"
+	"math/big"
+	"strings"
 
-	"github.com/gogf/gf/container/gmap"
+	"defaas/adapter"
+
 	"github.com/gogf/gf/net/ghttp"
 )
 
-type DeployServer struct {
-	//
-	DeployingPool gmap.AnyAnyMap
-	//
-	adapter string // deployment adapter
-	//
-	serverAddr  string // serverAddr is like '0.0.0.0:80', '127.0.0.1:80', '180.18.99.10:80', etc
-	serverEntry string // serverEntry is the entry path of server, like '127.0.0.1:80/{serverEntry}'
-	//
-	server *ghttp.Server
+func GetDeployPathFromProviderConfig(pc *ProviderConfig) string {
+
+	return GetDeployPath(pc.Adapter, pc.ServerAddr, pc.ServerEntry)
+
+}
+
+func GetDeployPath(adapter, serverAddr, serverEntry string) string {
+
+	deployPath := strings.Join([]string{adapter, serverAddr, serverEntry}, "|")
+
+	return deployPath
 }
 
 func ParseDeployPath(deployPath string) (string, string, string) {
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// Note that it is a simplification in DEV, NOW
-	adapter := "docker"
-	serverAddr := "127.0.0.1:60666"
-	serverEntry := "/deploy"
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-	return adapter, serverAddr, serverEntry
-
-	// TODO
-	// deployPath format
-	// [adpater:tag][serverAddr/serverEntry]
-	// like: [docker:tag][http:127.0.0.1:80/deploy]
-
+	ss := strings.Split(deployPath, "|")
+	return ss[0], ss[1], ss[2]
 }
 
-func NewDeployServer(deployPath string, serverID int) (*DeployServer, error) {
-
-	ds := &DeployServer{}
-
-	adapter, serverAddr, serverEntry := ParseDeployPath(deployPath)
-
-	ds.adapter = adapter
-	ds.serverAddr = serverAddr
-	ds.serverEntry = serverEntry
-
-	ds.server = ghttp.GetServer("deploy-server-" + fmt.Sprint(serverID))
-	ds.server.SetAddr(ds.serverAddr)                               // https://pkg.go.dev/github.com/gogf/gf/net/ghttp#Server.SetAddr
-	ds.server.BindHandler(ds.serverEntry, ds.DeployRequestHandler) // register handler
-
-	return ds, nil
-}
-
-func (ds *DeployServer) Start() error {
-
-	go ds.server.Run()
-
-	log.Printf("[provider/deployServer] run deploy server [%s]\n", ds.serverAddr+ds.serverEntry)
-
-	return nil
-}
-
-func (ds *DeployServer) Stop() error {
-
-	err := ds.server.Shutdown()
-	if err != nil {
-		log.Printf("[provider/deployServer] failed to shutdown deploy server [%s]\n", ds.serverAddr+ds.serverEntry)
-		return err
-	}
-
-	log.Printf("[provider/deployServer] shutdown deploy server [%s]\n", ds.serverAddr+ds.serverEntry)
-
-	return nil
-}
-
-func (ds *DeployServer) DeployRequestHandler(r *ghttp.Request) {
-
-	r.Response.Write("Hello")
-
-	// TODO
+func (client *ProviderClient) DeployServerRequestHandler(r *ghttp.Request) {
 
 	// 1. parse parameter from request
 	// 2. check is at pool
 	// 3. auth
 	// 4. use adpater
 	// 4.1 docker adapter
+
+	id, success := big.NewInt(0).SetString(r.GetString("id"), 10)
+	if !success {
+		r.Response.Write("Hello")
+	}
+	accessKey := r.GetString("accessKey")
+	adapterData := r.GetString("adapterData")
+
+	item := client.itemPool.Get(id).(*data.DeploymentItem)
+	if data.DeployingState != item.State {
+		r.Response.Write("Hello")
+	}
+	if accessKey != item.Info.AccessKey {
+		r.Response.Write("Hello")
+	}
+
+	adapter.New(client.providerConfig.Adapter).DeployFrom(item, adapterData)
+
+	r.Response.Write("Hello")
 }
 
-func (ds *DeployServer) NewListeningDeployTask(funcPath string, accessKey string, notify chan<- bool) error {
+func (client *ProviderClient) DeployServerRegisterDeploying(item *data.DeploymentItem) {
 
-	// add to accessKey pool
+	notifier := make(chan [32]byte, 1)
 
-	// add to norify pool
+	client.deployedNotifierPool.Set(item.ID, notifier)
+}
 
-	return nil
+func (client *ProviderClient) DeployServerWaitForDeploying(item *data.DeploymentItem) (fulfillSecretKey [32]byte) {
+
+	// wait
+	fulfillSecretKey = <-client.deployedNotifierPool.Get(item.ID).(chan [32]byte)
+
+	// delete notifier
+	client.deployedNotifierPool.Remove(item.ID)
+
+	return fulfillSecretKey
 }

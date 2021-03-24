@@ -1,0 +1,7 @@
+
+
+[deployPath]
+adapter = "docker"
+serverAddr = "127.0.0.1:60666"
+serverEntry = "deploy"
+# deployPath docker|127.0.0.1:60666|deploy

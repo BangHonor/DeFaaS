@@ -5,32 +5,26 @@ import (
 	"defaas/client/basic"
 	defaasconfig "defaas/core/config"
 	"defaas/core/data"
+	"fmt"
 	"io/ioutil"
 	"log"
-	"math/big"
-	"sync"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/gogf/gf/container/gmap"
+	"github.com/gogf/gf/net/ghttp"
 )
-
-type DeploymentItem struct {
-	sync.Mutex
-
-	ID    *big.Int
-	State data.DeploymentOrderState
-	Order data.DeploymentOrder
-	Info  data.DeploymentInfo
-}
 
 type ProviderClient struct {
 	basic.BasicClient
 
 	providerConfig *ProviderConfig
 
-	itemPool *gmap.AnyAnyMap // map[big.Int]DeploymentItem, map: ID => Item
+	itemPool             *gmap.AnyAnyMap // map[big.Int]data.DeploymentItem, map: ID => Item
+	deployedNotifierPool *gmap.AnyAnyMap // map[big.Int](chan *data.DeploymentItem), map: ID => notifier
 
 	quit context.CancelFunc
+
+	deployServer *ghttp.Server
 }
 
 func NewProviderClientWithFile(defaasConfigFilePath, providerConfigFilePath, keyStoreFilePath string, password string) (*ProviderClient, error) {
@@ -74,6 +68,10 @@ func NewProviderClient(dfc *defaasconfig.DeFaaSConfig, pc *ProviderConfig, key *
 
 	client.itemPool = gmap.NewHashMap(true) // `true` means concurrent-safety
 
+	client.deployServer = ghttp.GetServer("deploy-server-" + fmt.Sprint(0))
+	client.deployServer.SetAddr(client.providerConfig.ServerAddr)                                         // https://pkg.go.dev/github.com/gogf/gf/net/ghttp#Server.SetAddr
+	client.deployServer.BindHandler(client.providerConfig.ServerEntry, client.DeployServerRequestHandler) // register handler
+
 	return client, nil
 }
 
@@ -96,10 +94,10 @@ func (client *ProviderClient) Start() error {
 		}
 	}()
 
-	watcher2bidder := make(chan *DeploymentItem, 1)
-	bidder2publisher := make(chan *DeploymentItem, 1)
-	publisher2fulfiller := make(chan *DeploymentItem, 1)
-	fulfiller2finisher := make(chan *DeploymentItem, 1)
+	watcher2bidder := make(chan *data.DeploymentItem, 1)
+	bidder2publisher := make(chan *data.DeploymentItem, 1)
+	publisher2fulfiller := make(chan *data.DeploymentItem, 1)
+	fulfiller2finisher := make(chan *data.DeploymentItem, 1)
 
 	watcherErr := make(chan error)
 	bidderErr := make(chan error)
@@ -168,18 +166,26 @@ func (client *ProviderClient) Start() error {
 		}
 	}()
 
-	// log.Println("[provider] start deploy server ...")
-
-	// // go client.StartDeployServer()
-
-	// log.Panicln("[provider] start deploy serve done")
+	log.Println("[provider] start deploy server ...")
+	client.deployServer.Run()
+	log.Printf("[provider] run deploy server [%s]\n", GetDeployPathFromProviderConfig(client.providerConfig))
+	log.Panicln("[provider] start deploy serve done")
 
 	return nil
 }
 
 func (client *ProviderClient) Close() error {
 
+	log.Println("[provider] closing ...")
+
 	client.quit()
+
+	err := client.deployServer.Shutdown()
+	if err != nil {
+		log.Printf("[provider] failed to shutdown deploy server [%s]\n", GetDeployPathFromProviderConfig(client.providerConfig))
+		return err
+	}
+	log.Printf("[provider] shutdown deploy server [%s]\n", GetDeployPathFromProviderConfig(client.providerConfig))
 
 	return nil
 }
