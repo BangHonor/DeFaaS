@@ -51,25 +51,39 @@ func (client *ProviderClient) DeployServerRequestHandler(r *ghttp.Request) {
 		r.Response.Write("Hello")
 	}
 
-	adapter.New(client.providerConfig.Adapter).DeployFrom(item, adapterData)
+	{
+		// deploy function service ...
+		adapter.New(client.providerConfig.Adapter).DeployFrom(item, adapterData)
+	}
 
 	r.Response.Write("Hello")
+
+	item.Order.FulfillSecretKey = [32]byte{} // TODO
+	client.DeployServerNotify(item)
 }
 
-func (client *ProviderClient) DeployServerRegisterDeploying(item *data.DeploymentItem) {
+func (client *ProviderClient) DeployServerRegisterWait(item *data.DeploymentItem) {
 
-	notifier := make(chan [32]byte, 1)
+	notifier := make(chan struct{}, 1)
 
+	// register notifier
 	client.deployedNotifierPool.Set(item.ID, notifier)
-}
-
-func (client *ProviderClient) DeployServerWaitForDeploying(item *data.DeploymentItem) (fulfillSecretKey [32]byte) {
 
 	// wait
-	fulfillSecretKey = <-client.deployedNotifierPool.Get(item.ID).(chan [32]byte)
+	<-client.deployedNotifierPool.Get(item.ID).(chan struct{})
+	// TODO select with a timeout and ctx
 
-	// delete notifier
+	// unregister notifier
 	client.deployedNotifierPool.Remove(item.ID)
+}
 
-	return fulfillSecretKey
+func (client *ProviderClient) DeployServerNotify(item *data.DeploymentItem) {
+
+	notifier := client.deployedNotifierPool.Get(item.ID)
+
+	if notifier != nil {
+		notifier.(chan struct{}) <- struct{}{}
+		return
+	}
+	// _ = errors.New("invalid notifier...")
 }

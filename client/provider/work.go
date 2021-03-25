@@ -18,8 +18,8 @@ func (client *ProviderClient) Watcher(ctx context.Context, toBidderCh chan<- *da
 	sink := make(chan *market.MarketNewDeploymentOrderEvent)
 	sub, err := client.Market.Contract.MarketFilterer.WatchNewDeploymentOrderEvent(
 		nil, sink, nil, nil, nil)
-
 	if err != nil {
+		log.Println("[provider/watcher] failed to watch event:", err)
 		return err
 	}
 
@@ -32,6 +32,7 @@ func (client *ProviderClient) Watcher(ctx context.Context, toBidderCh chan<- *da
 				return
 
 			case err := <-sub.Err():
+				log.Println("[provider/watcher] an error form subscription:", err)
 				errCh <- err
 				return
 
@@ -107,10 +108,12 @@ func (client *ProviderClient) Bidder(ctx context.Context, fromWatcherCh <-chan *
 					// bid for this order
 					txBid, err := client.Market.Bid(item.ID, item.Info.UnitPrice) // TODO smarter bidding strategy
 					if err != nil {
+						log.Printf("[provider/bidder] failed to bid for a deployment order, ID [%v]: %v\n", item.ID, err)
 						errCh <- err
 						return
 					}
 					if err := client.ComfirmTxByPolling(txBid.Hash(), basic.NumBlockToWaitRecommended); err != nil {
+						log.Printf("[provider/bidder] failed to confirm tx[%v] for order, ID[%v]: %v\n", txBid.Hash(), item.ID, err)
 						errCh <- err
 						return
 					}
@@ -121,6 +124,7 @@ func (client *ProviderClient) Bidder(ctx context.Context, fromWatcherCh <-chan *
 					sink := make(chan *market.MarketBiddingEndEvent)
 					sub, err := client.Market.Contract.WatchBiddingEndEvent(nil, sink, []*big.Int{item.ID}, nil, nil)
 					if err != nil {
+						log.Println("[provider/bidder] failed to watch event:", err)
 						errCh <- err
 						return
 					}
@@ -132,6 +136,7 @@ func (client *ProviderClient) Bidder(ctx context.Context, fromWatcherCh <-chan *
 						// this select done
 
 					case err := <-sub.Err():
+						log.Println("[provider/bidder] an error form subscription:", err)
 						errCh <- err
 
 					case event := <-sink:
@@ -168,7 +173,7 @@ func (client *ProviderClient) Bidder(ctx context.Context, fromWatcherCh <-chan *
 	return nil
 }
 
-func (client *ProviderClient) Publisher(ctx context.Context, fromBidderCh <-chan *data.DeploymentItem, toFulfillerCh chan<- *data.DeploymentItem, errCh chan error) error {
+func (client *ProviderClient) Fulfiller(ctx context.Context, fromBidderCh <-chan *data.DeploymentItem, errCh chan error) error {
 
 	go func() {
 
@@ -183,128 +188,104 @@ func (client *ProviderClient) Publisher(ctx context.Context, fromBidderCh <-chan
 				//  start a new goroutine to do this time-heavy-cost task
 				go func(item *data.DeploymentItem) {
 
-					item.State = data.ConfirmingState
-
-					item.Info.FuncPath = "funcPath"
-					item.Info.DeployPath = GetDeployPathFromProviderConfig(client.providerConfig)
-					item.Info.AccessKey = "accessKey"
-
 					// publish
-					txPublish, err := client.Market.PublishDeploymentInfo(item.ID, item.Info.FuncPath, item.Info.DeployPath, item.Info.AccessKey)
-					if err != nil {
-						errCh <- err
-						return
-					}
-					if err := client.ComfirmTxByPolling(txPublish.Hash(), basic.NumBlockToWaitRecommended); err != nil {
-						errCh <- err
-						return
-					}
+					{
+						item.State = data.ConfirmingState
 
-					log.Printf("[provider/publisher] publish a new deployment info for the order, ID [%v]\n", item.ID)
+						item.Info.FuncPath = "funcPath"
+						item.Info.DeployPath = GetDeployPathFromProviderConfig(client.providerConfig)
+						item.Info.AccessKey = "accessKey"
 
-					// register to deploy server
-					client.DeployServerRegisterDeploying(item)
-
-					// watch new lease event
-					sink := make(chan *market.MarketNewLeaseEvent)
-					sub, err := client.Market.Contract.WatchNewLeaseEvent(nil, sink,
-						[]*big.Int{item.ID},
-						[]common.Address{item.Order.Customer},
-						[]common.Address{item.Info.Provider})
-					if err != nil {
-						errCh <- err
-						return
-					}
-
-					// wait for new lease event
-					select {
-
-					case <-ctx.Done():
-						// this select done
-
-					case err := <-sub.Err():
-						errCh <- err
-
-					case event := <-sink:
-
-						// -------------- event --------------------
-						// DeploymentOrderID *big.Int
-						// Customer          common.Address
-						// Provider          common.Address
-
-						if helper.EqualAddress(item.Order.Customer, event.Customer) && helper.EqualAddress(item.Info.Provider, event.Provider) {
-
-							log.Printf("[provider/publisher] new lease, ID [%v]\n", item.ID)
-							toFulfillerCh <- item
-
+						// publish
+						txPublish, err := client.Market.PublishDeploymentInfo(item.ID, item.Info.FuncPath, item.Info.DeployPath, item.Info.AccessKey)
+						if err != nil {
+							log.Printf("[provider/fulfiller] failed to publish deployment information for a deployment order, ID [%v]: %v\n", item.ID, err)
+							errCh <- err
+							return
 						}
+						if err := client.ComfirmTxByPolling(txPublish.Hash(), basic.NumBlockToWaitRecommended); err != nil {
+							log.Printf("[provider/fulfiller] failed to confirm tx[%v] for order, ID[%v]: %v\n", txPublish.Hash(), item.ID, err)
+							errCh <- err
+							return
+						}
+
+						log.Printf("[provider/fulfiller] publish a new deployment info for the order, ID [%v]\n", item.ID)
+
+						// watch new lease event
+						sink := make(chan *market.MarketNewLeaseEvent)
+						sub, err := client.Market.Contract.WatchNewLeaseEvent(nil, sink,
+							[]*big.Int{item.ID},
+							[]common.Address{item.Order.Customer},
+							[]common.Address{item.Info.Provider})
+						if err != nil {
+							log.Println("[provider/fulfiller] failed to watch event:", err)
+							errCh <- err
+							return
+						}
+
+						// wait for new lease event
+						select {
+
+						case <-ctx.Done():
+							// this select done
+
+						case err := <-sub.Err():
+							log.Println("[provider/fulfiller] an error form subscription:", err)
+							errCh <- err
+
+						case event := <-sink:
+
+							// -------------- event --------------------
+							// DeploymentOrderID *big.Int
+							// Customer          common.Address
+							// Provider          common.Address
+
+							if helper.EqualAddress(item.Order.Customer, event.Customer) && helper.EqualAddress(item.Info.Provider, event.Provider) {
+
+								log.Printf("[provider/publisher] new lease, ID [%v]\n", item.ID)
+							}
+						}
+
 					}
+
+					// deploy & fulfill
+					{
+						item.State = data.DeployingState
+
+						// register to deploy server
+						// and wait until deploy server notifys back
+						log.Printf("[provider/fulfiller] wait for deployment action from customer, ID [%v] ...\n", item.ID)
+						client.DeployServerRegisterWait(item)
+
+						txFulfill, err := client.Market.FulfillDeploymentOrder(item.ID, item.Order.FulfillSecretKey)
+						if err != nil {
+							log.Printf("[provider/fulfiller] failed to fulfill for a deployment order, ID [%v]: %v\n", item.ID, err)
+							errCh <- err
+							return
+						}
+						if err := client.ComfirmTxByPolling(txFulfill.Hash(), basic.NumBlockToWaitRecommended); err != nil {
+							log.Printf("[provider/fulfiller] failed to confirm tx[%v] for order, ID[%v]: %v\n", txFulfill.Hash(), item.ID, err)
+							errCh <- err
+							return
+						}
+
+						item.State = data.FulfillingState
+
+						log.Printf("[provider/fulfiller] fulfilling deployment order, ID[%v]\n", item.ID)
+					}
+
+					// finish
+					{
+						// watch finish event
+						// item.State = data.FinishedState
+						// TODO
+					}
+
 				}(_item)
 
 			}
 		}
 	}()
-
-	return nil
-}
-
-func (client *ProviderClient) Fulfiller(ctx context.Context, fromPublisherCh <-chan *data.DeploymentItem, toFinisherCh chan<- *data.DeploymentItem, errCh chan error) error {
-
-	go func() {
-
-		for {
-			select {
-
-			case <-ctx.Done():
-				return
-
-			case _item := <-fromPublisherCh:
-
-				//  start a new goroutine to do this time-heavy-cost task
-				go func(item *data.DeploymentItem) {
-
-					item.State = data.DeployingState
-
-					// wait...
-					fulfillSecretKey := client.DeployServerWaitForDeploying(item)
-
-					item.Order.FulfillSecretKey = fulfillSecretKey
-					// check fulfillKey
-
-					txFulfill, err := client.Market.FulfillDeploymentOrder(item.ID, item.Order.FulfillSecretKey)
-					if err != nil {
-						errCh <- err
-						return
-					}
-					if err := client.ComfirmTxByPolling(txFulfill.Hash(), basic.NumBlockToWaitRecommended); err != nil {
-						errCh <- err
-						return
-					}
-
-					item.State = data.FulfillingState
-
-				}(_item)
-			}
-		}
-	}()
-
-	return nil
-}
-
-func (client *ProviderClient) Finisher(ctx context.Context, fromFulfillerCh <-chan *data.DeploymentItem, errCh chan error) error {
-
-	// DO NOTHING NOW
-
-	// for {
-	// 	select {
-	// 	case <-ctx.Done():
-	// 	case _item := <-fromFulfillerCh:
-	// 		go func(item *data.DeploymentItem) {
-	// 			// watch finished event
-	// 			item.State = data.FinishedState
-	// 		}(_item)
-	// 	}
-	// }
 
 	return nil
 }

@@ -95,73 +95,45 @@ func (client *ProviderClient) Start() error {
 	}()
 
 	watcher2bidder := make(chan *data.DeploymentItem, 1)
-	bidder2publisher := make(chan *data.DeploymentItem, 1)
-	publisher2fulfiller := make(chan *data.DeploymentItem, 1)
-	fulfiller2finisher := make(chan *data.DeploymentItem, 1)
+	bidder2fulfiller := make(chan *data.DeploymentItem, 1)
 
 	watcherErr := make(chan error)
 	bidderErr := make(chan error)
-	publisherErr := make(chan error)
 	fulfillerErr := make(chan error)
-	finisherErr := make(chan error)
 
 	log.Println("[provider] start [watcher] ...")
 	if err = client.Watcher(ctx, watcher2bidder, watcherErr); err != nil {
-		log.Println("[provider] start [watcher] failed")
+		log.Println("[provider] failed to start [watcher]")
 		return err
 	}
 	log.Println("[provider] start [watcher] done")
 
 	log.Println("[provider] start [bidder] ...")
-	if err = client.Bidder(ctx, watcher2bidder, bidder2publisher, bidderErr); err != nil {
-		log.Println("[provider] start [bidder] failed")
+	if err = client.Bidder(ctx, watcher2bidder, bidder2fulfiller, bidderErr); err != nil {
+		log.Println("[provider] failed to start [bidder]")
 		return err
 	}
 	log.Println("[provider] start [bidder] done")
 
-	log.Println("[provider] start [publisher] ...")
-	if err = client.Publisher(ctx, bidder2publisher, publisher2fulfiller, publisherErr); err != nil {
-		log.Println("[provider] start [publisher] failed")
-		return err
-	}
-	log.Println("[provider] start [publisher] done")
-
 	log.Println("[provider] start [fulfiller] ...")
-	if err = client.Fulfiller(ctx, publisher2fulfiller, fulfiller2finisher, fulfillerErr); err != nil {
-		log.Println("[provider] start [fulfiller] failed")
+	if err = client.Fulfiller(ctx, bidder2fulfiller, fulfillerErr); err != nil {
+		log.Println("[provider] failed to start [fulfiller]")
 		return err
 	}
 	log.Println("[provider] start [fulfiller] done")
 
-	log.Println("[provider] start [finisher] ...")
-	if err = client.Finisher(ctx, fulfiller2finisher, finisherErr); err != nil {
-		log.Println("[provider] start [finisher] failed")
-		return err
-	}
-	log.Println("[provider] start [finisher] done")
-
+	// watch errors in the worker goroutine
 	go func() {
 		for {
 			select {
-
 			case <-ctx.Done():
 				return
-
 			case err := <-watcherErr:
-				log.Println("[provider/watcher]", err)
-
+				_ = err
 			case err := <-bidderErr:
-				log.Println("[provider/bidder]", err)
-
-			case err := <-publisherErr:
-				log.Println("[provider/publisher]", err)
-
+				_ = err
 			case err := <-fulfillerErr:
-				log.Println("[provider/fulfiller]", err)
-
-			case err := <-finisherErr:
-				log.Println("[provider/finisher]", err)
-
+				_ = err
 			}
 		}
 	}()

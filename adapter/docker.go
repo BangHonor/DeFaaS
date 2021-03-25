@@ -11,12 +11,27 @@ func NewDockerAdapter() *DockerAdapter {
 	return ds
 }
 
+type DockerAdapterDeployToData struct {
+	ImageURL  string
+	ImageHash string
+}
+
+type DockerAdapterDeployFromData struct {
+	//
+}
+
 func (da *DockerAdapter) DeployTo(item *data.DeploymentItem, adapterData interface{}) error {
-	// TODO
+
+	data := adapterData.(DockerAdapterDeployToData)
+	_ = data
+
 	return nil
 }
 
 func (da *DockerAdapter) DeployFrom(item *data.DeploymentItem, adapterData interface{}) error {
-	// TODO
+
+	data := adapterData.(DockerAdapterDeployFromData)
+	_ = data
+
 	return nil
 }
