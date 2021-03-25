@@ -38,52 +38,64 @@ func (client *ProviderClient) DeployServerRequestHandler(r *ghttp.Request) {
 
 	id, success := big.NewInt(0).SetString(r.GetString("id"), 10)
 	if !success {
-		r.Response.Write("Hello")
+		r.Response.Write("Err")
 	}
-	accessKey := r.GetString("accessKey")
-	adapterData := r.GetString("adapterData")
+	if !client.DeployServerIsRegistered(id) {
+		r.Response.Write("Err")
+	}
 
 	item := client.itemPool.Get(id).(*data.DeploymentItem)
 	if data.DeployingState != item.State {
-		r.Response.Write("Hello")
+		r.Response.Write("Err")
 	}
+
+	accessKey := r.GetString("accessKey")
 	if accessKey != item.Info.AccessKey {
-		r.Response.Write("Hello")
+		r.Response.Write("Err")
 	}
 
 	{
 		// deploy function service ...
+		adapterData := r.GetString("adapterData")
 		adapter.New(client.providerConfig.Adapter).DeployFrom(item, adapterData)
+
+		// notify
+		item.Order.FulfillSecretKey = [32]byte{} // TODO
+		client.DeployServerNotify(id)
 	}
 
-	r.Response.Write("Hello")
-
-	item.Order.FulfillSecretKey = [32]byte{} // TODO
-	client.DeployServerNotify(item)
+	r.Response.Write("Ok")
 }
 
-func (client *ProviderClient) DeployServerRegisterWait(item *data.DeploymentItem) {
+func (client *ProviderClient) DeployServerRegisterWait(id *big.Int) {
 
 	notifier := make(chan struct{}, 1)
 
 	// register notifier
-	client.deployedNotifierPool.Set(item.ID, notifier)
+	client.deployedNotifierPool.Set(id, notifier)
 
 	// wait
-	<-client.deployedNotifierPool.Get(item.ID).(chan struct{})
+	<-client.deployedNotifierPool.Get(id).(chan struct{})
 	// TODO select with a timeout and ctx
 
 	// unregister notifier
-	client.deployedNotifierPool.Remove(item.ID)
+	client.deployedNotifierPool.Remove(id)
 }
 
-func (client *ProviderClient) DeployServerNotify(item *data.DeploymentItem) {
+func (client *ProviderClient) DeployServerIsRegistered(id *big.Int) bool {
 
-	notifier := client.deployedNotifierPool.Get(item.ID)
+	notifier := client.deployedNotifierPool.Get(id)
 
-	if notifier != nil {
+	return (notifier != nil)
+}
+
+func (client *ProviderClient) DeployServerNotify(id *big.Int) {
+
+	if client.DeployServerIsRegistered(id) {
+		notifier := client.deployedNotifierPool.Get(id)
 		notifier.(chan struct{}) <- struct{}{}
 		return
 	}
+
 	// _ = errors.New("invalid notifier...")
 }

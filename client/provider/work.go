@@ -255,7 +255,7 @@ func (client *ProviderClient) Fulfiller(ctx context.Context, fromBidderCh <-chan
 						// register to deploy server
 						// and wait until deploy server notifys back
 						log.Printf("[provider/fulfiller] wait for deployment action from customer, ID [%v] ...\n", item.ID)
-						client.DeployServerRegisterWait(item)
+						client.DeployServerRegisterWait(item.ID)
 
 						txFulfill, err := client.Market.FulfillDeploymentOrder(item.ID, item.Order.FulfillSecretKey)
 						if err != nil {

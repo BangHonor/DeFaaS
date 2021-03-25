@@ -19,12 +19,6 @@ const (
 	wsURLsKey      = "network.wsurls"
 )
 
-// 区块链节点地址
-type ChainNodeURL struct {
-	HttpURL string
-	WsURL   string
-}
-
 // DeFaaSConfig ...
 type DeFaaSConfig struct {
 	HttpURLs                   []string

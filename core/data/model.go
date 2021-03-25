@@ -1,6 +1,7 @@
 package data
 
 import (
+	"errors"
 	"math/big"
 	"sync"
 
@@ -24,6 +25,10 @@ const (
 	FinishedState   DeploymentOrderState = 5
 )
 
+var (
+	ErrWrongState = errors.New("[customer] wrong state of deployment item")
+)
+
 type DeploymentOrder struct {
 	Customer         common.Address
 	Nonce            *big.Int
@@ -45,8 +50,6 @@ type DeploymentInfo struct {
 }
 
 type Lease struct {
-	Customer           common.Address
-	Provider           common.Address
 	IsProviderViolated bool
 }
 

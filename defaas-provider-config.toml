@@ -1,6 +1,6 @@
 
 
-[deployPath]
+[deploypath]
 adapter = "docker"
 serverAddr = "127.0.0.1:60666"
 serverEntry = "deploy"
