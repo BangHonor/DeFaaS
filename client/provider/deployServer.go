@@ -60,14 +60,20 @@ func (client *ProviderClient) DeployServerRequestHandler(r *ghttp.Request) {
 		adapter.New(client.providerConfig.Adapter).DeployFrom(item, adapterData)
 
 		// notify
-		item.Order.FulfillSecretKey = [32]byte{} // TODO
 		client.DeployServerNotify(id)
 	}
 
 	r.Response.Write("Ok")
 }
 
-func (client *ProviderClient) DeployServerRegisterWait(id *big.Int) {
+func (client *ProviderClient) DeployServerIsRegistered(id *big.Int) bool {
+
+	notifier := client.deployedNotifierPool.Get(id)
+
+	return (notifier != nil)
+}
+
+func (client *ProviderClient) DeployServerRegisterWait(id *big.Int) [32]byte {
 
 	notifier := make(chan struct{}, 1)
 
@@ -80,13 +86,10 @@ func (client *ProviderClient) DeployServerRegisterWait(id *big.Int) {
 
 	// unregister notifier
 	client.deployedNotifierPool.Remove(id)
-}
 
-func (client *ProviderClient) DeployServerIsRegistered(id *big.Int) bool {
-
-	notifier := client.deployedNotifierPool.Get(id)
-
-	return (notifier != nil)
+	// TODO
+	fulfillSecretKey := [32]byte{}
+	return fulfillSecretKey
 }
 
 func (client *ProviderClient) DeployServerNotify(id *big.Int) {
@@ -96,6 +99,4 @@ func (client *ProviderClient) DeployServerNotify(id *big.Int) {
 		notifier.(chan struct{}) <- struct{}{}
 		return
 	}
-
-	// _ = errors.New("invalid notifier...")
 }

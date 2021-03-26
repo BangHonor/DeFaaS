@@ -143,7 +143,12 @@ func (client *CustomerClient) deploy(_order *data.DeploymentOrder, adapterData i
 			item.Info.Provider = event.Provider
 			item.Info.FuncPath = event.FuncPath
 			item.Info.DeployPath = event.DeployPath
-			item.Info.AccessKey = event.AccessKey
+
+			// use customer's to private key decrypt
+			item.Info.AccessKey, err = data.DecryptAccessKey(event.AccessKey, client.privateKey)
+			if err != nil {
+				return err
+			}
 		}
 
 		// confirm
@@ -171,7 +176,7 @@ func (client *CustomerClient) deploy(_order *data.DeploymentOrder, adapterData i
 		// 5a off-chain deploying
 		// TODO
 		// Adapter
-		// send `order.FulfillSecretKey` to provider
+		// send `order.FulfillSecretKey` to provider !!!
 
 		// watch new SLA event
 		sinkNewSLA := make(chan *market.MarketNewSLAEvent)

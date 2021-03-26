@@ -4,7 +4,7 @@ import "testing"
 
 func TestSuitStdWitnessDepoist(t *testing.T) {
 
-	suit := simSingleCase()
+	suit := getSingleSimSuite()
 
 	session := suit.witnesspool
 

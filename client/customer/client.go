@@ -1,8 +1,6 @@
 package customer
 
 import (
-	"crypto/rand"
-	"crypto/rsa"
 	"crypto/sha256"
 	basic "defaas/client/basic"
 	"defaas/core/config"
@@ -22,7 +20,7 @@ type CustomerClient struct {
 
 	itemPool                   *gmap.AnyAnyMap // map[big.Int]data.DeploymentItem, map: ID => Item
 	nonce                      int64
-	rsaPrivateKey              *rsa.PrivateKey
+	privateKey                 data.PrivateKey
 	biddingDurationRecommended *big.Int
 }
 
@@ -62,11 +60,11 @@ func NewCustomerClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*CustomerCl
 
 	client.nonce = 0
 
-	rsaPrivateKey, err := rsa.GenerateKey(rand.Reader, 1024)
+	privateKey, err := data.GeneratePrivateKey()
 	if err != nil {
 		return nil, err
 	}
-	client.rsaPrivateKey = rsaPrivateKey
+	client.privateKey = privateKey
 
 	client.biddingDurationRecommended = big.NewInt(int64(time.Minute.Seconds())) // 1 minute
 
@@ -91,7 +89,12 @@ func (client *CustomerClient) NewDeploy(faasLevelID, faasDuration, highestUnitPr
 
 func (client *CustomerClient) newOrder(faasLevelID, highestUnitPrice, faasDuration *big.Int) *data.DeploymentOrder {
 
-	fulfillSecretKey := genFulfillSecretKey()
+	fulfillSecretKey := data.GenerateFulfillSecretKey()
+
+	encodedPublicKey, err := data.EncodePublicKey(client.privateKey.Public())
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	order := &data.DeploymentOrder{
 		Customer:         client.Key.Address,
@@ -100,15 +103,10 @@ func (client *CustomerClient) newOrder(faasLevelID, highestUnitPrice, faasDurati
 		HighestUnitPrice: highestUnitPrice,
 		FaaSDuration:     faasDuration,
 		BiddingDuration:  client.biddingDurationRecommended,
-		PublicKey:        client.rsaPrivateKey.PublicKey.N.String(),
+		PublicKey:        string(encodedPublicKey),
 		FulfillSecretKey: fulfillSecretKey,
 		FulfillKey:       sha256.Sum256(fulfillSecretKey[:]),
 	}
 
 	return order
-}
-
-func genFulfillSecretKey() [32]byte {
-	k := [32]byte{}
-	return k
 }

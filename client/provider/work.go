@@ -194,10 +194,18 @@ func (client *ProviderClient) Fulfiller(ctx context.Context, fromBidderCh <-chan
 
 						item.Info.FuncPath = "funcPath"
 						item.Info.DeployPath = GetDeployPathFromProviderConfig(client.providerConfig)
+
+						// use customrt's public key to encrypt
 						item.Info.AccessKey = "accessKey"
+						encryptedAccessKey, err := data.EncryptAccessKey(item.Info.AccessKey, item.Order.PublicKey)
+						if err != nil {
+							log.Println("[provider/fulfiller] failed to encrypted accessKey")
+							errCh <- err
+							return
+						}
 
 						// publish
-						txPublish, err := client.Market.PublishDeploymentInfo(item.ID, item.Info.FuncPath, item.Info.DeployPath, item.Info.AccessKey)
+						txPublish, err := client.Market.PublishDeploymentInfo(item.ID, item.Info.FuncPath, item.Info.DeployPath, encryptedAccessKey)
 						if err != nil {
 							log.Printf("[provider/fulfiller] failed to publish deployment information for a deployment order, ID [%v]: %v\n", item.ID, err)
 							errCh <- err
@@ -254,8 +262,9 @@ func (client *ProviderClient) Fulfiller(ctx context.Context, fromBidderCh <-chan
 
 						// register to deploy server
 						// and wait until deploy server notifys back
+						// item is read-only in `client.DeployServerRegisterWait` !!!
 						log.Printf("[provider/fulfiller] wait for deployment action from customer, ID [%v] ...\n", item.ID)
-						client.DeployServerRegisterWait(item.ID)
+						item.Order.FulfillSecretKey = client.DeployServerRegisterWait(item.ID)
 
 						txFulfill, err := client.Market.FulfillDeploymentOrder(item.ID, item.Order.FulfillSecretKey)
 						if err != nil {

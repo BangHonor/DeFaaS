@@ -29,8 +29,8 @@ type simSuite struct {
 	otherAddress common.Address
 }
 
-// 获得一个测试套件的单例
-func simSingleCase() *simSuite {
+// 获得一个模拟套件的单例
+func getSingleSimSuite() *simSuite {
 
 	singleSimSuiteOnce.Do(func() {
 
