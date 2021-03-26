@@ -5,13 +5,9 @@ import (
 	"context"
 	"errors"
 	"io/ioutil"
-	"math/big"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind/backends"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
@@ -59,19 +55,6 @@ func GetETHClient(urls []string) (*ethclient.Client, error) {
 	}
 
 	return nil, err
-}
-
-// 新建一个模拟区块链
-func NewSim() (*bind.TransactOpts, *backends.SimulatedBackend) {
-
-	// Generate a new random account and a funded simulator
-	key, _ := crypto.GenerateKey()
-	auth, _ := bind.NewKeyedTransactorWithChainID(key, big.NewInt(1337))
-	alloc := make(core.GenesisAlloc)
-	alloc[auth.From] = core.GenesisAccount{Balance: big.NewInt(1000000000)}
-	blockchain := backends.NewSimulatedBackend(alloc, 1<<32)
-
-	return auth, blockchain
 }
 
 func EqualAddress(s, t common.Address) bool {

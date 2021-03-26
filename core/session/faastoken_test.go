@@ -6,11 +6,7 @@ import (
 	"testing"
 
 	"defaas/contracts/go/faastoken"
-	"defaas/core/helper"
 
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind/backends"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,9 +14,9 @@ func TestFaaSTokenSessionDeploy(t *testing.T) {
 
 	assert := assert.New(t)
 
-	auth, blockchain := helper.NewSim()
+	auth, blockchain := newSimBlockchain()
 
-	address, tx, _, err := faastoken.DeployFaaSToken(auth, blockchain)
+	_, tx, _, err := faastoken.DeployFaaSToken(auth, blockchain)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -41,11 +37,31 @@ func TestFaaSTokenSessionDeploy(t *testing.T) {
 			assert.False(isPedding)
 		}
 	}
+}
 
-	session, err := NewFaaSTokenSeesion(blockchain, address, auth)
-	if err != nil {
-		t.Fatal(err)
-	}
+func TestFaaSTokenMind(t *testing.T) {
+
+	assert := assert.New(t)
+
+	auth, blockchain, _, session := newSimFaaSToken()
+
+	before, _ := session.TotalSupply()
+
+	mindedAmount := big.NewInt(100)
+	_, _ = session.MintTo(auth.From, mindedAmount)
+	blockchain.Commit()
+
+	after, _ := session.TotalSupply()
+
+	expected := big.NewInt(0).Add(before, mindedAmount)
+	assert.Equal(0, after.Cmp(expected))
+}
+
+func TestFaaSTokenBalanceOf(t *testing.T) {
+
+	assert := assert.New(t)
+
+	auth, blockchain, _, session := newSimFaaSToken()
 
 	var (
 		totolSupply  *big.Int
@@ -67,33 +83,4 @@ func TestFaaSTokenSessionDeploy(t *testing.T) {
 
 	balanceOf, _ = session.BalanceOf(auth.From)
 	assert.Equal(0, balanceOf.Cmp(mindedAmount))
-}
-
-func getSimFaaSToken() (*bind.TransactOpts, *backends.SimulatedBackend, common.Address, *faastoken.FaaSTokenSession) {
-
-	auth, blockchain := helper.NewSim()
-
-	address, _, _, _ := faastoken.DeployFaaSToken(auth, blockchain)
-	blockchain.Commit()
-	session, _ := NewFaaSTokenSeesion(blockchain, address, auth)
-
-	return auth, blockchain, address, session
-}
-
-func TestFaaSTokenMind(t *testing.T) {
-
-	assert := assert.New(t)
-
-	auth, blockchain, _, session := getSimFaaSToken()
-
-	before, _ := session.TotalSupply()
-
-	mindedAmount := big.NewInt(100)
-	_, _ = session.MintTo(auth.From, mindedAmount)
-	blockchain.Commit()
-
-	after, _ := session.TotalSupply()
-
-	expected := big.NewInt(0).Add(before, mindedAmount)
-	assert.Equal(0, after.Cmp(expected))
 }

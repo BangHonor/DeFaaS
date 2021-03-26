@@ -26,7 +26,7 @@ const (
 )
 
 var (
-	ErrWrongState = errors.New("[customer] wrong state of deployment item")
+	ErrWrongState = errors.New("wrong state")
 )
 
 type DeploymentOrder struct {

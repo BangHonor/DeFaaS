@@ -1,34 +1,20 @@
 package session
 
 import (
-	"defaas/contracts/go/market"
 	"log"
 	"math/big"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/ethereum/go-ethereum/accounts/abi/bind/backends"
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/stretchr/testify/assert"
 )
-
-func getSimMarket() (*bind.TransactOpts, *backends.SimulatedBackend, common.Address, *market.MarketSession) {
-
-	auth, blockchain, tokenAddress, _ := getSimFaaSToken()
-
-	address, _, _, _ := market.DeployMarket(auth, blockchain, tokenAddress)
-	blockchain.Commit()
-	session, _ := NewMarketSeesion(blockchain, address, auth)
-
-	return auth, blockchain, address, session
-}
 
 func TestMarketGetFaaSLevel(t *testing.T) {
 
-	auth, blockchain, _, session := getSimMarket()
+	auth, blockchain, _, session := newSimMarket()
 	_ = auth
 	_ = blockchain
 
-	// assert := assert.New(t)
+	assert := assert.New(t)
 
 	numLevel, _ := session.NumFaaSLevel()
 	t.Log("numLevel", numLevel)
@@ -45,8 +31,6 @@ func TestMarketGetFaaSLevel(t *testing.T) {
 
 	{
 		_, _, err := session.GetFaaSLevel(new(big.Int).Add(numLevel, big.NewInt(1)))
-		if err != nil {
-			log.Fatal(err)
-		}
+		assert.NotNil(err)
 	}
 }
