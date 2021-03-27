@@ -5,7 +5,6 @@ import (
 	"defaas/client/basic"
 	defaasconfig "defaas/core/config"
 	"defaas/core/data"
-	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -68,9 +67,9 @@ func NewProviderClient(dfc *defaasconfig.DeFaaSConfig, pc *ProviderConfig, key *
 
 	client.itemPool = gmap.NewHashMap(true) // `true` means concurrent-safety
 
-	client.deployServer = ghttp.GetServer("deploy-server-" + fmt.Sprint(0))
-	client.deployServer.SetAddr(client.providerConfig.ServerAddr)                                         // https://pkg.go.dev/github.com/gogf/gf/net/ghttp#Server.SetAddr
-	client.deployServer.BindHandler(client.providerConfig.ServerEntry, client.DeployServerRequestHandler) // register handler
+	client.deployServer = ghttp.GetServer("deploy-server")
+	client.deployServer.SetAddr(data.ServerAddrTrim(client.providerConfig.ServerAddr))
+	client.deployServer.BindHandler(client.providerConfig.ServerEntry, client.DeployServerRequestHandler)
 
 	return client, nil
 }

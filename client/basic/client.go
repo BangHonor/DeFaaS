@@ -111,7 +111,7 @@ func NewBasicClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*BasicClient, 
 
 func (client *BasicClient) ComfirmTxByPolling(txHash common.Hash, numBlockToWait int) error {
 
-	log.Printf("[basic] comfirm tx [%v] for pedding ...", txHash)
+	log.Printf("[basic] comfirm pedding tx [%v] ...", txHash)
 
 	checkPeddingTimeout := time.NewTimer(1 * time.Minute)
 	checkPeddingTicker := time.NewTicker(1 * time.Second)
@@ -140,9 +140,9 @@ CheckPeddingLoop:
 		}
 	}
 
-	log.Printf("[basic] comfirm tx [%v] for pedding done", txHash)
+	log.Printf("[basic] comfirm pedding tx [%v] done", txHash)
 
-	log.Printf("[basic] comfirm tx [%v] for waiting [%v] blocks ...", txHash, numBlockToWait)
+	log.Printf("[basic] comfirm mined tx [%v] waiting [%v] blocks ...", txHash, numBlockToWait)
 
 	// record currnet blockNumber
 	curHeader, err := client.RawClinet.HeaderByNumber(context.TODO(), nil)
@@ -173,14 +173,14 @@ WaitBlockLoop:
 		}
 	}
 
-	log.Printf("[basic] comfirm tx [%v] for waiting [%v] blocks done", txHash, numBlockToWait)
+	log.Printf("[basic] comfirm mined tx [%v] waiting [%v] blocks done", txHash, numBlockToWait)
 
 	return nil
 }
 
 func (client *BasicClient) ComfirmTxBySubscription(txHash common.Hash, numBlockToWait int) error {
 
-	log.Printf("[basic] comfirm tx [%v] for pedding ...", txHash)
+	log.Printf("[basic] comfirm pedding tx [%v] ...", txHash)
 
 	headers := make(chan *types.Header)
 	headerSub, err := client.RawClinet.SubscribeNewHead(context.TODO(), headers)
@@ -215,16 +215,16 @@ CheckPeddingSubLoop:
 		}
 	}
 
-	log.Printf("[basic] comfirm tx [%v] for pedding done", txHash)
+	log.Printf("[basic] comfirm pedding tx [%v] done", txHash)
 
-	log.Printf("[basic] comfirm tx [%v] for waiting [%v] blocks ...", txHash, numBlockToWait)
+	log.Printf("[basic] comfirm mined tx [%v] waiting [%v] blocks ...", txHash, numBlockToWait)
 
 	// wait for blocks
 	for i := 0; i < numBlockToWait; i++ {
 		<-headers
 	}
 
-	log.Printf("[basic] comfirm tx [%v] for waiting [%v] blocks done", txHash, numBlockToWait)
+	log.Printf("[basic] comfirm mined tx [%v] waiting [%v] blocks done", txHash, numBlockToWait)
 
 	return nil
 }

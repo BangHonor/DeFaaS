@@ -2,68 +2,72 @@ package provider
 
 import (
 	"defaas/core/data"
+	"encoding/json"
 	"math/big"
-	"strings"
-
-	"defaas/adapter"
 
 	"github.com/gogf/gf/net/ghttp"
 )
 
-func GetDeployPathFromProviderConfig(pc *ProviderConfig) string {
-
-	return GetDeployPath(pc.Adapter, pc.ServerAddr, pc.ServerEntry)
-
-}
-
-func GetDeployPath(adapter, serverAddr, serverEntry string) string {
-
-	deployPath := strings.Join([]string{adapter, serverAddr, serverEntry}, "|")
-
-	return deployPath
-}
-
-func ParseDeployPath(deployPath string) (string, string, string) {
-	ss := strings.Split(deployPath, "|")
-	return ss[0], ss[1], ss[2]
-}
-
 func (client *ProviderClient) DeployServerRequestHandler(r *ghttp.Request) {
 
-	// 1. parse parameter from request
-	// 2. check is at pool
-	// 3. auth
-	// 4. use adpater
-	// 4.1 docker adapter
+	// 1
+	// parse parameter from request
+	// 2
+	// check is at pool
+	// 3
+	// auth
+	// 4
+	// deploy on provider
 
-	id, success := big.NewInt(0).SetString(r.GetString("id"), 10)
-	if !success {
-		r.Response.Write("Err")
-	}
-	if !client.DeployServerIsRegistered(id) {
-		r.Response.Write("Err")
-	}
+	// parse parameter from request
+	req := &data.DeployToProviderRequest{}
+	reqJson := r.GetBody()
+	if err := json.Unmarshal(reqJson, req); err != nil {
 
-	item := client.itemPool.Get(id).(*data.DeploymentItem)
-	if data.DeployingState != item.State {
-		r.Response.Write("Err")
-	}
+		r.Response.WriteJsonExit(data.DeployToProviderResponce{
+			Code:  1,
+			Error: err.Error(),
+			Data:  nil,
+		})
 
-	accessKey := r.GetString("accessKey")
-	if accessKey != item.Info.AccessKey {
-		r.Response.Write("Err")
 	}
 
-	{
-		// deploy function service ...
-		adapterData := r.GetString("adapterData")
-		adapter.New(client.providerConfig.Adapter).DeployFrom(item, adapterData)
-
-		// notify
-		client.DeployServerNotify(id)
+	// check is at pool
+	if !client.DeployServerIsRegistered(req.DeploymentOrderID) {
+		r.Response.WriteJsonExit(data.DeployToProviderResponce{
+			Code:  2,
+			Error: "invalid deployment order id",
+			Data:  nil,
+		})
 	}
 
-	r.Response.Write("Ok")
+	item := client.itemPool.Get(req.DeploymentOrderID).(*data.DeploymentItem)
+	if item == nil && item.State != data.DeployingState {
+		r.Response.WriteJsonExit(data.DeployToProviderResponce{
+			Code:  3,
+			Error: "the deployment order is not at deploying state",
+			Data:  nil,
+		})
+	}
+
+	// auth
+	if req.AccessKey != item.Info.AccessKey {
+		r.Response.WriteJsonExit(data.DeployToProviderResponce{
+			Code:  4,
+			Error: "wrong access key",
+			Data:  nil,
+		})
+	}
+
+	// deploy on provider
+	// TODO
+	// adapter
+
+	r.Response.WriteJsonExit(data.DeployToProviderResponce{
+		Code:  0,
+		Error: "",
+		Data:  nil,
+	})
 }
 
 func (client *ProviderClient) DeployServerIsRegistered(id *big.Int) bool {

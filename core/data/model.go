@@ -1,8 +1,12 @@
 package data
 
 import (
+	"encoding/json"
 	"errors"
+	"log"
 	"math/big"
+	"regexp"
+	"strings"
 	"sync"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -60,4 +64,62 @@ type DeploymentItem struct {
 	State DeploymentOrderState
 	Order DeploymentOrder
 	Info  DeploymentInfo
+}
+
+// --------------------------------------------------------------------
+
+type DeployToProviderRequest struct {
+	CustomerAddress   common.Address `json:"customer_address_hex"`
+	DeploymentOrderID *big.Int       `json:"deployment_order_id"`
+	AccessKey         string         `json:"access_key"`
+	FulfillSecretKey  [32]byte       `json:"fulfill_secret_key"`
+	Adapter           string         `json:"adapter"`
+	AdapterData       []byte         `json:"adapter_data"`
+}
+
+type DeployToProviderResponce struct {
+	Code  int         `json:"code"`  // 错误码((0:成功, 1:失败, >1:错误码))
+	Error string      `json:"error"` // 错误信息
+	Data  interface{} `json:"data"`  // 返回数据
+}
+
+func (r DeployToProviderRequest) String() string {
+
+	j, err := json.MarshalIndent(r, "", "    ")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return string(j)
+}
+
+func (r DeployToProviderResponce) String() string {
+
+	j, err := json.MarshalIndent(r, "", "    ")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return string(j)
+}
+
+// ------------------------------------------------------------
+
+func GetDeployPath(adapter, serverAddr, serverEntry string) string {
+
+	deployPath := strings.Join([]string{adapter, serverAddr, serverEntry}, "|")
+
+	return deployPath
+}
+
+func ParseDeployPath(deployPath string) (string, string, string) {
+	ss := strings.Split(deployPath, "|")
+	return ss[0], ss[1], ss[2]
+}
+
+func ServerAddrTrim(serverAddr string) string {
+
+	rep := regexp.MustCompile(`http(|s)://`)
+
+	return rep.ReplaceAllString(serverAddr, "")
 }

@@ -6,7 +6,6 @@ import (
 	"defaas/core/config"
 	"defaas/core/data"
 	"io/ioutil"
-	"log"
 	"math/big"
 	"sync/atomic"
 	"time"
@@ -71,29 +70,30 @@ func NewCustomerClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*CustomerCl
 	return client, nil
 }
 
-func (client *CustomerClient) NewDeploy(faasLevelID, faasDuration, highestUnitPrice *big.Int, adapterData interface{}) error {
+func (client *CustomerClient) NewDeploy(faasLevelID, faasDuration, highestUnitPrice *big.Int, adapterData []byte) error {
 
-	order := client.newOrder(faasLevelID, highestUnitPrice, faasDuration)
+	order, err := client.newOrder(faasLevelID, highestUnitPrice, faasDuration)
+	if err != nil {
+		return err
+	}
 
-	go func() {
-		err := client.deploy(order, adapterData)
-		if err != nil {
-			log.Println(err)
-		}
-	}()
+	err = client.DeployOrder(order, adapterData)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
 // --------------------------------------------------------------------------------------------------------------------
 
-func (client *CustomerClient) newOrder(faasLevelID, highestUnitPrice, faasDuration *big.Int) *data.DeploymentOrder {
+func (client *CustomerClient) newOrder(faasLevelID, highestUnitPrice, faasDuration *big.Int) (*data.DeploymentOrder, error) {
 
 	fulfillSecretKey := data.GenerateFulfillSecretKey()
 
 	encodedPublicKey, err := data.EncodePublicKey(client.privateKey.Public())
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	order := &data.DeploymentOrder{
@@ -108,5 +108,5 @@ func (client *CustomerClient) newOrder(faasLevelID, highestUnitPrice, faasDurati
 		FulfillKey:       sha256.Sum256(fulfillSecretKey[:]),
 	}
 
-	return order
+	return order, nil
 }

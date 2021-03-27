@@ -1,7 +1,9 @@
 package provider
 
 import (
+	"defaas/core/data"
 	"io"
+	"os"
 
 	"github.com/spf13/viper"
 )
@@ -19,11 +21,14 @@ const (
 )
 
 func ParseConfigFile(providerConfigFilePath string) (*ProviderConfig, error) {
-	pc := &ProviderConfig{}
 
-	// TODO
+	f, err := os.OpenFile(providerConfigFilePath, os.O_RDONLY, 0666)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
 
-	return pc, nil
+	return ParseConfig(f)
 }
 
 func ParseConfig(in io.Reader) (*ProviderConfig, error) {
@@ -42,4 +47,10 @@ func ParseConfig(in io.Reader) (*ProviderConfig, error) {
 	}
 
 	return pc, nil
+}
+
+func GetDeployPathFromProviderConfig(pc *ProviderConfig) string {
+
+	return data.GetDeployPath(pc.Adapter, pc.ServerAddr, pc.ServerEntry)
+
 }

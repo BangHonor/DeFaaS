@@ -5,15 +5,18 @@ import (
 	market "defaas/contracts/go/market"
 	"defaas/core/data"
 	"defaas/core/helper"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"math/big"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/event"
+	"github.com/gogf/gf/net/ghttp"
 )
 
-func (client *CustomerClient) deploy(_order *data.DeploymentOrder, adapterData interface{}) error {
+func (client *CustomerClient) DeployOrder(_order *data.DeploymentOrder, adapterData []byte) error {
 
 	// overall
 	// --------------------------------------------------------
@@ -174,9 +177,10 @@ func (client *CustomerClient) deploy(_order *data.DeploymentOrder, adapterData i
 		item.State = data.DeployingState
 
 		// 5a off-chain deploying
-		// TODO
-		// Adapter
-		// send `order.FulfillSecretKey` to provider !!!
+		err = client.deployToProvider(item, adapterData)
+		if err != nil {
+			return err
+		}
 
 		// watch new SLA event
 		sinkNewSLA := make(chan *market.MarketNewSLAEvent)
@@ -291,6 +295,50 @@ func (client *CustomerClient) _finish(item *data.DeploymentItem) error {
 
 	if err := client.ComfirmTxByPolling(txFinish.Hash(), basic.NumBlockToWaitRecommended); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// -----------------------------------------------------------------------------------------------------------------
+
+func (client *CustomerClient) deployToProvider(item *data.DeploymentItem, adapterData []byte) error {
+
+	adapter, serverAddr, serverEntry := data.ParseDeployPath(item.Info.DeployPath)
+
+	url := serverAddr + serverEntry
+
+	deployToReq := &data.DeployToProviderRequest{
+		CustomerAddress:   item.Order.Customer,
+		DeploymentOrderID: item.ID,
+		AccessKey:         item.Info.AccessKey,
+		FulfillSecretKey:  item.Order.FulfillSecretKey,
+		Adapter:           adapter,
+		AdapterData:       adapterData,
+	}
+
+	deployToReqJson, err := json.Marshal(deployToReq)
+	if err != nil {
+		return err
+	}
+
+	httpRes, err := ghttp.NewClient().ContentJson().Post(url, deployToReqJson)
+	if err != nil {
+		return err
+	}
+	defer httpRes.Close()
+
+	if httpRes.Status != "200 OK" {
+		return fmt.Errorf("HTTP %v", httpRes.Status)
+	}
+
+	deployToRes := &data.DeployToProviderResponce{}
+	if err := json.Unmarshal([]byte(httpRes.ReadAllString()), deployToRes); err != nil {
+		return err
+	}
+
+	if deployToRes.Code != 0 {
+		return errors.New(deployToRes.Error)
 	}
 
 	return nil

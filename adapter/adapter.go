@@ -1,25 +1,27 @@
 package adapter
 
-import (
-	"defaas/core/data"
-	"log"
-)
+// data := adapter.ByName("").Alloc()
 
-// Adapter is an interface of the off-chain deployment action.
-type Adapter interface {
-	// DeployTo is used by `CustomerClient`
-	DeployTo(item *data.DeploymentItem, adapterData interface{}) error
-	// DeployFrom is used by `ProviderClient`
-	DeployFrom(item *data.DeploymentItem, adapterData interface{}) error
+// adapter.Select("").Build(data)
+
+// adpater.Select("").Encode(data)
+
+// adapter.Select("").Decode(encoded, data)
+
+// adapter.Select("").Deploy(data)
+
+func ByName(name string) Adapter {
+	if name == "raw-go" {
+		return NewRawGoAdapter()
+	}
 }
 
-func New(adapterName string) Adapter {
+type AdapterData = interface{}
 
-	if adapterName == "docker" {
-
-		return NewDockerAdapter()
-	}
-
-	log.Fatal("unknown adpater")
-	return nil
+type Adapter interface {
+	Alloc() AdapterData
+	Assign(data AdapterData)
+	Encode(data AdapterData) ([]byte, error)
+	Decode(encoded []byte, data AdapterData)
+	Deploy(data AdapterData) error
 }
