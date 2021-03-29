@@ -1,27 +1,36 @@
 package adapter
 
-// data := adapter.ByName("").Alloc()
+import (
+	"defaas/core/data"
+	"log"
+)
 
-// adapter.Select("").Build(data)
+// data := &XXXAdapterData{}
+// adpater.By("XXX").Encode(data)
+// adapter.By("XXX").Decode(encoded)
+// adapter.By("XXX").Deploy(data)
 
-// adpater.Select("").Encode(data)
+func By(name string) Adapter {
 
-// adapter.Select("").Decode(encoded, data)
-
-// adapter.Select("").Deploy(data)
-
-func ByName(name string) Adapter {
 	if name == "raw-go" {
 		return NewRawGoAdapter()
 	}
+
+	// if name == "docker" {
+	// 	return NewDockerAdapter()
+	// }
+
+	// if name == "openfaas" {
+	// 	return NewOpenFaaSAdapter()
+	// }
+
+	log.Fatal("unkown adapter")
+
+	return nil
 }
 
-type AdapterData = interface{}
-
 type Adapter interface {
-	Alloc() AdapterData
-	Assign(data AdapterData)
-	Encode(data AdapterData) ([]byte, error)
-	Decode(encoded []byte, data AdapterData)
-	Deploy(data AdapterData) error
+	Encode() ([]byte, error)
+	Decode(encoded []byte) error
+	Deploy(item *data.DeploymentItem) error
 }
