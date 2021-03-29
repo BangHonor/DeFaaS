@@ -1,28 +1,23 @@
 package adapter
 
-type RawGoAdapterData struct {
-	// TODO
-}
+import "defaas/core/data"
 
 type RawGoAdapter struct {
-	// TODO
+	GoFilePath string
 }
 
-func (adapter *RawGoAdapter) Alloc() AdapterData {
-
-	data := &RawGoAdapterData{}
-
-	return data
+func NewRawGoAdapter() *RawGoAdapter {
+	return nil
 }
 
-func (adapter *RawGoAdapter) Assign(data AdapterData, func(data AdapterData) ) {
-
-	data, ok := data.(RawGoAdapterData)
-
+func (adapter *RawGoAdapter) Encode() ([]byte, error) {
+	return nil, nil
 }
 
-func (adapter *RawGoAdapter) Encode(data AdapterData) ([]byte, error) {}
+func (adapter *RawGoAdapter) Decode(encoded []byte) error {
+	return nil
+}
 
-func (adapter *RawGoAdapter) Decode(encoded []byte, data AdapterData) {}
-
-func (adapter *RawGoAdapter) Deploy(data AdapterData) error {}
+func (adapter *RawGoAdapter) Deploy(item *data.DeploymentItem) error {
+	return nil
+}
