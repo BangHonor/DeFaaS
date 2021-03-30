@@ -1,0 +1,1 @@
+package rawgo_adapter

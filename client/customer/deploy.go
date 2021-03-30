@@ -77,7 +77,7 @@ func (client *CustomerClient) DeployOrder(_order *data.DeploymentOrder, adapterD
 
 		select {
 		case <-timeoutNewOrder.C:
-			err = errors.New("time out while waiting for new delpoyment order event")
+			err = errors.New("time out while waiting for new deployment order event")
 			return err
 		case err = <-subNewOrder.Err():
 			return err
@@ -108,9 +108,8 @@ func (client *CustomerClient) DeployOrder(_order *data.DeploymentOrder, adapterD
 			return nil
 		}
 
-		var isMatch bool = false
-
 		// query match result (get match result)
+		var isMatch bool
 		isMatch, err = client.Market.QueryMatch(item.ID)
 
 		if err != nil {
@@ -140,7 +139,7 @@ func (client *CustomerClient) DeployOrder(_order *data.DeploymentOrder, adapterD
 		case err = <-subNewInfo.Err():
 			return err
 		case <-timeoutNewInfo.C:
-			err = errors.New("time out while waiting for new delpoyment infomation event")
+			err = errors.New("time out while waiting for new deployment information event")
 			return err
 		case event := <-sinkNewInfo:
 			item.Info.Provider = event.Provider

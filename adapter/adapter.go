@@ -13,7 +13,7 @@ import (
 func By(name string) Adapter {
 
 	if name == "raw-go" {
-		return NewRawGoAdapter()
+		return nil
 	}
 
 	// if name == "docker" {
