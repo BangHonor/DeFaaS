@@ -134,7 +134,9 @@ func main() {
 			"--ws.addr", "127.0.0.1",
 			"--ws.port", "8546",
 			"--ws.api", "eth,web3,miner,admin,personal,net",
-			"--ws.origins", "*")
+			"--ws.origins", "*",
+
+			"--exec", "personal.newAccount") // coinbase account
 
 		devutils.RunCmd(devNodeCmd)
 		fmt.Println("[dev-cmd] run dev-run done")

@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"path"
+	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -16,7 +18,7 @@ import (
 
 	"defaas/contracts/go/faastoken"
 	"defaas/contracts/go/market"
-	"defaas/core/config"
+	defaasconfig "defaas/core/config"
 
 	devutils "defaas/dev-cmd/utils"
 )
@@ -26,19 +28,16 @@ func init() {
 	log.SetFlags(log.Lmicroseconds | log.Llongfile)
 }
 
-const (
-	ethClientRawURL          = "ws://127.0.0.1:8546"
-	workDir                  = "/home/dds/kitchen/defaas"
-	defaasConfigFilePath     = workDir + "/" + "defaas-config.toml"
-	deployerKeyStoreFileName = "UTC--2021-04-16T17-39-18.307832917Z--aea14ff60c1584b7b8d78847f7c0a2cf87350f44"
-	deployerKeyStorePassword = "123456"
-	deployerKeyStoreFilePath = workDir + "/" + "private-chain/data-0/keystore" + "/" + deployerKeyStoreFileName
-)
+// ----------------------------------------------------------------------
 
+// https://geth.ethereum.org/docs/interface/private-network
 // go run dev-cmd/deploy/main.go
+// geth attach --datadir ./private-chain/data-0
 func main() {
+
 	genContracts()
-	deployContracts()
+
+	deployContracts(getDeployConfig())
 }
 
 // ----------------------------------------------------------------------
@@ -63,7 +62,7 @@ func genContracts() {
 	}
 }
 
-func GetAuthFromKeyStore(keyStoreFilePath, password string, client *ethclient.Client) (*bind.TransactOpts, error) {
+func getAuthFromKeyStore(keyStoreFilePath, password string, client *ethclient.Client) (*bind.TransactOpts, error) {
 
 	// 获取 chainID
 	chainID, err := client.NetworkID(context.Background())
@@ -89,15 +88,58 @@ func GetAuthFromKeyStore(keyStoreFilePath, password string, client *ethclient.Cl
 	return auth, nil
 }
 
-func deployContracts() {
+type deployConfig struct {
+	ethClientRawURL          string
+	defaasConfigFilePath     string
+	deployerKeyStoreFilePath string
+	deployerKeyStorePassword string
+}
 
-	// 构造一个连接
-	client, err := ethclient.Dial(ethClientRawURL)
+func (dcfg deployConfig) String() string {
+
+	var b strings.Builder
+
+	b.WriteString("deploy contract config\n")
+	b.WriteString(fmt.Sprintf("ethClientRawURL [%v]\n", dcfg.ethClientRawURL))
+	b.WriteString(fmt.Sprintf("defaasConfigFilePath [%v]\n", dcfg.defaasConfigFilePath))
+	b.WriteString(fmt.Sprintf("deployerKeyStoreFilePath [%v]\n", dcfg.deployerKeyStoreFilePath))
+	b.WriteString(fmt.Sprintf("deployerKeyStorePassword [%v]\n", dcfg.deployerKeyStorePassword))
+
+	return b.String()
+}
+
+func getDeployConfig() *deployConfig {
+
+	cfg := &deployConfig{}
+
+	cfg.ethClientRawURL = "ws://127.0.0.1:8546"
+
+	workDir := "/home/dds/kitchen/defaas"
+	cfg.defaasConfigFilePath = path.Join(workDir, "defaas-config.toml")
+
+	deployerKeyStoreDir := path.Join(workDir, "private-chain/data-0/keystore")
+	names, err := devutils.ReadDirNames(deployerKeyStoreDir)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	auth, err := GetAuthFromKeyStore(deployerKeyStoreFilePath, deployerKeyStorePassword, client)
+	cfg.deployerKeyStoreFilePath = path.Join(deployerKeyStoreDir, names[0])
+	cfg.deployerKeyStorePassword = ""
+
+	return cfg
+}
+
+func deployContracts(dcfg *deployConfig) {
+
+	fmt.Println(dcfg)
+
+	// 构造一个连接
+	client, err := ethclient.Dial(dcfg.ethClientRawURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	auth, err := getAuthFromKeyStore(dcfg.deployerKeyStoreFilePath, dcfg.deployerKeyStorePassword, client)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -118,8 +160,8 @@ func deployContracts() {
 	_ = tx
 	// fmt.Println("[deploy] Transaction Hash of deployment", tx.Hash())
 
-	// wait for mined
-	time.Sleep(1 * time.Second)
+	fmt.Println("wait for mined ...")
+	time.Sleep(10 * time.Second)
 
 	witnesspoolContractAddress, err := marketInstance.WpContract(&bind.CallOpts{})
 	if err != nil {
@@ -128,12 +170,12 @@ func deployContracts() {
 	fmt.Println("[deploy] WitnessPool contract is deployed at", witnesspoolContractAddress)
 
 	// 写入配置文件
-	if err := config.WriteContractAddress(
-		defaasConfigFilePath,
+	if err := defaasconfig.WriteContractAddress(
+		dcfg.defaasConfigFilePath,
 		faastokenContractAddress,
 		marketContractAddress,
 		witnesspoolContractAddress); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("[deploy] contract address is written to file", defaasConfigFilePath)
+	fmt.Println("[deploy] contract address is written to config file", dcfg.defaasConfigFilePath)
 }

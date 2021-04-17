@@ -68,3 +68,23 @@ func ClearDir(dirPath string) error {
 
 	return nil
 }
+
+func ReadDirNames(dirPath string) ([]string, error) {
+
+	if err := CheckDir(dirPath); err != nil {
+		return nil, err
+	}
+
+	dir, err := os.Open(dirPath)
+	if err != nil {
+		return nil, err
+	}
+	defer dir.Close()
+
+	names, err := dir.Readdirnames(-1)
+	if err != nil {
+		return nil, err
+	}
+
+	return names, nil
+}

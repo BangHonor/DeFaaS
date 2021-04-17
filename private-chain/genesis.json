@@ -7,10 +7,9 @@
         "eip158Block": 0,
         "byzantiumBlock": 0,
         "constantinopleBlock": 0,
-        "petersburgBlock": 0,
-        "ethash": {}
+        "petersburgBlock": 0
     },
     "difficulty": "1",
-    "gasLimit": "8000000",
+    "gasLimit": "1000000000",
     "alloc": {}
 }
