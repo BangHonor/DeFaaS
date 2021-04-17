@@ -110,12 +110,12 @@ func (dcfg deployConfig) String() string {
 
 func getDeployConfig() *deployConfig {
 
-	cfg := &deployConfig{}
+	dcfg := &deployConfig{}
 
-	cfg.ethClientRawURL = "ws://127.0.0.1:8546"
+	dcfg.ethClientRawURL = "ws://127.0.0.1:8546"
 
 	workDir := "/home/dds/kitchen/defaas"
-	cfg.defaasConfigFilePath = path.Join(workDir, "defaas-config.toml")
+	dcfg.defaasConfigFilePath = path.Join(workDir, "defaas-config.toml")
 
 	deployerKeyStoreDir := path.Join(workDir, "private-chain/data-0/keystore")
 	names, err := devutils.ReadDirNames(deployerKeyStoreDir)
@@ -123,10 +123,10 @@ func getDeployConfig() *deployConfig {
 		log.Fatal(err)
 	}
 
-	cfg.deployerKeyStoreFilePath = path.Join(deployerKeyStoreDir, names[0])
-	cfg.deployerKeyStorePassword = ""
+	dcfg.deployerKeyStoreFilePath = path.Join(deployerKeyStoreDir, names[0])
+	dcfg.deployerKeyStorePassword = ""
 
-	return cfg
+	return dcfg
 }
 
 func deployContracts(dcfg *deployConfig) {

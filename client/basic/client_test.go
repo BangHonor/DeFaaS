@@ -1,50 +1,21 @@
 package basic
 
 import (
-	"log"
 	"math/big"
-	"path"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
-
-	devutils "defaas/dev-cmd/utils"
 )
-
-type testConfig struct {
-	testDeFaaSConfigFilePath string
-	testKeyStoreFilePath     string
-	testKeyStorePassword     string
-}
-
-func getTestConfig() *testConfig {
-
-	cfg := &testConfig{}
-
-	workDir := "/home/dds/kitchen/defaas"
-
-	cfg.testDeFaaSConfigFilePath = path.Join(workDir, "defaas-config.toml")
-	testKeyStoreDir := path.Join(workDir, "private-chain/data-0/keystore")
-	names, err := devutils.ReadDirNames(testKeyStoreDir)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	cfg.testKeyStoreFilePath = path.Join(testKeyStoreDir, names[0])
-	cfg.testKeyStorePassword = ""
-
-	return cfg
-}
 
 func getTestBasicClientFromFile() (*BasicClient, error) {
 
-	tcfg := getTestConfig()
+	tcfg := GetTestConfig()
 
 	return NewBasicClientWithFile(
-		tcfg.testDeFaaSConfigFilePath,
-		tcfg.testKeyStoreFilePath,
-		tcfg.testKeyStorePassword)
+		tcfg.TestDeFaaSConfigFilePath,
+		tcfg.TestKeyStoreFilePath,
+		tcfg.TestKeyStorePassword)
 }
 
 func TestNewBasicClient(t *testing.T) {
