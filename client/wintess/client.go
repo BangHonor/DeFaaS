@@ -4,6 +4,7 @@ import (
 	basic "defaas/client/basic"
 	"defaas/core/config"
 	"io/ioutil"
+	"log"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
@@ -50,18 +51,22 @@ func NewWitnessClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*WitnessClie
 // The default state of just registered witnesses is "Offline".
 func (client *WitnessClient) Login() error {
 
+	log.Printf("[witness] login ...\n")
+
 	depoist, err := client.WitnessPool.StdWitnessDepoist()
 	if err != nil {
 		return err
 	}
 
-	transferTx, err := client.FaaSToken.Transfer(client.DeFaaSConfig.WitnessPoolContractAddress, depoist)
+	log.Printf("[witness] approve for login...\n")
+	transferTx, err := client.FaaSToken.Approve(client.DeFaaSConfig.WitnessPoolContractAddress, depoist)
 	if err != nil {
 		return err
 	}
 	if err := client.ComfirmTxByPolling(transferTx.Hash(), basic.NumBlockToWaitRecommended); err != nil {
 		return err
 	}
+	log.Printf("[witness] approve for login done\n")
 
 	loginTx, err := client.WitnessPool.WitnessLogin()
 	if err != nil {
@@ -71,11 +76,15 @@ func (client *WitnessClient) Login() error {
 		return err
 	}
 
+	log.Printf("[witness] login done\n")
+
 	return nil
 }
 
 // Logout logouts the account from Wintess Pool, then the account is not a witness anymore.
 func (client *WitnessClient) Logout() error {
+
+	log.Printf("[witness] logout ...\n")
 
 	logoutTx, err := client.WitnessPool.WitenessLogout()
 	if err != nil {
@@ -85,11 +94,15 @@ func (client *WitnessClient) Logout() error {
 		return err
 	}
 
+	log.Printf("[witness] logout done\n")
+
 	return nil
 }
 
 // TurnOn changes the state of wintess from "Offline" to "Online".
 func (client *WitnessClient) TurnOn() error {
+
+	log.Printf("[witness] turn on ...\n")
 
 	turnOnTx, err := client.WitnessPool.WintessTurnOn()
 	if err != nil {
@@ -99,11 +112,15 @@ func (client *WitnessClient) TurnOn() error {
 		return err
 	}
 
+	log.Printf("[witness] turn on done\n")
+
 	return nil
 }
 
 // TurnOff changes the state of wintess from "Online" to "Offline".
 func (client *WitnessClient) TurnOff() error {
+
+	log.Printf("[witness] turn off ...\n")
 
 	turnOffTx, err := client.WitnessPool.WitnessTurnOff()
 	if err != nil {
@@ -112,6 +129,8 @@ func (client *WitnessClient) TurnOff() error {
 	if err := client.ComfirmTxByPolling(turnOffTx.Hash(), basic.NumBlockToWaitRecommended); err != nil {
 		return err
 	}
+
+	log.Printf("[witness] turn off done\n")
 
 	return nil
 }
