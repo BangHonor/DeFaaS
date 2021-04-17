@@ -9,10 +9,11 @@ import (
 )
 
 var (
-	testDir                  = "/home/kitchen/defaas"
+	testDir                  = "/home/dds/kitchen/defaas"
 	testDeFaaSConfigFilePath = testDir + "/" + "defaas-config.toml"
-	testKeyStoreFilePath     = testDir + "/" + "tmp/dev/data/keystore/UTC--2021-03-22T16-13-33.324948003Z--18f3ed9cc0c0727390d38202bd74446c0ded47a0"
-	testKeyStorePassword     = ""
+	testKeyStoreFileName     = "UTC--2021-04-16T17-39-18.307832917Z--aea14ff60c1584b7b8d78847f7c0a2cf87350f44"
+	testKeyStorePassword     = "123456"
+	testKeyStoreFilePath     = testDir + "/" + "private-chain/data-0/keystore" + "/" + testKeyStoreFileName
 )
 
 func getTestBasicClientFromFile() (*BasicClient, error) {

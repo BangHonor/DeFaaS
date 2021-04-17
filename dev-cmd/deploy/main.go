@@ -3,7 +3,10 @@ package main
 // 自动化部署合约
 
 import (
+	"bytes"
+	"context"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"time"
 
@@ -15,16 +18,21 @@ import (
 	"defaas/contracts/go/market"
 	"defaas/core/config"
 
-	corehelper "defaas/core/helper"
 	devutils "defaas/dev-cmd/utils"
 )
 
+func init() {
+	// log.SetFlags(log.Ldate | log.Lmicroseconds | log.Llongfile)
+	log.SetFlags(log.Lmicroseconds | log.Llongfile)
+}
+
 const (
-	// dev config
 	ethClientRawURL          = "ws://127.0.0.1:8546"
-	deployerKeyStoreFilePath = "./tmp/dev/data/keystore/UTC--2021-03-22T16-13-33.324948003Z--18f3ed9cc0c0727390d38202bd74446c0ded47a0"
-	deployerPassword         = ""
-	defaasConfigFilePath     = "./defaas-config.toml"
+	workDir                  = "/home/dds/kitchen/defaas"
+	defaasConfigFilePath     = workDir + "/" + "defaas-config.toml"
+	deployerKeyStoreFileName = "UTC--2021-04-16T17-39-18.307832917Z--aea14ff60c1584b7b8d78847f7c0a2cf87350f44"
+	deployerKeyStorePassword = "123456"
+	deployerKeyStoreFilePath = workDir + "/" + "private-chain/data-0/keystore" + "/" + deployerKeyStoreFileName
 )
 
 // go run dev-cmd/deploy/main.go
@@ -55,6 +63,32 @@ func genContracts() {
 	}
 }
 
+func GetAuthFromKeyStore(keyStoreFilePath, password string, client *ethclient.Client) (*bind.TransactOpts, error) {
+
+	// 获取 chainID
+	chainID, err := client.NetworkID(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	// 加载私钥
+	keyjson, err := ioutil.ReadFile(keyStoreFilePath)
+	if err != nil {
+		return nil, err
+	}
+
+	// 构造一个授权事务
+	auth, err := bind.NewTransactorWithChainID(bytes.NewBuffer(keyjson), password, chainID)
+	if err != nil {
+		return nil, err
+	}
+
+	// auth.GasPrice = big.NewInt(1000000000 + 1)
+	// auth.GasLimit = (1 << 30)
+
+	return auth, nil
+}
+
 func deployContracts() {
 
 	// 构造一个连接
@@ -63,7 +97,7 @@ func deployContracts() {
 		log.Fatal(err)
 	}
 
-	auth, err := corehelper.GetAuthFromKeyStore(deployerKeyStoreFilePath, deployerPassword, client)
+	auth, err := GetAuthFromKeyStore(deployerKeyStoreFilePath, deployerKeyStorePassword, client)
 	if err != nil {
 		log.Fatal(err)
 	}
