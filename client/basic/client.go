@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	NumBlockToWaitRecommended int = 1
+	NumBlockToWaitRecommended int = 6
 )
 
 var (

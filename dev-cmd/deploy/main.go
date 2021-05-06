@@ -30,6 +30,13 @@ func init() {
 
 // ----------------------------------------------------------------------
 
+type deployConfig struct {
+	ethClientRawURL          string
+	defaasConfigFilePath     string
+	deployerKeyStoreFilePath string
+	deployerKeyStorePassword string
+}
+
 // https://geth.ethereum.org/docs/interface/private-network
 // go run dev-cmd/deploy/main.go
 // geth attach --datadir ./private-chain/data-0
@@ -88,13 +95,6 @@ func getAuthFromKeyStore(keyStoreFilePath, password string, client *ethclient.Cl
 	return auth, nil
 }
 
-type deployConfig struct {
-	ethClientRawURL          string
-	defaasConfigFilePath     string
-	deployerKeyStoreFilePath string
-	deployerKeyStorePassword string
-}
-
 func (dcfg deployConfig) String() string {
 
 	var b strings.Builder
@@ -114,7 +114,7 @@ func getDeployConfig() *deployConfig {
 
 	dcfg.ethClientRawURL = "ws://127.0.0.1:8546"
 
-	workDir := "/home/dds/kitchen/defaas"
+	workDir := "/home/kitchen/ktichent-defaas/defaas"
 	dcfg.defaasConfigFilePath = path.Join(workDir, "defaas-config.toml")
 
 	deployerKeyStoreDir := path.Join(workDir, "private-chain/data-0/keystore")
