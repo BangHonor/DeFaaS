@@ -19,20 +19,20 @@ func init() {
 	// s.Use(middleware.AccessLog, middleware.ErrorHandler)
 
 	{
-		s.Group("/v1", func(group *ghttp.RouterGroup) {
+		s.Group("/v1/api", func(group *ghttp.RouterGroup) {
 
 			group.Group("/account", func(accountsGroup *ghttp.RouterGroup) {
 				api := new(account.AccountAPI)
-				accountsGroup.POST("/new", api.New)
+				accountsGroup.POST("/create", api.Create)
 				accountsGroup.GET("/list", api.List)
 			})
 
-			group.Group("/faas-token", func(faastokenGroup *ghttp.RouterGroup) {
+			group.Group("/faastoken", func(faastokenGroup *ghttp.RouterGroup) {
 				api := new(faastoken.FaaSTokenAPI)
-				faastokenGroup.GET("/balance-of", api.BalanceOf)
+				faastokenGroup.GET("/balanceOf", api.BalanceOf)
 			})
 
-			group.Group("/faas-level", func(faaslevelGroup *ghttp.RouterGroup) {
+			group.Group("/faaslevel", func(faaslevelGroup *ghttp.RouterGroup) {
 				api := new(faaslevel.FaaSLevelAPI)
 				faaslevelGroup.GET("/list", api.List)
 				faaslevelGroup.POST("/add", api.Add)
