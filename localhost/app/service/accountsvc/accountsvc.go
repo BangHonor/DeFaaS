@@ -7,6 +7,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/gogf/gf/frame/g"
+
+	"defaas/localhost/app/model"
 )
 
 var (
@@ -28,17 +30,8 @@ func Service() *UserSvc {
 	return _service
 }
 
-type AccountItem struct {
-	Address          string
-	Password         string
-	KeyStoreFilePath string
-	BalanceOf        string
-	IsWitness        bool
-	IsProvider       bool
-	WitnessState     string
-}
+func String(item model.AccountItem) string {
 
-func String(item AccountItem) string {
 	var b strings.Builder
 
 	b.WriteString(fmt.Sprintf("address [%v]\n", item.Address))
@@ -46,23 +39,25 @@ func String(item AccountItem) string {
 	return b.String()
 }
 
-func NewAccountItem(address string, password string) *AccountItem {
+func NewAccountItem(address string, password string) *model.AccountItem {
 
-	item := &AccountItem{}
+	item := &model.AccountItem{}
 
 	item.Address = address
 	item.Password = password
-	item.KeyStoreFilePath = ""
 	item.BalanceOf = "0"
+	item.ETH = "0"
 	item.IsWitness = false
+	item.WitnessState = "offline"
+	item.WitnessReward = "0"
 	item.IsProvider = false
-	item.WitnessState = "Offline"
+	item.ProviderState = "offline"
 
 	return item
 }
 
 type UserSvc struct {
-	users []*AccountItem
+	users []*model.AccountItem
 	ks    *keystore.KeyStore
 }
 
@@ -70,7 +65,7 @@ func NewUserSvc(keyStoreDirPath string) *UserSvc {
 
 	svc := &UserSvc{}
 
-	svc.users = []*AccountItem{}
+	svc.users = []*model.AccountItem{}
 
 	svc.ks = keystore.NewKeyStore(keyStoreDirPath, keystore.StandardScryptN, keystore.StandardScryptP)
 
@@ -88,7 +83,7 @@ func (svc *UserSvc) LoadUsers() error {
 	return nil
 }
 
-func (svc *UserSvc) CreateAccount(password string) (*AccountItem, error) {
+func (svc *UserSvc) CreateAccount(password string) (*model.AccountItem, error) {
 
 	account, err := svc.ks.NewAccount(password)
 	if err != nil {

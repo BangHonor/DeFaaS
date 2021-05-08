@@ -19,38 +19,46 @@ func init() {
 	// s.Use(middleware.AccessLog, middleware.ErrorHandler)
 
 	{
-		s.Group("/v1/api", func(group *ghttp.RouterGroup) {
+		s.Group("/api", func(group *ghttp.RouterGroup) {
 
 			group.Group("/account", func(accountsGroup *ghttp.RouterGroup) {
-				api := new(account.AccountAPI)
-				accountsGroup.POST("/create", api.Create)
-				accountsGroup.GET("/list", api.List)
+
+				accountAPI := new(account.AccountAPI)
+
+				accountsGroup.POST("/create", accountAPI.Create)
+				accountsGroup.GET("/list", accountAPI.List)
+
+				accountsGroup.Group("/witness", func(witnessGroup *ghttp.RouterGroup) {
+					wintessAPI := new(witness.WitnessnAPI)
+					witnessGroup.POST("/login", wintessAPI.Login)
+					witnessGroup.POST("/logout", wintessAPI.Logout)
+					witnessGroup.POST("/turn-on", wintessAPI.TurnOn)
+					witnessGroup.POST("/turn-off", wintessAPI.TurnOff)
+				})
+
+				accountsGroup.Group("/provider", func(providerGroup *ghttp.RouterGroup) {
+					providerAPI := new(provider.ProviderAPI)
+					providerGroup.POST("/login", providerAPI.Login)
+					providerGroup.POST("/logout", providerAPI.Logout)
+				})
+
 			})
 
 			group.Group("/faastoken", func(faastokenGroup *ghttp.RouterGroup) {
-				api := new(faastoken.FaaSTokenAPI)
-				faastokenGroup.GET("/balanceOf", api.BalanceOf)
+
+				faastokenAPI := new(faastoken.FaaSTokenAPI)
+
+				faastokenGroup.GET("/balanceOf", faastokenAPI.BalanceOf)
+				faastokenGroup.POST("/mind", faastokenAPI.BalanceOf)
+				faastokenGroup.POST("/transfer", faastokenAPI.BalanceOf)
 			})
 
 			group.Group("/faaslevel", func(faaslevelGroup *ghttp.RouterGroup) {
+
 				api := new(faaslevel.FaaSLevelAPI)
+
+				faaslevelGroup.POST("/create", api.Add)
 				faaslevelGroup.GET("/list", api.List)
-				faaslevelGroup.POST("/add", api.Add)
-
-			})
-
-			group.Group("/witness", func(witnessGroup *ghttp.RouterGroup) {
-				api := new(witness.WitnessnAPI)
-				witnessGroup.POST("/login", api.Login)
-				witnessGroup.POST("/logout", api.Logout)
-				witnessGroup.POST("/turn-on", api.TurnOn)
-				witnessGroup.POST("/turn-off", api.TurnOff)
-			})
-
-			group.Group("/provider", func(providerGroup *ghttp.RouterGroup) {
-				api := new(provider.ProviderAPI)
-				providerGroup.POST("/login", api.Login)
-				providerGroup.POST("/logout", api.Logout)
 			})
 
 		})
