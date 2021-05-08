@@ -10,6 +10,8 @@ import (
 
 type AccountAPI struct{}
 
+// ----------------------------------------------------------------------------------------------------------------
+
 type AccountCreateReq struct {
 	Password string `param:"password" v:"required"`
 }
@@ -24,7 +26,7 @@ func (a *AccountAPI) Create(r *ghttp.Request) {
 	)
 
 	if err := r.Parse(&apiReq); err != nil {
-		response.JSONExit(r, 1, "wrong param")
+		response.JSONExit(r, 1, "wrong param "+err.Error())
 	}
 
 	item, err := accountsvc.Service().CreateAccount(apiReq.Password)
@@ -36,6 +38,32 @@ func (a *AccountAPI) Create(r *ghttp.Request) {
 	response.JSONExit(r, 0, "ok", apiRes)
 }
 
+// ----------------------------------------------------------------------------------------------------------------
+
 func (a *AccountAPI) List(r *ghttp.Request) {
+	response.JSONExit(r, 0, "ok", nil)
+}
+
+func (a *AccountAPI) WitnessLogin(r *ghttp.Request) {
+	response.JSONExit(r, 0, "ok", nil)
+}
+
+func (a *AccountAPI) WitnessLogout(r *ghttp.Request) {
+	response.JSONExit(r, 0, "ok", nil)
+}
+
+func (a *AccountAPI) WitnessTurnOn(r *ghttp.Request) {
+	response.JSONExit(r, 0, "ok", nil)
+}
+
+func (a *AccountAPI) WitnessTurnOff(r *ghttp.Request) {
+	response.JSONExit(r, 0, "ok", nil)
+}
+
+func (a *AccountAPI) ProviderLogin(r *ghttp.Request) {
+	response.JSONExit(r, 0, "ok", nil)
+}
+
+func (a *AccountAPI) ProviderLogout(r *ghttp.Request) {
 	response.JSONExit(r, 0, "ok", nil)
 }

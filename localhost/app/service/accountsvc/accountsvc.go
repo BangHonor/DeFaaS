@@ -1,8 +1,6 @@
 package accountsvc
 
 import (
-	"fmt"
-	"strings"
 	"sync"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
@@ -12,31 +10,22 @@ import (
 )
 
 var (
-	_service     *UserSvc
-	_serviceOnce sync.Once
+	service     *UserSvc
+	serviceOnce sync.Once
 )
 
 func Service() *UserSvc {
 
-	_serviceOnce.Do(func() {
+	serviceOnce.Do(func() {
 
 		// g.Cfg().Set("local.keystore", "/home/dds/kitchen/defaas/tmp/keystore")
 		// keyStoreDirPath := g.Cfg().GetString("local.keystore")
 		keyStoreDirPath := "/home/dds/kitchen/defaas/tmp/keystore"
-		_service = NewUserSvc(keyStoreDirPath)
+		service = NewUserSvc(keyStoreDirPath)
 
 	})
 
-	return _service
-}
-
-func String(item model.AccountItem) string {
-
-	var b strings.Builder
-
-	b.WriteString(fmt.Sprintf("address [%v]\n", item.Address))
-
-	return b.String()
+	return service
 }
 
 func NewAccountItem(address string, password string) *model.AccountItem {
