@@ -4,6 +4,8 @@ import (
 	"defaas/localhost/app/model"
 	"strconv"
 	"sync"
+
+	"github.com/gogf/gf/frame/g"
 )
 
 var (
@@ -29,25 +31,16 @@ type FaaslevelSvc struct {
 func NewFaaslevelSvc() *FaaslevelSvc {
 
 	svc := &FaaslevelSvc{}
-
 	svc.levels = []model.FaaslevelItem{
-
 		{
 			ID:  "0",
 			CPU: "1",
 			Mem: "512",
 		},
-
 		{
 			ID:  "1",
 			CPU: "2",
 			Mem: "1024",
-		},
-
-		{
-			ID:  "3",
-			CPU: "4",
-			Mem: "2048",
 		},
 	}
 
@@ -57,7 +50,6 @@ func NewFaaslevelSvc() *FaaslevelSvc {
 func (svc *FaaslevelSvc) List() ([]model.FaaslevelItem, error) {
 
 	return svc.levels, nil
-
 }
 
 func (svc *FaaslevelSvc) Add(item model.FaaslevelItem) (model.FaaslevelItem, error) {
@@ -66,6 +58,8 @@ func (svc *FaaslevelSvc) Add(item model.FaaslevelItem) (model.FaaslevelItem, err
 	item.ID = strconv.FormatInt(int64(len(svc.levels)), 10)
 
 	svc.levels = append(svc.levels, item)
+
+	g.Log().Printf("add faaslevel %v\n", item)
 
 	return item, nil
 }

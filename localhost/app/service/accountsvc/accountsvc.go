@@ -1,6 +1,8 @@
 package accountsvc
 
 import (
+	"fmt"
+	"path"
 	"sync"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
@@ -10,18 +12,18 @@ import (
 )
 
 var (
-	service     *UserSvc
+	service     *AccountSvc
 	serviceOnce sync.Once
 )
 
-func Service() *UserSvc {
+func Service() *AccountSvc {
 
 	serviceOnce.Do(func() {
 
 		// g.Cfg().Set("local.keystore", "/home/dds/kitchen/defaas/tmp/keystore")
 		// keyStoreDirPath := g.Cfg().GetString("local.keystore")
-		keyStoreDirPath := "/home/dds/kitchen/defaas/tmp/keystore"
-		service = NewUserSvc(keyStoreDirPath)
+		accountsDirPath := "/home/dds/kitchen/defaas/tmp/accounts"
+		service, _ = NewAccountSvc(accountsDirPath)
 
 	})
 
@@ -45,34 +47,60 @@ func NewAccountItem(address string, password string) *model.AccountItem {
 	return item
 }
 
-type UserSvc struct {
-	users []*model.AccountItem
-	ks    *keystore.KeyStore
+type AccountSvc struct {
+	dirPath string
+	items   []*model.AccountItem
+	ks      *keystore.KeyStore
 }
 
-func NewUserSvc(keyStoreDirPath string) *UserSvc {
+func NewAccountSvc(accountsDirPath string) (*AccountSvc, error) {
 
-	svc := &UserSvc{}
+	svc := &AccountSvc{}
 
-	svc.users = []*model.AccountItem{}
+	svc.items = []*model.AccountItem{}
 
+	keyStoreDirPath := path.Join(accountsDirPath, "keystore")
 	svc.ks = keystore.NewKeyStore(keyStoreDirPath, keystore.StandardScryptN, keystore.StandardScryptP)
 
-	return svc
+	if err := svc.load(); err != nil {
+		return nil, err
+	}
+
+	jsonDirPath := path.Join(accountsDirPath, "json")
+	_ = jsonDirPath
+
+	return svc, nil
 }
 
-func (svc *UserSvc) LoadUsers() error {
+func (svc *AccountSvc) load() error {
 
 	accounts := svc.ks.Accounts()
 
 	_ = accounts
 
-	// TODO
+	for _, a := range accounts {
+		fmt.Println(a.Address.Hex())
+	}
 
 	return nil
 }
 
-func (svc *UserSvc) CreateAccount(password string) (*model.AccountItem, error) {
+func (svc *AccountSvc) storeOne(item *model.AccountItem) error {
+	return nil
+}
+
+func (svc *AccountSvc) store() error {
+
+	for _, item := range svc.items {
+		if err := svc.storeOne(item); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (svc *AccountSvc) Create(password string) (*model.AccountItem, error) {
 
 	account, err := svc.ks.NewAccount(password)
 	if err != nil {
@@ -80,14 +108,13 @@ func (svc *UserSvc) CreateAccount(password string) (*model.AccountItem, error) {
 	}
 
 	item := NewAccountItem(account.Address.Hex(), password)
-	svc.users = append(svc.users, item)
+	svc.items = append(svc.items, item)
 
 	g.Log().Printf("create account %v\n", item)
 
 	return item, nil
 }
 
-func (svc *UserSvc) ListAccount() error {
-
-	return nil
+func (svc *AccountSvc) List() ([]*model.AccountItem, error) {
+	return svc.items, nil
 }

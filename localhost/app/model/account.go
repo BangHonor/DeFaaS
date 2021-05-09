@@ -17,7 +17,7 @@ type AccountItem struct {
 	ProviderState string `json:"providerState"`
 }
 
-func String(item AccountItem) string {
+func (item AccountItem) String() string {
 
 	j, err := json.MarshalIndent(item, "", "    ")
 	if err != nil {

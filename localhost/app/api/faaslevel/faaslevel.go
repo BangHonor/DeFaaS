@@ -29,6 +29,7 @@ func (a *FaaSLevelAPI) List(r *ghttp.Request) {
 // ----------------------------------------------------------------------------------------------------------------
 
 type FaaslevelAddReq struct {
+	ID  string `param:"id"`
 	CPU string `param:"cpu" v:"required"`
 	Mem string `param:"mem" v:"required"`
 }

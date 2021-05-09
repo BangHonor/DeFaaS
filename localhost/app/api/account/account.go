@@ -29,7 +29,7 @@ func (a *AccountAPI) Create(r *ghttp.Request) {
 		response.JSONExit(r, 1, "wrong param "+err.Error())
 	}
 
-	item, err := accountsvc.Service().CreateAccount(apiReq.Password)
+	item, err := accountsvc.Service().Create(apiReq.Password)
 	if err != nil {
 		response.JSONExit(r, 1, err.Error())
 	}
