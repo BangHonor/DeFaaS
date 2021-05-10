@@ -41,8 +41,16 @@ func (a *AccountAPI) Create(r *ghttp.Request) {
 // ----------------------------------------------------------------------------------------------------------------
 
 func (a *AccountAPI) List(r *ghttp.Request) {
-	response.JSONExit(r, 0, "ok", nil)
+
+	items, err := accountsvc.Service().List()
+	if err != nil {
+		response.JSONExit(r, 1, err.Error())
+	}
+
+	response.JSONExit(r, 0, "ok", items)
 }
+
+// ----------------------------------------------------------------------------------------------------------------
 
 func (a *AccountAPI) WitnessLogin(r *ghttp.Request) {
 	response.JSONExit(r, 0, "ok", nil)

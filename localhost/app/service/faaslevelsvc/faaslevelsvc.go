@@ -59,7 +59,7 @@ func (svc *FaaslevelSvc) Add(item model.FaaslevelItem) (model.FaaslevelItem, err
 
 	svc.levels = append(svc.levels, item)
 
-	g.Log().Printf("add faaslevel %v\n", item)
+	g.Log().Printf("[faaslevelsvc] add faaslevel %v\n", item)
 
 	return item, nil
 }
