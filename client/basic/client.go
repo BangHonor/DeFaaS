@@ -4,7 +4,7 @@ import (
 	"context"
 	"defaas/core/config"
 	"defaas/core/helper"
-	"defaas/core/session"
+	"defaas/core/suite"
 	"errors"
 	"io/ioutil"
 	"log"
@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	NumBlockToWaitRecommended int = 6
+	NumBlockToWaitRecommended int = 1
 )
 
 var (
@@ -30,14 +30,17 @@ var (
 type BasicClient struct {
 	Key          *keystore.Key
 	DeFaaSConfig *config.DeFaaSConfig
-
-	RawClinet   *ethclient.Client
-	FaaSToken   *session.FaaSTokenSession
-	Market      *session.MarketSeesion
-	WitnessPool *session.WitnessPoolSession
+	suite.Suite
+	RawClinet *ethclient.Client
 }
 
-func NewBasicClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*BasicClient, error) {
+func NewBasicClient(backend bind.ContractBackend, auth *bind.TransactOpts) (*BasicClient, error) {
+
+	client := &BasicClient{}
+	client.Suite = suite.NewSuite()
+}
+
+func NewBasicClientWithConfig(dfc *config.DeFaaSConfig, key *keystore.Key) (*BasicClient, error) {
 
 	log.Println("[basic] ------------------- new basic client .... --------------------------")
 
