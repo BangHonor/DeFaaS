@@ -5,62 +5,42 @@ import (
 	"defaas/core/config"
 	"defaas/core/helper"
 	"defaas/core/suite"
-	"errors"
 	"io/ioutil"
 	"log"
-	"math/big"
-	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-const (
-	NumBlockToWaitRecommended int = 1
-)
-
-var (
-	ErrWaitPeedingTxTimeout   = errors.New("wait pedding tx timeout")
-	ErrWaitMinedBlocksTimeout = errors.New("wait blocks timeout")
-)
-
 type BasicClient struct {
+	suite.Suite
 	Key          *keystore.Key
 	DeFaaSConfig *config.DeFaaSConfig
-	suite.Suite
-	RawClinet *ethclient.Client
+	ETHClinet    *ethclient.Client
 }
 
-func NewBasicClient(backend bind.ContractBackend, auth *bind.TransactOpts) (*BasicClient, error) {
-
-	client := &BasicClient{}
-	client.Suite = suite.NewSuite()
-}
-
-func NewBasicClientWithConfig(dfc *config.DeFaaSConfig, key *keystore.Key) (*BasicClient, error) {
-
-	log.Println("[basic] ------------------- new basic client .... --------------------------")
+func NewBasicClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*BasicClient, error) {
 
 	var (
 		err error
 	)
+
+	log.Println("[basic] ------------------- new basic client .... --------------------------")
 
 	client := &BasicClient{}
 	client.Key = key
 	client.DeFaaSConfig = dfc
 
 	// connect to eth network
-	client.RawClinet, err = helper.GetETHClient(dfc.WsURLs)
+	client.ETHClinet, err = helper.GetETHClient(dfc.WsURLs)
 	if err != nil {
 		return nil, err
 	}
 	log.Println("[basic] connect to blockchain network")
 
 	// get chainID
-	chainID, err := client.RawClinet.NetworkID(context.TODO())
+	chainID, err := client.ETHClinet.NetworkID(context.TODO())
 	if err != nil {
 		return nil, err
 	}
@@ -72,26 +52,17 @@ func NewBasicClientWithConfig(dfc *config.DeFaaSConfig, key *keystore.Key) (*Bas
 		return nil, err
 	}
 
-	// build session
-	client.FaaSToken, err = session.NewFaaSTokenSeesion(client.RawClinet, dfc.FaaSTokenContractAddress, auth)
+	_suite, err := suite.NewSuite(
+		client.ETHClinet,
+		auth,
+		dfc.FaaSTokenContractAddress,
+		dfc.MarketContractAddress,
+		dfc.WitnessPoolContractAddress)
 	if err != nil {
 		return nil, err
 	}
-	log.Println("[basic] set up a session of [FaaSToekn] contarct")
-
-	client.Market, err = session.NewMarketSeesion(client.RawClinet, dfc.MarketContractAddress, auth)
-	if err != nil {
-		return nil, err
-	}
-	log.Println("[basic] set up a session of [Market] contarct")
-
-	client.WitnessPool, err = session.NewWitnessPoolSession(client.RawClinet, dfc.WitnessPoolContractAddress, auth)
-	if err != nil {
-		return nil, err
-	}
-	log.Println("[basic] set up a session of [WitnessPool] contarct")
-
-	log.Println("[basic] ------------------- new basic client done --------------------------")
+	client.Suite = *_suite
+	log.Println("[basic] set up a session of smart contarct")
 
 	return client, nil
 }
@@ -115,162 +86,4 @@ func NewBasicClientWithFile(configFilePath, keyStoreFilePath string, password st
 	}
 
 	return NewBasicClient(dfc, key)
-}
-
-func (client *BasicClient) waitPeddingTxByPolling(txHash common.Hash) error {
-
-	checkPeddingTimeout := time.NewTimer(1 * time.Minute)
-	checkPeddingTicker := time.NewTicker(1 * time.Second)
-	defer checkPeddingTicker.Stop()
-
-	// wait for pedding
-CheckPeddingLoop:
-
-	for {
-		select {
-
-		case <-checkPeddingTimeout.C:
-			return ErrWaitPeedingTxTimeout
-
-		case <-checkPeddingTicker.C:
-
-			_, isPending, err := client.RawClinet.TransactionByHash(context.TODO(), txHash)
-			if err != nil {
-				return err
-			}
-
-			if !isPending {
-				break CheckPeddingLoop
-			}
-		}
-	}
-
-	return nil
-}
-
-func (client *BasicClient) waitMinedBlocksByPolling(txHash common.Hash, numBlockToWait int) error {
-
-	// record currnet blockNumber
-	curHeader, err := client.RawClinet.HeaderByNumber(context.TODO(), nil)
-	if err != nil {
-		return err
-	}
-
-	waitBlockTimeout := time.NewTimer(1 * time.Minute)
-	waitBlockTicker := time.NewTicker(1 * time.Second)
-	defer waitBlockTimeout.Stop()
-	defer waitBlockTicker.Stop()
-
-	// wait fot blocks
-WaitBlockLoop:
-
-	for {
-		select {
-		case <-waitBlockTimeout.C:
-			return ErrWaitMinedBlocksTimeout
-		case <-waitBlockTicker.C:
-			header, err := client.RawClinet.HeaderByNumber(context.TODO(), nil)
-			if err != nil {
-				return err
-			}
-			if big.NewInt(int64(numBlockToWait)).Cmp(header.Number.Sub(header.Number, curHeader.Number)) <= 0 {
-				break WaitBlockLoop
-			}
-		}
-	}
-
-	return nil
-}
-
-func (client *BasicClient) waitPeddingTxBySubscription(txHash common.Hash) error {
-
-	headers := make(chan *types.Header)
-	headerSub, err := client.RawClinet.SubscribeNewHead(context.TODO(), headers)
-	if err != nil {
-		return err
-	}
-
-	checkPeddingTimeout := time.NewTimer(1 * time.Minute)
-
-	// wait for pedding
-CheckPeddingSubLoop:
-	for {
-		select {
-
-		case <-checkPeddingTimeout.C:
-			return errors.New("chekc pedding time out")
-
-		case err := <-headerSub.Err():
-			return err
-
-		case <-headers:
-
-			_, isPending, err := client.RawClinet.TransactionByHash(context.TODO(), txHash)
-			if err != nil {
-				return err
-			}
-
-			if !isPending {
-				break CheckPeddingSubLoop
-			}
-
-		}
-	}
-
-	return nil
-}
-
-func (client *BasicClient) waitMinedBlocksBySubscription(txHash common.Hash, numBlockToWait int) error {
-
-	headers := make(chan *types.Header)
-	headerSub, err := client.RawClinet.SubscribeNewHead(context.TODO(), headers)
-	if err != nil {
-		return err
-	}
-
-	// wait for blocks
-	for i := 0; i < numBlockToWait; i++ {
-		select {
-		case err := <-headerSub.Err():
-			return err
-		case <-headers:
-			// do nothig
-		}
-	}
-
-	return nil
-}
-
-func (client *BasicClient) ComfirmTxByPolling(txHash common.Hash, numBlockToWait int) error {
-
-	log.Printf("[basic] wait pedding tx [%v] ...", txHash)
-	if err := client.waitPeddingTxByPolling(txHash); err != nil {
-		return err
-	}
-	log.Printf("[basic] wait pedding tx [%v] done", txHash)
-
-	log.Printf("[basic] wait [%v] mined blocks for tx [%v] ...", numBlockToWait, txHash)
-	if err := client.waitMinedBlocksByPolling(txHash, numBlockToWait); err != nil {
-		return err
-	}
-	log.Printf("[basic] wait [%v] mined blocks for tx [%v] done", numBlockToWait, txHash)
-
-	return nil
-}
-
-func (client *BasicClient) ComfirmTxBySubscription(txHash common.Hash, numBlockToWait int) error {
-
-	log.Printf("[basic] wait pedding tx [%v] ...", txHash)
-	if err := client.waitPeddingTxBySubscription(txHash); err != nil {
-		return err
-	}
-	log.Printf("[basic] wait pedding tx [%v] done", txHash)
-
-	log.Printf("[basic] wait [%v] mined blocks for tx [%v] ...", numBlockToWait, txHash)
-	if err := client.waitMinedBlocksBySubscription(txHash, numBlockToWait); err != nil {
-		return err
-	}
-	log.Printf("[basic] wait [%v] mined blocks for tx [%v] done", numBlockToWait, txHash)
-
-	return nil
 }

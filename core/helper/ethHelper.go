@@ -33,6 +33,6 @@ func GetETHClient(urls []string) (*ethclient.Client, error) {
 
 func EqualAddress(s, t common.Address) bool {
 	// type Address [AddressLength]byte
-	// you can directly compare two arrays of the same length, in Go
+	// in Go, you can directly compare two arrays of the same length
 	return (s == t)
 }
