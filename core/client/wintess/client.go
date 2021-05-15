@@ -1,7 +1,7 @@
 package wintess
 
 import (
-	basic "defaas/client/basic"
+	basic "defaas/core/client/basic"
 	"defaas/core/config"
 	"io/ioutil"
 	"log"

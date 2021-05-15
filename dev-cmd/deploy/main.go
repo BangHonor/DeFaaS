@@ -113,7 +113,7 @@ func getDeployConfig() *deployConfig {
 
 	dcfg.ethClientRawURL = "ws://127.0.0.1:8546"
 
-	workDir := "/home/dds/kitchen/defaas"
+	workDir := "/home/kitchen/defaas"
 	dcfg.defaasConfigFilePath = path.Join(workDir, "defaas-config.toml")
 
 	deployerKeyStoreDir := path.Join(workDir, "private-chain/data-0/keystore")

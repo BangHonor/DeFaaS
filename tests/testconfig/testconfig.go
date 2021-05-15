@@ -17,7 +17,7 @@ func GetTestConfig() *TestConfig {
 
 	tcfg := &TestConfig{}
 
-	workDir := "/home/dds/kitchen/defaas"
+	workDir := "/home/kitchen/defaas"
 
 	tcfg.TestDeFaaSConfigFilePath = path.Join(workDir, "defaas-config.toml")
 	testKeyStoreDir := path.Join(workDir, "private-chain/data-0/keystore")

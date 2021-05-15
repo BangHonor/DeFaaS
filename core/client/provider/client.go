@@ -2,7 +2,7 @@ package provider
 
 import (
 	"context"
-	"defaas/client/basic"
+	basic "defaas/core/client/basic"
 	defaasconfig "defaas/core/config"
 	"defaas/core/data"
 	"io/ioutil"

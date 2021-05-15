@@ -2,7 +2,7 @@ package customer
 
 import (
 	"crypto/sha256"
-	basic "defaas/client/basic"
+	basic "defaas/core/client/basic"
 	"defaas/core/config"
 	"defaas/core/data"
 	"io/ioutil"

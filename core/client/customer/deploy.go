@@ -1,8 +1,8 @@
 package customer
 
 import (
-	basic "defaas/client/basic"
 	market "defaas/contracts/go/market"
+	basic "defaas/core/client/basic"
 	"defaas/core/data"
 	"defaas/core/helper"
 	"encoding/json"
