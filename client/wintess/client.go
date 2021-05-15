@@ -37,12 +37,13 @@ func NewWitnessClientWithFile(configFilePath, keyStoreFilePath string, password 
 
 func NewWitnessClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*WitnessClient, error) {
 
-	// init
-	_basicClient, _ := basic.NewBasicClient(dfc, key)
+	client := &WitnessClient{}
 
-	client := &WitnessClient{
-		BasicClient: *_basicClient,
+	_basicClient, err := basic.NewBasicClient(dfc, key)
+	if err != nil {
+		return nil, err
 	}
+	client.BasicClient = *_basicClient
 
 	return client, nil
 }

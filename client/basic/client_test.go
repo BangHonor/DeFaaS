@@ -1,6 +1,8 @@
 package basic
 
 import (
+	"defaas/tests/testconfig"
+	"log"
 	"math/big"
 	"testing"
 
@@ -8,23 +10,25 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func getTestBasicClientFromFile() (*BasicClient, error) {
+func getTestBasicClientFromFile() *BasicClient {
 
-	tcfg := GetTestConfig()
+	tcfg := testconfig.GetTestConfig()
 
-	return NewBasicClientWithFile(
+	client, err := NewBasicClientWithFile(
 		tcfg.TestDeFaaSConfigFilePath,
 		tcfg.TestKeyStoreFilePath,
 		tcfg.TestKeyStorePassword)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return client
 }
 
 func TestNewBasicClient(t *testing.T) {
 
-	client, err := getTestBasicClientFromFile()
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	client := getTestBasicClientFromFile()
 	_ = client
 }
 
@@ -32,10 +36,7 @@ func TestComfirmTxByPolling(t *testing.T) {
 
 	assert := assert.New(t)
 
-	client, err := getTestBasicClientFromFile()
-	if err != nil {
-		t.Fatal(err)
-	}
+	client := getTestBasicClientFromFile()
 
 	confirmTxFunc := client.ComfirmTxByPolling
 
@@ -105,10 +106,7 @@ func TestComfirmTxBySubscription(t *testing.T) {
 
 	assert := assert.New(t)
 
-	client, err := getTestBasicClientFromFile()
-	if err != nil {
-		t.Fatal(err)
-	}
+	client := getTestBasicClientFromFile()
 
 	confirmTxFunc := client.ComfirmTxBySubscription
 

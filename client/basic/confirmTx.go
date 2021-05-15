@@ -37,7 +37,7 @@ CheckPeddingLoop:
 
 		case <-checkPeddingTicker.C:
 
-			_, isPending, err := client.ETHClinet.TransactionByHash(context.TODO(), txHash)
+			_, isPending, err := client.ETHClient.TransactionByHash(context.TODO(), txHash)
 			if err != nil {
 				return err
 			}
@@ -54,7 +54,7 @@ CheckPeddingLoop:
 func (client *BasicClient) waitMinedBlocksByPolling(txHash common.Hash, numBlockToWait int) error {
 
 	// record currnet blockNumber
-	curHeader, err := client.ETHClinet.HeaderByNumber(context.TODO(), nil)
+	curHeader, err := client.ETHClient.HeaderByNumber(context.TODO(), nil)
 	if err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ WaitBlockLoop:
 		case <-waitBlockTimeout.C:
 			return ErrWaitMinedBlocksTimeout
 		case <-waitBlockTicker.C:
-			header, err := client.ETHClinet.HeaderByNumber(context.TODO(), nil)
+			header, err := client.ETHClient.HeaderByNumber(context.TODO(), nil)
 			if err != nil {
 				return err
 			}
@@ -88,7 +88,7 @@ WaitBlockLoop:
 func (client *BasicClient) waitPeddingTxBySubscription(txHash common.Hash) error {
 
 	headers := make(chan *types.Header)
-	headerSub, err := client.ETHClinet.SubscribeNewHead(context.TODO(), headers)
+	headerSub, err := client.ETHClient.SubscribeNewHead(context.TODO(), headers)
 	if err != nil {
 		return err
 	}
@@ -108,7 +108,7 @@ CheckPeddingSubLoop:
 
 		case <-headers:
 
-			_, isPending, err := client.ETHClinet.TransactionByHash(context.TODO(), txHash)
+			_, isPending, err := client.ETHClient.TransactionByHash(context.TODO(), txHash)
 			if err != nil {
 				return err
 			}
@@ -126,7 +126,7 @@ CheckPeddingSubLoop:
 func (client *BasicClient) waitMinedBlocksBySubscription(txHash common.Hash, numBlockToWait int) error {
 
 	headers := make(chan *types.Header)
-	headerSub, err := client.ETHClinet.SubscribeNewHead(context.TODO(), headers)
+	headerSub, err := client.ETHClient.SubscribeNewHead(context.TODO(), headers)
 	if err != nil {
 		return err
 	}

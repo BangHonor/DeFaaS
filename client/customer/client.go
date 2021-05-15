@@ -52,7 +52,6 @@ func NewCustomerClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*CustomerCl
 	if err != nil {
 		return nil, err
 	}
-
 	client.BasicClient = *_basicClient
 
 	client.itemPool = gmap.NewHashMap(true) // `true` means concurrent-safety

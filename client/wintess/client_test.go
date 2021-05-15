@@ -1,36 +1,36 @@
 package wintess
 
 import (
-	basic "defaas/client/basic"
+	"defaas/tests/testconfig"
+	"log"
 	"testing"
 )
 
-func getTestWitnessClientFromFile() (*WitnessClient, error) {
+func getTestWitnessClientFromFile() *WitnessClient {
 
-	tcfg := basic.GetTestConfig()
+	tcfg := testconfig.GetTestConfig()
 
-	return NewWitnessClientWithFile(
+	client, err := NewWitnessClientWithFile(
 		tcfg.TestDeFaaSConfigFilePath,
 		tcfg.TestKeyStoreFilePath,
 		tcfg.TestKeyStorePassword)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return client
 }
 
 func TestNewWitnessClient(t *testing.T) {
 
-	client, err := getTestWitnessClientFromFile()
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	client := getTestWitnessClientFromFile()
 	_ = client
 }
 
 func TestLogin(t *testing.T) {
 
-	client, err := getTestWitnessClientFromFile()
-	if err != nil {
-		t.Fatal(err)
-	}
+	client := getTestWitnessClientFromFile()
 
 	if err := client.Login(); err != nil {
 		t.Fatal(err)
@@ -39,10 +39,7 @@ func TestLogin(t *testing.T) {
 
 func TestLogout(t *testing.T) {
 
-	client, err := getTestWitnessClientFromFile()
-	if err != nil {
-		t.Fatal(err)
-	}
+	client := getTestWitnessClientFromFile()
 
 	if err := client.Logout(); err != nil {
 		t.Fatal(err)
@@ -51,10 +48,7 @@ func TestLogout(t *testing.T) {
 
 func TestLoginLogout(t *testing.T) {
 
-	client, err := getTestWitnessClientFromFile()
-	if err != nil {
-		t.Fatal(err)
-	}
+	client := getTestWitnessClientFromFile()
 
 	if err := client.Login(); err != nil {
 		t.Fatal(err)
@@ -67,10 +61,7 @@ func TestLoginLogout(t *testing.T) {
 
 func TestTurnOnTurnOff(t *testing.T) {
 
-	client, err := getTestWitnessClientFromFile()
-	if err != nil {
-		t.Fatal(err)
-	}
+	client := getTestWitnessClientFromFile()
 
 	if err := client.Login(); err != nil {
 		t.Fatal(err)

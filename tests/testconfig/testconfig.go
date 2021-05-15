@@ -1,9 +1,10 @@
-package basic
+package testconfig
 
 import (
-	devutils "defaas/dev-cmd/utils"
 	"log"
 	"path"
+
+	devutils "defaas/dev-cmd/utils"
 )
 
 type TestConfig struct {

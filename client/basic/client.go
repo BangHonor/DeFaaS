@@ -17,7 +17,7 @@ type BasicClient struct {
 	suite.Suite
 	Key          *keystore.Key
 	DeFaaSConfig *config.DeFaaSConfig
-	ETHClinet    *ethclient.Client
+	ETHClient    *ethclient.Client
 }
 
 func NewBasicClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*BasicClient, error) {
@@ -33,14 +33,14 @@ func NewBasicClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*BasicClient, 
 	client.DeFaaSConfig = dfc
 
 	// connect to eth network
-	client.ETHClinet, err = helper.GetETHClient(dfc.WsURLs)
+	client.ETHClient, err = helper.GetETHClient(dfc.WsURLs)
 	if err != nil {
 		return nil, err
 	}
 	log.Println("[basic] connect to blockchain network")
 
 	// get chainID
-	chainID, err := client.ETHClinet.NetworkID(context.TODO())
+	chainID, err := client.ETHClient.NetworkID(context.TODO())
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func NewBasicClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*BasicClient, 
 	}
 
 	_suite, err := suite.NewSuite(
-		client.ETHClinet,
+		client.ETHClient,
 		auth,
 		dfc.FaaSTokenContractAddress,
 		dfc.MarketContractAddress,
