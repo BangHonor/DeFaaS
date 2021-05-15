@@ -146,6 +146,11 @@ func (client *BasicClient) waitMinedBlocksBySubscription(txHash common.Hash, num
 
 func (client *BasicClient) ComfirmTxByPolling(txHash common.Hash, numBlockToWait int) error {
 
+	if client.ETHClient == nil {
+		// just return
+		return nil
+	}
+
 	log.Printf("[basic] wait pedding tx [%v] ...", txHash)
 	if err := client.waitPeddingTxByPolling(txHash); err != nil {
 		return err
@@ -162,6 +167,11 @@ func (client *BasicClient) ComfirmTxByPolling(txHash common.Hash, numBlockToWait
 }
 
 func (client *BasicClient) ComfirmTxBySubscription(txHash common.Hash, numBlockToWait int) error {
+
+	if client.ETHClient == nil {
+		// just return
+		return nil
+	}
 
 	log.Printf("[basic] wait pedding tx [%v] ...", txHash)
 	if err := client.waitPeddingTxBySubscription(txHash); err != nil {

@@ -24,7 +24,6 @@ import (
 )
 
 func init() {
-	// log.SetFlags(log.Ldate | log.Lmicroseconds | log.Llongfile)
 	log.SetFlags(log.Lmicroseconds | log.Llongfile)
 }
 
@@ -114,7 +113,7 @@ func getDeployConfig() *deployConfig {
 
 	dcfg.ethClientRawURL = "ws://127.0.0.1:8546"
 
-	workDir := "/home/kitchen/ktichent-defaas/defaas"
+	workDir := "/home/dds/kitchen/defaas"
 	dcfg.defaasConfigFilePath = path.Join(workDir, "defaas-config.toml")
 
 	deployerKeyStoreDir := path.Join(workDir, "private-chain/data-0/keystore")

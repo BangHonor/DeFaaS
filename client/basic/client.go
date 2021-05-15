@@ -13,6 +13,10 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
+func init() {
+	log.SetFlags(log.Llongfile)
+}
+
 type BasicClient struct {
 	suite.Suite
 	Key          *keystore.Key
