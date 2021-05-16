@@ -50,9 +50,9 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         address customer;         // 租户地址
         uint faasLevelID;         // FaaS 规格
         uint faasDuration;        // 服务时长，保存的是秒数
-        string funcMsg;           // 函数服务信息
+        uint highestUnitPrice;    // 租户可接受的最高单价
+        string publicKey;         // 公钥
         // 竞价
-        uint highestUnitPrice;          // 租户可接受的最高单价
         SimpleAuction auctionContract;  // 竞价合约
         bool isMatch;
     }
@@ -66,6 +66,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         address provider;          // 供应商
         string funcPath;           // 函数的访问路径
         string deployPath;         // 部署的访问路径
+        string accessKey;          // 供应商提供给租户的访问密钥，以租户的公钥加密
     }
 
     // 租约
@@ -76,8 +77,10 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         uint customerCompensationFee;  // 服务失败时，租户的补偿款
         uint platformChargeFee;        // 平台手续费
         // 服务内容
+        bytes32 fulfillKey;               // 用于确认租户在供应商上完成部署
         uint faasFulfillStartTime;     // 供应商开始履行服务的时间
         // 监测
+        // TODO 添加一些监测参数
         bool isViolatedSLA;            // 是否违反 SLA 合约
         uint curBlockNum;              // 租约产生时的块号
     }
@@ -117,7 +120,8 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         uint _faasLevelID,
         uint _highestUnitPrice,
         uint _faasDuration,
-        uint _biddingDuration);
+        uint _biddingDuration,
+        string _publicKey);
     
     // 部署订单竞价结束事件
     event BiddingEndEvent(
@@ -132,7 +136,8 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         uint indexed _deploymentOrderID,
         address indexed _provider,
         string funcPath,
-        string deployPath);
+        string deployPath,
+        string accessKey);
 
     // 新建租约事件
     event NewLeaseEvent(
@@ -173,13 +178,19 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
     function newDeploymentOrder(
         uint _nonce,
         uint _faasLevelID,
-        uint _faasDuration,
-        string memory _funcMsg,
         uint _highestUnitPrice,
-        uint _biddingDuration) 
+        uint _faasDuration,
+        uint _biddingDuration,
+        string memory _publicKey) 
         public 
         validFaaSLevelID(_faasLevelID)
     {
+        // 参数检查
+        // require(_highestUnitPrice > 0, "");
+        // require(_faasDuration >= 12 hours &&  _faasDuration <= 360 days, "");
+        // require(_biddingDuration >= 1 hours &&  _biddingDuration <= 1 days, "");
+        // require(bytes(_publicKey).length > 0 && bytes(_publicKey).length < 256);
+
         // 锁定预付款
         require(
             tokenContract.transferFrom(msg.sender, address(this), calculateLockFee(_highestUnitPrice, _faasDuration)),
@@ -196,10 +207,10 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         deploymentOrders[_deploymentOrderID] = DeploymentOrder({
             state: OrderStates.Bidding,
             customer: msg.sender,
-            faasLevelID: _faasLevelID,
-            faasDuration: _faasDuration,
-            funcMsg: _funcMsg,
+            faasLevelID: _faasDuration,
             highestUnitPrice: _highestUnitPrice,
+            faasDuration: _faasDuration,
+            publicKey: _publicKey,
             auctionContract: _auction,
             isMatch: false
         });
@@ -213,7 +224,8 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
             _order.faasLevelID,
             _order.highestUnitPrice,
             _order.faasDuration,
-            _biddingDuration);
+            _biddingDuration,
+            _order.publicKey);
     }
 
     // 供应商 API
@@ -269,7 +281,8 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
             isProviderPublish: false,
             provider: _provider,
             funcPath: "",
-            deployPath: ""
+            deployPath: "",
+            accessKey: ""
         });
         
         // 修改状态
@@ -282,11 +295,15 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
     function publishDeploymentInfo(
         uint _deploymentOrderID,
         string memory _funcPath,
-        string memory _deployPath) 
+        string memory _deployPath,
+        string memory _accessKey) 
         public
         validDeploymentOrderID(_deploymentOrderID)
         atOrderState(_deploymentOrderID, OrderStates.Confirming)
     {
+        // TODO 检查超时
+        // 如果超时 退还预付款 结束订单流程
+
         DeploymentInfo storage _info = deploymentInfos[_deploymentOrderID];
 
         require(
@@ -294,8 +311,15 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
             "Matket: only provider can publish deployment information"
         );
 
+        // 参数检查
+        require(bytes(_funcPath).length   > 0 && bytes(_funcPath).length   <= 256, "");
+        require(bytes(_deployPath).length > 0 && bytes(_deployPath).length <= 256, "");
+        require(bytes(_accessKey).length  > 0 && bytes(_accessKey).length  <= 256, "");
+
+
         _info.funcPath = _funcPath;
         _info.deployPath = _deployPath;
+        _info.accessKey = _accessKey;
 
         // 确认
         _info.isProviderPublish = true;
@@ -304,7 +328,8 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
             _deploymentOrderID,
             _info.provider,
             _funcPath,
-            _deployPath);
+            _deployPath,
+            _accessKey);
     }
 
     // 租户 API
@@ -314,6 +339,8 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         validDeploymentOrderID(_deploymentOrderID)
         atOrderState(_deploymentOrderID, OrderStates.Confirming)
     {
+        // TODO 超时退还预付款
+
         require(
             msg.sender == deploymentOrders[_deploymentOrderID].customer,
             "Market: only customer can confirm");
@@ -339,7 +366,8 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
             customerWithdrawFee: _customerWithdrawFee,
             customerCompensationFee: _customerCompensationFee,
             platformChargeFee: _platformChargeFee,
-            faasFulfillStartTime: 0,   // 待填写
+            fulfillKey: _fulfillKey,
+            faasFulfillStartTime: 0,        // 待填写
             isViolatedSLA: false,      // 待填写
             curBlockNum: block.number
         });
@@ -353,21 +381,24 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         deploymentOrders[_deploymentOrderID].state = OrderStates.Deploying;
     }
 
-    // 供应商 API
-    // 租户部署完成，供应商开始履行部署订单
-    function fulfillDeploymentOrder(uint _deploymentOrderID)
+    // 租户 API
+    // 租户部署完成，开始履行部署订单
+    function fulfillDeploymentOrder(uint _deploymentOrderID, bytes32 _fulfillSecretKey)
         public
         validDeploymentOrderID(_deploymentOrderID)
         atOrderState(_deploymentOrderID, OrderStates.Deploying)
     {
+        // TODO 超时退还预付款
+
         DeploymentOrder storage _order = deploymentOrders[_deploymentOrderID];
         DeploymentInfo  storage _info  = deploymentInfos[_deploymentOrderID];
         Lease storage _lease = leases[_deploymentOrderID];
 
+        // 检验
+        // see: https://docs.soliditylang.org/en/develop/abi-spec.html#non-standard-packed-mode
         require(
-            msg.sender == _info.provider,
-            "Matket: only provider can call fulfill"
-        );
+            _lease.fulfillKey == sha256(abi.encodePacked(_fulfillSecretKey)),
+            "Market: wrong fulfill secret key");
 
         // 记录时间
         _lease.faasFulfillStartTime = block.timestamp;
