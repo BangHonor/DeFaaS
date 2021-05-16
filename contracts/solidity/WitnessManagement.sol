@@ -34,11 +34,11 @@ contract WitnessManagement is FaaSTokenPay {
     // ------------------------------------------------------------------------------------------------
 
     // 证人押金标准
-    uint public stdWitnessDepoist;
+    uint public stdWitnessDepoist = 1; 
     // 证人信誉初始值
-    uint public witnessReputationInit;
+    uint public witnessReputationInit = 100;
     // 证人信誉合格值
-    uint public witnessReputationQualified;
+    uint public witnessReputationQualified = 100;
 
     // 证人表
     mapping(address => Witness) internal witnessPool;    
@@ -54,9 +54,6 @@ contract WitnessManagement is FaaSTokenPay {
         FaaSTokenPay(_tokenContractAddress)
     {
         numOnlineWitness           = 0;
-        stdWitnessDepoist          = 100;  // 100 token
-        witnessReputationInit      = 10;
-        witnessReputationQualified = 1;
     }
 
     // ------------------------------------------------------------------------------------------------

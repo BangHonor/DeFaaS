@@ -11,7 +11,7 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
 
     using SafeMath for uint;   // 注意到 uint 默认是 uint256
 
-    enum SLAStates { Confirming, Monitoring, Finished }
+    enum SLAStates { Monitoring, Finished }
 
     function isAtSLAState(uint _slaID, SLAStates _state) public view returns (bool) {
         return (SLAPool[_slaID].state == _state);
@@ -41,7 +41,7 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
         bool isValid;        // 是否是有效的 SLA，用于拒绝无效的访问
         bool isViolated;     // 是否发生违约
         // 监视内容
-        string funcToMonitor;      // 监视函数
+        string funcPath;      // 监视函数
         uint monitoringBeginTime;  // 监视开始时间
         uint monitoringDuration;   // 监视时长
         // 证人委员会
@@ -81,7 +81,7 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
     // ------------------------------------------------------------------------------------------------
 
     // 证人被选中通知事件（被选中证人，证人服务的 SLA 的 ID，监视开始时间，监视时长，证人要监视的函数）
-    event WitnessSelectedEvent(address indexed _witness, uint _slaID,  uint _monitoringBeginTime, uint _monitoringDuration, string _funcToMonitor);
+    event WitnessSelectedEvent(address indexed _witness, uint _slaID,  uint _monitoringBeginTime, uint _monitoringDuration, string _funcPath);
 
     // ------------------------------------------------------------------------------------------------
 
@@ -144,10 +144,10 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
         address _provider,
         address _customer,
         uint _slaID, 
-        string memory _funcToMonitor,
+        string memory _funcPath,
         uint _monitoringDuration) 
         public 
-        onlyOwner
+        // onlyOwner
     {
         // 抽选证人委员会，使用标准的参数
         address[] memory _committee = _sortitionWitnessCommittee(stdNumWitness, _curBlockNum, stdblockNeed, _provider, _customer);
@@ -159,7 +159,7 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
         _sla.isValid    = true;
         _sla.isViolated = false;
         
-        _sla.funcToMonitor       = _funcToMonitor;
+        _sla.funcPath       = _funcPath;
         _sla.monitoringBeginTime = block.timestamp + 1 minutes;
         _sla.monitoringDuration  = _monitoringDuration;
 
@@ -173,7 +173,7 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
             _sla.memberInfos[_witness].isReportViolation = false;
 
             // 发出通知
-            emit WitnessSelectedEvent(_witness, _slaID, _sla.monitoringBeginTime, _sla.monitoringDuration, _funcToMonitor);
+            emit WitnessSelectedEvent(_witness, _slaID, _sla.monitoringBeginTime, _sla.monitoringDuration, _funcPath);
         }
     }
 
@@ -211,7 +211,6 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
     function _judgeViolation(uint _slaID)
         private
         atSLAState(_slaID, SLAStates.Monitoring)
-        // 时间检查 TODO
     {
         SLAInfo storage _sla = SLAPool[_slaID];
         
