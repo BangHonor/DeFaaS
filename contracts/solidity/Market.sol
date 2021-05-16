@@ -309,7 +309,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
 
     // 租户 API
     // 在供应商确认部署订单之后，租户进行确认，生成租约
-    function confirmDeploymentInfo(uint _deploymentOrderID, bytes32 _fulfillKey) 
+    function confirmDeploymentInfo(uint _deploymentOrderID) 
         public
         validDeploymentOrderID(_deploymentOrderID)
         atOrderState(_deploymentOrderID, OrderStates.Confirming)
