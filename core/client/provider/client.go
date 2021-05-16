@@ -2,40 +2,28 @@ package provider
 
 import (
 	"context"
-	basic "defaas/core/client/basic"
+	"defaas/core/client/basic"
 	defaasconfig "defaas/core/config"
-	"defaas/core/data"
+	model "defaas/core/model"
 	"io/ioutil"
 	"log"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/gogf/gf/container/gmap"
-	"github.com/gogf/gf/net/ghttp"
 )
 
 type ProviderClient struct {
 	basic.BasicClient
 
-	providerConfig *ProviderConfig
-
-	itemPool             *gmap.AnyAnyMap // map[big.Int]data.DeploymentItem, map: ID => Item
-	deployedNotifierPool *gmap.AnyAnyMap // map[big.Int](chan *data.DeploymentItem), map: ID => notifier
+	itemPool *gmap.AnyAnyMap // map[*big.Int]*model.DeploymentItem, map: ID => Item
 
 	quit context.CancelFunc
-
-	deployServer *ghttp.Server
 }
 
-func NewProviderClientWithFile(defaasConfigFilePath, providerConfigFilePath, keyStoreFilePath string, password string) (*ProviderClient, error) {
+func NewProviderClientWithFile(defaasConfigFilePath, keyStoreFilePath, password string) (*ProviderClient, error) {
 
 	// parse defaas config
 	dfc, err := defaasconfig.ParseConfigFile(defaasConfigFilePath)
-	if err != nil {
-		return nil, err
-	}
-
-	// parse provider config
-	pc, err := ParseConfigFile(providerConfigFilePath)
 	if err != nil {
 		return nil, err
 	}
@@ -50,10 +38,10 @@ func NewProviderClientWithFile(defaasConfigFilePath, providerConfigFilePath, key
 		return nil, err
 	}
 
-	return NewProviderClient(dfc, pc, key)
+	return NewProviderClient(dfc, key)
 }
 
-func NewProviderClient(dfc *defaasconfig.DeFaaSConfig, pc *ProviderConfig, key *keystore.Key) (*ProviderClient, error) {
+func NewProviderClient(dfc *defaasconfig.DeFaaSConfig, key *keystore.Key) (*ProviderClient, error) {
 
 	client := &ProviderClient{}
 
@@ -63,13 +51,7 @@ func NewProviderClient(dfc *defaasconfig.DeFaaSConfig, pc *ProviderConfig, key *
 	}
 	client.BasicClient = *_basicClient
 
-	client.providerConfig = pc
-
 	client.itemPool = gmap.NewHashMap(true) // `true` means concurrent-safety
-
-	client.deployServer = ghttp.GetServer("deploy-server")
-	client.deployServer.SetAddr(data.ServerAddrTrim(client.providerConfig.ServerAddr))
-	client.deployServer.BindHandler(client.providerConfig.ServerEntry, client.DeployServerRequestHandler)
 
 	return client, nil
 }
@@ -93,8 +75,8 @@ func (client *ProviderClient) Start() error {
 		}
 	}()
 
-	watcher2bidder := make(chan *data.DeploymentItem, 1)
-	bidder2fulfiller := make(chan *data.DeploymentItem, 1)
+	watcher2bidder := make(chan *model.DeploymentItem, 1)
+	bidder2fulfiller := make(chan *model.DeploymentItem, 1)
 
 	watcherErr := make(chan error)
 	bidderErr := make(chan error)
@@ -137,11 +119,6 @@ func (client *ProviderClient) Start() error {
 		}
 	}()
 
-	log.Println("[provider] start deploy server ...")
-	client.deployServer.Run()
-	log.Printf("[provider] run deploy server [%s]\n", GetDeployPathFromProviderConfig(client.providerConfig))
-	log.Panicln("[provider] start deploy serve done")
-
 	return nil
 }
 
@@ -150,13 +127,6 @@ func (client *ProviderClient) Close() error {
 	log.Println("[provider] closing ...")
 
 	client.quit()
-
-	err := client.deployServer.Shutdown()
-	if err != nil {
-		log.Printf("[provider] failed to shutdown deploy server [%s]\n", GetDeployPathFromProviderConfig(client.providerConfig))
-		return err
-	}
-	log.Printf("[provider] shutdown deploy server [%s]\n", GetDeployPathFromProviderConfig(client.providerConfig))
 
 	return nil
 }

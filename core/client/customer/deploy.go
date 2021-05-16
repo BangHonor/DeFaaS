@@ -2,21 +2,42 @@ package customer
 
 import (
 	market "defaas/contracts/go/market"
-	basic "defaas/core/client/basic"
-	"defaas/core/data"
+	"defaas/core/client/basic"
 	"defaas/core/helper"
-	"encoding/json"
+	data "defaas/core/model"
 	"errors"
-	"fmt"
 	"math/big"
+	"sync/atomic"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/event"
-	"github.com/gogf/gf/net/ghttp"
 )
 
-func (client *CustomerClient) DeployOrder(_order *data.DeploymentOrder, adapterData []byte) error {
+func (client *CustomerClient) NewDeploy(faasLevelID, faasDuration, highestUnitPrice, biddingDuration *big.Int) error {
+
+	order := &data.DeploymentOrder{
+		Customer:         client.Key.Address,
+		Nonce:            big.NewInt(atomic.AddInt64(&client.nonce, 1)),
+		FaaSLevelID:      faasLevelID,
+		HighestUnitPrice: highestUnitPrice,
+		FaaSDuration:     faasDuration,
+		BiddingDuration:  biddingDuration,
+	}
+
+	if order.BiddingDuration == nil {
+		order.BiddingDuration = BiddingDurationRecommended
+	}
+
+	err := client.DeployOrder(order)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (client *CustomerClient) DeployOrder(_order *data.DeploymentOrder) error {
 
 	// overall
 	// --------------------------------------------------------
@@ -146,11 +167,6 @@ func (client *CustomerClient) DeployOrder(_order *data.DeploymentOrder, adapterD
 			item.Info.FuncPath = event.FuncPath
 			item.Info.DeployPath = event.DeployPath
 
-			// use customer's to private key decrypt
-			item.Info.AccessKey, err = data.DecryptAccessKey(event.AccessKey, client.privateKey)
-			if err != nil {
-				return err
-			}
 		}
 
 		// confirm
@@ -176,10 +192,8 @@ func (client *CustomerClient) DeployOrder(_order *data.DeploymentOrder, adapterD
 		item.State = data.DeployingState
 
 		// 5a off-chain deploying
-		err = client.deployToProvider(item, adapterData)
-		if err != nil {
-			return err
-		}
+		// ???
+		// TODO
 
 		// watch new SLA event
 		sinkNewSLA := make(chan *market.MarketNewSLAEvent)
@@ -226,10 +240,10 @@ func (client *CustomerClient) _new(item *data.DeploymentItem) error {
 	txNewOrder, err := client.Market.NewDeploymentOrder(
 		item.Order.Nonce,
 		item.Order.FaaSLevelID,
-		item.Order.HighestUnitPrice,
 		item.Order.FaaSDuration,
-		item.Order.BiddingDuration,
-		item.Order.PublicKey)
+		"", // funcmsg TOOD
+		item.Order.HighestUnitPrice,
+		item.Order.BiddingDuration)
 
 	if err != nil {
 		return err
@@ -267,7 +281,7 @@ func (client *CustomerClient) _confirm(item *data.DeploymentItem) error {
 		return data.ErrWrongState
 	}
 
-	txConfirm, err := client.Market.ConfirmDeploymentInfo(item.ID, item.Order.FulfillKey)
+	txConfirm, err := client.Market.ConfirmDeploymentInfo(item.ID)
 
 	if err != nil {
 		return err
@@ -294,50 +308,6 @@ func (client *CustomerClient) _finish(item *data.DeploymentItem) error {
 
 	if err := client.ComfirmTxByPolling(txFinish.Hash(), basic.NumBlockToWaitRecommended); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-// -----------------------------------------------------------------------------------------------------------------
-
-func (client *CustomerClient) deployToProvider(item *data.DeploymentItem, adapterData []byte) error {
-
-	adapter, serverAddr, serverEntry := data.ParseDeployPath(item.Info.DeployPath)
-
-	url := serverAddr + serverEntry
-
-	deployToReq := &data.DeployToProviderRequest{
-		CustomerAddress:   item.Order.Customer,
-		DeploymentOrderID: item.ID,
-		AccessKey:         item.Info.AccessKey,
-		FulfillSecretKey:  item.Order.FulfillSecretKey,
-		Adapter:           adapter,
-		AdapterData:       adapterData,
-	}
-
-	deployToReqJson, err := json.Marshal(deployToReq)
-	if err != nil {
-		return err
-	}
-
-	httpRes, err := ghttp.NewClient().ContentJson().Post(url, deployToReqJson)
-	if err != nil {
-		return err
-	}
-	defer httpRes.Close()
-
-	if httpRes.Status != "200 OK" {
-		return fmt.Errorf("HTTP %v", httpRes.Status)
-	}
-
-	deployToRes := &data.DeployToProviderResponce{}
-	if err := json.Unmarshal([]byte(httpRes.ReadAllString()), deployToRes); err != nil {
-		return err
-	}
-
-	if deployToRes.Code != 0 {
-		return errors.New(deployToRes.Error)
 	}
 
 	return nil

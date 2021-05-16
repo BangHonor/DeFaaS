@@ -1,4 +1,4 @@
-package provider
+package customer
 
 import (
 	"defaas/tests/testconfig"
@@ -6,11 +6,11 @@ import (
 	"testing"
 )
 
-func getTestProviderClientFromFile() *ProviderClient {
+func getTestCustomerClientFromFile() *CustomerClient {
 
 	tcfg := testconfig.GetTestConfig()
 
-	client, err := NewProviderClientWithFile(
+	client, err := NewCustomerClientWithFile(
 		tcfg.TestDeFaaSConfigFilePath,
 		tcfg.TestKeyStoreFilePath,
 		tcfg.TestKeyStorePassword)
@@ -21,8 +21,8 @@ func getTestProviderClientFromFile() *ProviderClient {
 
 	return client
 }
-func TestNewProviderClient(t *testing.T) {
+func TestNewCustomerClient(t *testing.T) {
 
-	client := getTestProviderClientFromFile()
+	client := getTestCustomerClientFromFile()
 	_ = client
 }

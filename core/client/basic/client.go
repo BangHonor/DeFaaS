@@ -71,7 +71,7 @@ func NewBasicClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*BasicClient, 
 	return client, nil
 }
 
-func NewBasicClientWithFile(configFilePath, keyStoreFilePath string, password string) (*BasicClient, error) {
+func NewBasicClientWithFile(configFilePath, keyStoreFilePath, password string) (*BasicClient, error) {
 
 	// parse defaas config
 	dfc, err := config.ParseConfigFile(configFilePath)

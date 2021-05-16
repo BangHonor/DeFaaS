@@ -1,8 +1,8 @@
 
 [contracts]
-  faastoken = "0x8C93e59D078a42aA0E13F960F48d0ff307D1b977"
-  market = "0x9356D5fc3F1a22013fA1C7AA71829c023fB36c37"
-  witnesspool = "0xd30b734452DAc199F52Cf0a7b9fEd27602EC3086"
+  faastoken = "0x338A20a9B1e4F6874db6926182584C9202018898"
+  market = "0xcD8182A0d0791948Eb24fF716dC468c3CBfCaB55"
+  witnesspool = "0xb92b6294BDF38D503C55d4b83F8FC1eA2462c0cD"
 
 [network]
   httpurls = ["http://127.0.0.1:8545", "http://127.0.0.1:8545"]

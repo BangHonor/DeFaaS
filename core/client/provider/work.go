@@ -3,17 +3,18 @@ package provider
 import (
 	"context"
 	"defaas/contracts/go/market"
-	basic "defaas/core/client/basic"
-	"defaas/core/data"
+	"defaas/core/client/basic"
 	"defaas/core/helper"
 	"log"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
+
+	model "defaas/core/model"
 )
 
 // Watcher watches `NewDeploymentOrderEvent` from `Market` contract
-func (client *ProviderClient) Watcher(ctx context.Context, toBidderCh chan<- *data.DeploymentItem, errCh chan error) error {
+func (client *ProviderClient) Watcher(ctx context.Context, toBidderCh chan<- *model.DeploymentItem, errCh chan error) error {
 
 	sink := make(chan *market.MarketNewDeploymentOrderEvent)
 	sub, err := client.Market.Contract.MarketFilterer.WatchNewDeploymentOrderEvent(
@@ -59,9 +60,9 @@ func (client *ProviderClient) Watcher(ctx context.Context, toBidderCh chan<- *da
 				// FulfillSecretKey [32]byte
 				// FulfillKey       [32]byte
 
-				item := &data.DeploymentItem{}
+				item := &model.DeploymentItem{}
 
-				item.State = data.InitState
+				item.State = model.InitState
 				item.ID = event.DeploymentOrderID
 
 				item.Order.Customer = event.Customer
@@ -70,7 +71,6 @@ func (client *ProviderClient) Watcher(ctx context.Context, toBidderCh chan<- *da
 				item.Order.HighestUnitPrice = event.HighestUnitPrice
 				item.Order.FaaSDuration = event.FaasDuration
 				item.Order.BiddingDuration = event.BiddingDuration
-				item.Order.PublicKey = event.PublicKey
 
 				log.Printf("[provider/watcher] watch a new deployment order, ID [%v]\n", item.ID)
 
@@ -84,7 +84,7 @@ func (client *ProviderClient) Watcher(ctx context.Context, toBidderCh chan<- *da
 	return nil
 }
 
-func (client *ProviderClient) Bidder(ctx context.Context, fromWatcherCh <-chan *data.DeploymentItem, toPublisherCh chan<- *data.DeploymentItem, errCh chan error) error {
+func (client *ProviderClient) Bidder(ctx context.Context, fromWatcherCh <-chan *model.DeploymentItem, toPublisherCh chan<- *model.DeploymentItem, errCh chan error) error {
 
 	go func() {
 
@@ -97,10 +97,10 @@ func (client *ProviderClient) Bidder(ctx context.Context, fromWatcherCh <-chan *
 			case _item := <-fromWatcherCh:
 
 				//  start a new goroutine to do this time-heavy-cost task
-				go func(item *data.DeploymentItem) {
+				go func(item *model.DeploymentItem) {
 
 					// change the state
-					item.State = data.BiddingState
+					item.State = model.BiddingState
 
 					item.Info.Provider = client.Key.Address
 					item.Info.UnitPrice = item.Order.HighestUnitPrice
@@ -173,7 +173,7 @@ func (client *ProviderClient) Bidder(ctx context.Context, fromWatcherCh <-chan *
 	return nil
 }
 
-func (client *ProviderClient) Fulfiller(ctx context.Context, fromBidderCh <-chan *data.DeploymentItem, errCh chan error) error {
+func (client *ProviderClient) Fulfiller(ctx context.Context, fromBidderCh <-chan *model.DeploymentItem, errCh chan error) error {
 
 	go func() {
 
@@ -186,26 +186,17 @@ func (client *ProviderClient) Fulfiller(ctx context.Context, fromBidderCh <-chan
 			case _item := <-fromBidderCh:
 
 				//  start a new goroutine to do this time-heavy-cost task
-				go func(item *data.DeploymentItem) {
+				go func(item *model.DeploymentItem) {
 
 					// publish
 					{
-						item.State = data.ConfirmingState
+						item.State = model.ConfirmingState
 
-						item.Info.FuncPath = "funcPath"
-						item.Info.DeployPath = GetDeployPathFromProviderConfig(client.providerConfig)
-
-						// use customrt's public key to encrypt
-						item.Info.AccessKey = "accessKey"
-						encryptedAccessKey, err := data.EncryptAccessKey(item.Info.AccessKey, item.Order.PublicKey)
-						if err != nil {
-							log.Println("[provider/fulfiller] failed to encrypted accessKey")
-							errCh <- err
-							return
-						}
+						item.Info.FuncPath = "funcPath"     // TODO
+						item.Info.DeployPath = "deployPath" // TOOD
 
 						// publish
-						txPublish, err := client.Market.PublishDeploymentInfo(item.ID, item.Info.FuncPath, item.Info.DeployPath, encryptedAccessKey)
+						txPublish, err := client.Market.PublishDeploymentInfo(item.ID, item.Info.FuncPath, item.Info.DeployPath)
 						if err != nil {
 							log.Printf("[provider/fulfiller] failed to publish deployment information for a deployment order, ID [%v]: %v\n", item.ID, err)
 							errCh <- err
@@ -258,15 +249,9 @@ func (client *ProviderClient) Fulfiller(ctx context.Context, fromBidderCh <-chan
 
 					// deploy & fulfill
 					{
-						item.State = data.DeployingState
+						item.State = model.DeployingState
 
-						// register to deploy server
-						// and wait until deploy server notifys back
-						// item is read-only in `client.DeployServerRegisterWait` !!!
-						log.Printf("[provider/fulfiller] wait for deployment action from customer, ID [%v] ...\n", item.ID)
-						item.Order.FulfillSecretKey = client.DeployServerRegisterWait(item.ID)
-
-						txFulfill, err := client.Market.FulfillDeploymentOrder(item.ID, item.Order.FulfillSecretKey)
+						txFulfill, err := client.Market.FulfillDeploymentOrder(item.ID)
 						if err != nil {
 							log.Printf("[provider/fulfiller] failed to fulfill for a deployment order, ID [%v]: %v\n", item.ID, err)
 							errCh <- err
@@ -278,7 +263,7 @@ func (client *ProviderClient) Fulfiller(ctx context.Context, fromBidderCh <-chan
 							return
 						}
 
-						item.State = data.FulfillingState
+						item.State = model.FulfillingState
 
 						log.Printf("[provider/fulfiller] fulfilling deployment order, ID[%v]\n", item.ID)
 					}
@@ -286,7 +271,7 @@ func (client *ProviderClient) Fulfiller(ctx context.Context, fromBidderCh <-chan
 					// finish
 					{
 						// watch finish event
-						// item.State = data.FinishedState
+						// item.State = model.FinishedState
 						// TODO
 					}
 
