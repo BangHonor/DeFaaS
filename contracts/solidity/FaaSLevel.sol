@@ -14,7 +14,7 @@ contract FaaSLevel is Owned {
         
         // 尚不支持
         // uint packageSize;          // 部署文件包的大小，以 MB 为单位
-        // uint gpu;                  // GPU 计算资源，有待虚拟化
+        // uint gpu;                  // GPU 计算资源，有待量化
         // uint upstreamBandwidth;    // 上行带宽，以 KBps 为单位
         // uint downstreamBandwidth;  // 下行带宽，以 KBps 为单位
     }

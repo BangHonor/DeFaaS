@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-// 未完成
+// 用于取代简单竞价（SimpleAuction）合约的秘密竞价（BlindAuction）合约：未完成
 
 pragma solidity>=0.6.0;
 
