@@ -3,6 +3,7 @@ package wintess
 import (
 	basic "defaas/core/client/basic"
 	"defaas/core/config"
+	"defaas/core/helper"
 	"io/ioutil"
 	"log"
 	"math/big"
@@ -64,7 +65,7 @@ func (client *WitnessClient) Login() error {
 	if err != nil {
 		return err
 	}
-	if err := client.ComfirmTxByPolling(transferTx.Hash(), basic.NumBlockToWaitRecommended); err != nil {
+	if err := client.ConfirmTxByPolling(transferTx.Hash(), helper.NumBlockToWaitRecommended); err != nil {
 		return err
 	}
 	log.Printf("[witness] approve for login done\n")
@@ -73,7 +74,7 @@ func (client *WitnessClient) Login() error {
 	if err != nil {
 		return err
 	}
-	if err := client.ComfirmTxByPolling(loginTx.Hash(), basic.NumBlockToWaitRecommended); err != nil {
+	if err := client.ConfirmTxByPolling(loginTx.Hash(), helper.NumBlockToWaitRecommended); err != nil {
 		return err
 	}
 
@@ -91,7 +92,7 @@ func (client *WitnessClient) Logout() error {
 	if err != nil {
 		return err
 	}
-	if err := client.ComfirmTxByPolling(logoutTx.Hash(), basic.NumBlockToWaitRecommended); err != nil {
+	if err := client.ConfirmTxByPolling(logoutTx.Hash(), helper.NumBlockToWaitRecommended); err != nil {
 		return err
 	}
 
@@ -109,7 +110,7 @@ func (client *WitnessClient) TurnOn() error {
 	if err != nil {
 		return err
 	}
-	if err := client.ComfirmTxByPolling(turnOnTx.Hash(), basic.NumBlockToWaitRecommended); err != nil {
+	if err := client.ConfirmTxByPolling(turnOnTx.Hash(), helper.NumBlockToWaitRecommended); err != nil {
 		return err
 	}
 
@@ -127,7 +128,7 @@ func (client *WitnessClient) TurnOff() error {
 	if err != nil {
 		return err
 	}
-	if err := client.ComfirmTxByPolling(turnOffTx.Hash(), basic.NumBlockToWaitRecommended); err != nil {
+	if err := client.ConfirmTxByPolling(turnOffTx.Hash(), helper.NumBlockToWaitRecommended); err != nil {
 		return err
 	}
 
@@ -143,7 +144,7 @@ func (client *WitnessClient) Report(slaID *big.Int, isProviderViolated bool) err
 	if err != nil {
 		return err
 	}
-	if err := client.ComfirmTxByPolling(reportTx.Hash(), basic.NumBlockToWaitRecommended); err != nil {
+	if err := client.ConfirmTxByPolling(reportTx.Hash(), helper.NumBlockToWaitRecommended); err != nil {
 		return err
 	}
 
@@ -170,7 +171,7 @@ func (client *WitnessClient) DrawReward() error {
 	if err != nil {
 		return err
 	}
-	if err := client.ComfirmTxByPolling(drawRewardTx.Hash(), basic.NumBlockToWaitRecommended); err != nil {
+	if err := client.ConfirmTxByPolling(drawRewardTx.Hash(), helper.NumBlockToWaitRecommended); err != nil {
 		return err
 	}
 

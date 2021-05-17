@@ -1,4 +1,4 @@
-package basic
+package helper
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 const (
@@ -20,7 +21,7 @@ var (
 	ErrWaitMinedBlocksTimeout = errors.New("wait blocks timeout")
 )
 
-func (client *BasicClient) waitPeddingTxByPolling(txHash common.Hash) error {
+func waitPeddingTxByPolling(ethClient *ethclient.Client, txHash common.Hash) error {
 
 	checkPeddingTimeout := time.NewTimer(1 * time.Minute)
 	checkPeddingTicker := time.NewTicker(1 * time.Second)
@@ -37,7 +38,7 @@ CheckPeddingLoop:
 
 		case <-checkPeddingTicker.C:
 
-			_, isPending, err := client.ETHClient.TransactionByHash(context.TODO(), txHash)
+			_, isPending, err := ethClient.TransactionByHash(context.TODO(), txHash)
 			if err != nil {
 				return err
 			}
@@ -51,10 +52,10 @@ CheckPeddingLoop:
 	return nil
 }
 
-func (client *BasicClient) waitMinedBlocksByPolling(txHash common.Hash, numBlockToWait int) error {
+func waitMinedBlocksByPolling(ethClient *ethclient.Client, txHash common.Hash, numBlockToWait int) error {
 
 	// record currnet blockNumber
-	curHeader, err := client.ETHClient.HeaderByNumber(context.TODO(), nil)
+	curHeader, err := ethClient.HeaderByNumber(context.TODO(), nil)
 	if err != nil {
 		return err
 	}
@@ -72,7 +73,7 @@ WaitBlockLoop:
 		case <-waitBlockTimeout.C:
 			return ErrWaitMinedBlocksTimeout
 		case <-waitBlockTicker.C:
-			header, err := client.ETHClient.HeaderByNumber(context.TODO(), nil)
+			header, err := ethClient.HeaderByNumber(context.TODO(), nil)
 			if err != nil {
 				return err
 			}
@@ -85,10 +86,10 @@ WaitBlockLoop:
 	return nil
 }
 
-func (client *BasicClient) waitPeddingTxBySubscription(txHash common.Hash) error {
+func waitPeddingTxBySubscription(ethClient *ethclient.Client, txHash common.Hash) error {
 
 	headers := make(chan *types.Header)
-	headerSub, err := client.ETHClient.SubscribeNewHead(context.TODO(), headers)
+	headerSub, err := ethClient.SubscribeNewHead(context.TODO(), headers)
 	if err != nil {
 		return err
 	}
@@ -108,7 +109,7 @@ CheckPeddingSubLoop:
 
 		case <-headers:
 
-			_, isPending, err := client.ETHClient.TransactionByHash(context.TODO(), txHash)
+			_, isPending, err := ethClient.TransactionByHash(context.TODO(), txHash)
 			if err != nil {
 				return err
 			}
@@ -123,10 +124,10 @@ CheckPeddingSubLoop:
 	return nil
 }
 
-func (client *BasicClient) waitMinedBlocksBySubscription(txHash common.Hash, numBlockToWait int) error {
+func waitMinedBlocksBySubscription(ethClient *ethclient.Client, txHash common.Hash, numBlockToWait int) error {
 
 	headers := make(chan *types.Header)
-	headerSub, err := client.ETHClient.SubscribeNewHead(context.TODO(), headers)
+	headerSub, err := ethClient.SubscribeNewHead(context.TODO(), headers)
 	if err != nil {
 		return err
 	}
@@ -144,46 +145,36 @@ func (client *BasicClient) waitMinedBlocksBySubscription(txHash common.Hash, num
 	return nil
 }
 
-func (client *BasicClient) ComfirmTxByPolling(txHash common.Hash, numBlockToWait int) error {
+func ConfirmTxByPolling(ethClient *ethclient.Client, txHash common.Hash, numBlockToWait int) error {
 
-	if client.ETHClient == nil {
-		// just return
-		return nil
-	}
-
-	log.Printf("[basic] wait pedding tx [%v] ...", txHash)
-	if err := client.waitPeddingTxByPolling(txHash); err != nil {
+	log.Printf("[confirmTx] wait pedding tx [%v] ...", txHash)
+	if err := waitPeddingTxByPolling(ethClient, txHash); err != nil {
 		return err
 	}
-	log.Printf("[basic] wait pedding tx [%v] done", txHash)
+	log.Printf("[confirmTx] wait pedding tx [%v] done", txHash)
 
-	log.Printf("[basic] wait [%v] mined blocks for tx [%v] ...", numBlockToWait, txHash)
-	if err := client.waitMinedBlocksByPolling(txHash, numBlockToWait); err != nil {
+	log.Printf("[confirmTx] wait [%v] mined blocks for tx [%v] ...", numBlockToWait, txHash)
+	if err := waitMinedBlocksByPolling(ethClient, txHash, numBlockToWait); err != nil {
 		return err
 	}
-	log.Printf("[basic] wait [%v] mined blocks for tx [%v] done", numBlockToWait, txHash)
+	log.Printf("[confirmTx] wait [%v] mined blocks for tx [%v] done", numBlockToWait, txHash)
 
 	return nil
 }
 
-func (client *BasicClient) ComfirmTxBySubscription(txHash common.Hash, numBlockToWait int) error {
+func ConfirmTxBySubscription(ethClient *ethclient.Client, txHash common.Hash, numBlockToWait int) error {
 
-	if client.ETHClient == nil {
-		// just return
-		return nil
-	}
-
-	log.Printf("[basic] wait pedding tx [%v] ...", txHash)
-	if err := client.waitPeddingTxBySubscription(txHash); err != nil {
+	log.Printf("[confirmTx] wait pedding tx [%v] ...", txHash)
+	if err := waitPeddingTxBySubscription(ethClient, txHash); err != nil {
 		return err
 	}
-	log.Printf("[basic] wait pedding tx [%v] done", txHash)
+	log.Printf("[confirmTx] wait pedding tx [%v] done", txHash)
 
-	log.Printf("[basic] wait [%v] mined blocks for tx [%v] ...", numBlockToWait, txHash)
-	if err := client.waitMinedBlocksBySubscription(txHash, numBlockToWait); err != nil {
+	log.Printf("[confirmTx] wait [%v] mined blocks for tx [%v] ...", numBlockToWait, txHash)
+	if err := waitMinedBlocksBySubscription(ethClient, txHash, numBlockToWait); err != nil {
 		return err
 	}
-	log.Printf("[basic] wait [%v] mined blocks for tx [%v] done", numBlockToWait, txHash)
+	log.Printf("[confirmTx] wait [%v] mined blocks for tx [%v] done", numBlockToWait, txHash)
 
 	return nil
 }

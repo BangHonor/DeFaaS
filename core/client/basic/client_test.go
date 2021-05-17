@@ -1,6 +1,7 @@
 package basic
 
 import (
+	"defaas/core/helper"
 	"defaas/tests/testconfig"
 	"log"
 	"math/big"
@@ -32,13 +33,13 @@ func TestNewBasicClient(t *testing.T) {
 	_ = client
 }
 
-func TestComfirmTxByPolling(t *testing.T) {
+func TestConfirmTxByPolling(t *testing.T) {
 
 	assert := assert.New(t)
 
 	client := getTestBasicClientFromFile()
 
-	confirmTxFunc := client.ComfirmTxByPolling
+	confirmTxFunc := client.ConfirmTxByPolling
 
 	senderAddress := client.Key.Address
 	senderBalanceBefore, err := client.FaaSToken.BalanceOf(senderAddress)
@@ -55,7 +56,7 @@ func TestComfirmTxByPolling(t *testing.T) {
 	}
 	assert.NotNil(txMint)
 
-	if err := confirmTxFunc(txMint.Hash(), NumBlockToWaitRecommended); err != nil {
+	if err := confirmTxFunc(txMint.Hash(), helper.NumBlockToWaitRecommended); err != nil {
 		t.Fatal(err)
 	}
 
@@ -81,7 +82,7 @@ func TestComfirmTxByPolling(t *testing.T) {
 	}
 	assert.NotNil(txTransfer)
 
-	if err := confirmTxFunc(txTransfer.Hash(), NumBlockToWaitRecommended); err != nil {
+	if err := confirmTxFunc(txTransfer.Hash(), helper.NumBlockToWaitRecommended); err != nil {
 		t.Fatal(err)
 	}
 
@@ -97,7 +98,7 @@ func TestComfirmTxByPolling(t *testing.T) {
 			transferAmount)))
 }
 
-func TestComfirmTxBySubscription(t *testing.T) {
+func TestConfirmTxBySubscription(t *testing.T) {
 
 	// 如果在用于开发的私有链下测试,
 	// 注意私有链不会主动挖矿出块,
@@ -108,7 +109,7 @@ func TestComfirmTxBySubscription(t *testing.T) {
 
 	client := getTestBasicClientFromFile()
 
-	confirmTxFunc := client.ComfirmTxBySubscription
+	confirmTxFunc := client.ConfirmTxBySubscription
 
 	senderAddress := client.Key.Address
 	senderBalanceBefore, err := client.FaaSToken.BalanceOf(senderAddress)
@@ -125,7 +126,7 @@ func TestComfirmTxBySubscription(t *testing.T) {
 	}
 	assert.NotNil(txMint)
 
-	if err := confirmTxFunc(txMint.Hash(), NumBlockToWaitRecommended); err != nil {
+	if err := confirmTxFunc(txMint.Hash(), helper.NumBlockToWaitRecommended); err != nil {
 		t.Fatal(err)
 	}
 
@@ -151,7 +152,7 @@ func TestComfirmTxBySubscription(t *testing.T) {
 	}
 	assert.NotNil(txTransfer)
 
-	if err := confirmTxFunc(txTransfer.Hash(), NumBlockToWaitRecommended); err != nil {
+	if err := confirmTxFunc(txTransfer.Hash(), helper.NumBlockToWaitRecommended); err != nil {
 		t.Fatal(err)
 	}
 

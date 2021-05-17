@@ -3,7 +3,6 @@ package provider
 import (
 	"context"
 	"defaas/contracts/go/market"
-	"defaas/core/client/basic"
 	"defaas/core/helper"
 	"log"
 	"math/big"
@@ -112,7 +111,7 @@ func (client *ProviderClient) Bidder(ctx context.Context, fromWatcherCh <-chan *
 						errCh <- err
 						return
 					}
-					if err := client.ComfirmTxByPolling(txBid.Hash(), basic.NumBlockToWaitRecommended); err != nil {
+					if err := client.ConfirmTxByPolling(txBid.Hash(), helper.NumBlockToWaitRecommended); err != nil {
 						log.Printf("[provider/bidder] failed to confirm tx[%v] for order, ID[%v]: %v\n", txBid.Hash(), item.ID, err)
 						errCh <- err
 						return
@@ -202,7 +201,7 @@ func (client *ProviderClient) Fulfiller(ctx context.Context, fromBidderCh <-chan
 							errCh <- err
 							return
 						}
-						if err := client.ComfirmTxByPolling(txPublish.Hash(), basic.NumBlockToWaitRecommended); err != nil {
+						if err := client.ConfirmTxByPolling(txPublish.Hash(), helper.NumBlockToWaitRecommended); err != nil {
 							log.Printf("[provider/fulfiller] failed to confirm tx[%v] for order, ID[%v]: %v\n", txPublish.Hash(), item.ID, err)
 							errCh <- err
 							return
@@ -257,7 +256,7 @@ func (client *ProviderClient) Fulfiller(ctx context.Context, fromBidderCh <-chan
 							errCh <- err
 							return
 						}
-						if err := client.ComfirmTxByPolling(txFulfill.Hash(), basic.NumBlockToWaitRecommended); err != nil {
+						if err := client.ConfirmTxByPolling(txFulfill.Hash(), helper.NumBlockToWaitRecommended); err != nil {
 							log.Printf("[provider/fulfiller] failed to confirm tx[%v] for order, ID[%v]: %v\n", txFulfill.Hash(), item.ID, err)
 							errCh <- err
 							return

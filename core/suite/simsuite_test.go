@@ -21,11 +21,25 @@ func TestSuitStdWitnessDepoist(t *testing.T) {
 func simtest() {
 	sim := NewSimSuite()
 
-	customer := sim.Others[0]
-	provider := sim.Others[1]
+	customerAuth := sim.Others[0]
+	providerAuth := sim.Others[1]
 
-	log.Println(customer.From)
-	log.Println(provider.From)
+	log.Println(customerAuth.From)
+	log.Println(providerAuth.From)
+
+	go func() {
+
+	}()
+
+	go func() {
+
+	}()
+
+	for i := 0; i < 10; i++ {
+		go func() {
+
+		}()
+	}
 }
 
 func TestSimTest(t *testing.T) {

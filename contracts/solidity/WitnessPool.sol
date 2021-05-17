@@ -141,8 +141,6 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
     // 新建一个 SLA 执行信息
     function newSLA(
         uint _curBlockNum,
-        address _provider,
-        address _customer,
         uint _slaID, 
         string memory _funcPath,
         uint _monitoringDuration) 
@@ -150,7 +148,7 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
         // onlyOwner
     {
         // 抽选证人委员会，使用标准的参数
-        address[] memory _committee = _sortitionWitnessCommittee(stdNumWitness, _curBlockNum, stdblockNeed, _provider, _customer);
+        address[] memory _committee = _sortitionWitnessCommittee(stdNumWitness, _curBlockNum, stdblockNeed);
 
         // SLA 执行信息初始化
         SLAInfo storage _sla = SLAPool[_slaID];
@@ -265,17 +263,16 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
 
     // 抽选证人委员会
     function _sortitionWitnessCommittee(
-        uint _numWitness, uint _curBlockNum, uint _blockNeed, 
-        address _provider, address _customer) 
+        uint _numWitness, uint _curBlockNum, uint _blockNeed) 
         private 
         returns (address[] memory)
     {
         address[] memory _committee;
 
-        require(
-            numOnlineWitness > 10 * _numWitness,
-            "WintnessPool: not enough online witness"
-        );
+        // require(
+        //     numOnlineWitness > 10 * _numWitness,
+        //     "WintnessPool: not enough online witness"
+        // );
 
         // 除数 1024 是一个缩小系数
         uint _pivotBlockNum = block.number - ( block.number - _curBlockNum ) / 1024 - _blockNeed;
@@ -308,9 +305,7 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
             // 由种子选择一个“随机”证人
             address sAddr = witnessAddrs[_seed % witnessAddrs.length];
             
-            if (isAtWState(sAddr, WStates.Online) && 
-                isWitnessQualified(sAddr) && 
-                sAddr != _provider && sAddr != _customer)
+            if ( isAtWState(sAddr, WStates.Online) && isWitnessQualified(sAddr) )
             {
                 witnessPool[sAddr].state = WStates.Working;   // 改变选中的证人状态为 Working
                 numOnlineWitness--;

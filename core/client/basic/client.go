@@ -10,6 +10,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
@@ -90,4 +91,22 @@ func NewBasicClientWithFile(configFilePath, keyStoreFilePath, password string) (
 	}
 
 	return NewBasicClient(dfc, key)
+}
+
+func (client *BasicClient) ConfirmTxByPolling(txHash common.Hash, numBlockToWait int) error {
+
+	if client.ETHClient == nil {
+		// just return
+		return nil
+	}
+	return helper.ConfirmTxByPolling(client.ETHClient, txHash, numBlockToWait)
+}
+
+func (client *BasicClient) ConfirmTxBySubscription(txHash common.Hash, numBlockToWait int) error {
+
+	if client.ETHClient == nil {
+		// just return
+		return nil
+	}
+	return helper.ConfirmTxBySubscription(client.ETHClient, txHash, numBlockToWait)
 }

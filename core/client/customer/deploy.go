@@ -2,7 +2,6 @@ package customer
 
 import (
 	market "defaas/contracts/go/market"
-	"defaas/core/client/basic"
 	"defaas/core/helper"
 	data "defaas/core/model"
 	"errors"
@@ -249,7 +248,7 @@ func (client *CustomerClient) _new(item *data.DeploymentItem) error {
 		return err
 	}
 
-	if err := client.ComfirmTxByPolling(txNewOrder.Hash(), basic.NumBlockToWaitRecommended); err != nil {
+	if err := client.ConfirmTxByPolling(txNewOrder.Hash(), helper.NumBlockToWaitRecommended); err != nil {
 		return err
 	}
 
@@ -268,7 +267,7 @@ func (client *CustomerClient) _match(item *data.DeploymentItem) error {
 		return err
 	}
 
-	if err := client.ComfirmTxByPolling(txMatchOrder.Hash(), basic.NumBlockToWaitRecommended); err != nil {
+	if err := client.ConfirmTxByPolling(txMatchOrder.Hash(), helper.NumBlockToWaitRecommended); err != nil {
 		return err
 	}
 
@@ -287,7 +286,7 @@ func (client *CustomerClient) _confirm(item *data.DeploymentItem) error {
 		return err
 	}
 
-	if err := client.ComfirmTxByPolling(txConfirm.Hash(), basic.NumBlockToWaitRecommended); err != nil {
+	if err := client.ConfirmTxByPolling(txConfirm.Hash(), helper.NumBlockToWaitRecommended); err != nil {
 		return err
 	}
 
@@ -306,7 +305,7 @@ func (client *CustomerClient) _finish(item *data.DeploymentItem) error {
 		return nil
 	}
 
-	if err := client.ComfirmTxByPolling(txFinish.Hash(), basic.NumBlockToWaitRecommended); err != nil {
+	if err := client.ConfirmTxByPolling(txFinish.Hash(), helper.NumBlockToWaitRecommended); err != nil {
 		return err
 	}
 

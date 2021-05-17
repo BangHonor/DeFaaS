@@ -34,7 +34,7 @@ contract WitnessManagement is FaaSTokenPay {
     // ------------------------------------------------------------------------------------------------
 
     // 证人押金标准
-    uint public stdWitnessDepoist = 1; 
+    uint public stdWitnessDepoist = 0; 
     // 证人信誉初始值
     uint public witnessReputationInit = 100;
     // 证人信誉合格值
@@ -83,7 +83,7 @@ contract WitnessManagement is FaaSTokenPay {
 
     // 证人是否合格
     function isWitnessQualified(address _witness) public view returns (bool) {
-        return (witnessPool[_witness].reputation >= witnessReputationQualified && witnessPool[_witness].depoist >= 1);
+        return (witnessPool[_witness].reputation >= witnessReputationQualified);
     }
 
     // 证人合格

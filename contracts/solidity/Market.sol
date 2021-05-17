@@ -375,8 +375,6 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
         // 生成 SLA 监督，由证人执行对供应商的监视
         wpContract.newSLA(
             _lease.curBlockNum,
-            _info.provider, 
-            _order.customer,
             _deploymentOrderID,
             _info.funcPath,
             _order.faasDuration - 1 hours);
