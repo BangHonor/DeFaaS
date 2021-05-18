@@ -15,9 +15,12 @@ type MarketSeesion = market.MarketSession
 type WitnessPoolSession = witnesspool.WitnessPoolSession
 
 type Suite struct {
-	FaaSToken   *FaaSTokenSession
-	Market      *MarketSeesion
-	WitnessPool *WitnessPoolSession
+	FaaSTokenAddress   common.Address
+	MarketAddress      common.Address
+	WitnessPoolAddress common.Address
+	FaaSToken          *FaaSTokenSession
+	Market             *MarketSeesion
+	WitnessPool        *WitnessPoolSession
 }
 
 func NewSuite(
@@ -29,6 +32,10 @@ func NewSuite(
 	)
 
 	suite := &Suite{}
+
+	suite.FaaSTokenAddress = faastokenAddress
+	suite.MarketAddress = marketAddress
+	suite.WitnessPoolAddress = witnesspoolAddress
 
 	suite.FaaSToken, err = NewFaaSTokenSeesion(backend, faastokenAddress, auth)
 	if err != nil {

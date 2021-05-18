@@ -1,4 +1,4 @@
-package wintess
+package witness
 
 import (
 	"defaas/contracts/go/witnesspool"
@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/ethereum/go-ethereum/common"
 )
 
 type WitnessClient struct {
@@ -19,6 +18,7 @@ type WitnessClient struct {
 
 	stopRunningTrigger chan struct{}
 
+	IsLogin      bool
 	WitnessState string // "online", "offline", "busy"
 }
 
@@ -69,7 +69,7 @@ func (client *WitnessClient) Login() error {
 
 	log.Printf("[witness] approval for login...\n")
 
-	transferTx, err := client.FaaSToken.Approve(client.DeFaaSConfig.WitnessPoolContractAddress, depoist)
+	transferTx, err := client.FaaSToken.Approve(client.Suite.WitnessPoolAddress, depoist)
 	if err != nil {
 		return err
 	}
@@ -125,7 +125,7 @@ func (client *WitnessClient) TurnOn() error {
 		return err
 	}
 
-	client.StartMonitoring()
+	client.StartWatching()
 
 	log.Printf("[witness] turn on done\n")
 
@@ -145,7 +145,7 @@ func (client *WitnessClient) TurnOff() error {
 		return err
 	}
 
-	client.StoptMonitoring()
+	client.StoptWatching()
 
 	log.Printf("[witness] turn off done\n")
 
@@ -193,29 +193,35 @@ func (client *WitnessClient) DrawReward() error {
 	return nil
 }
 
-func (client *WitnessClient) StartMonitoring() {
+func (client *WitnessClient) StartWatching() {
 
 	var (
 		filter              = client.WitnessPool.Contract.WitnessPoolFilterer
 		sinkWitnessSelected = make(chan *witnesspool.WitnessPoolWitnessSelectedEvent)
 	)
 
-	subWitnessSelected, err := filter.WatchWitnessSelectedEvent(nil, sinkWitnessSelected, []common.Address{client.Key.Address})
+	// subWitnessSelected, err := filter.WatchWitnessSelectedEvent(nil, sinkWitnessSelected, []common.Address{client.Key.Address})
+	subWitnessSelected, err := filter.WatchWitnessSelectedEvent(nil, sinkWitnessSelected, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	log.Printf("[witness] start watching\n")
 
 	go func() {
 		for {
 			select {
 
 			case <-client.stopRunningTrigger:
+				log.Printf("[witness] stop watching\n")
 				return
 
 			case err := <-subWitnessSelected.Err():
 				log.Fatal(err)
 
 			case event := <-sinkWitnessSelected:
+
+				log.Printf("[witness] [%v] is selected for SLA [%v]\n", event.Witness, event.SlaID)
 
 				// TODO: monitoring...
 				// TODO: random time monitor
@@ -233,6 +239,6 @@ func (client *WitnessClient) StartMonitoring() {
 	}()
 }
 
-func (client *WitnessClient) StoptMonitoring() {
+func (client *WitnessClient) StoptWatching() {
 	client.stopRunningTrigger <- struct{}{}
 }

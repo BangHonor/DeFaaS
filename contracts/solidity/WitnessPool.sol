@@ -53,24 +53,18 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
     // ------------------------------------------------------------------------------------------------
 
     // SLA 表: slaID => SLA，在使用时 slaID 就是 deploymentOrderID
-    mapping(uint => SLAInfo) SLAPool;
+    mapping(uint => SLAInfo)  public SLAPool;
 
-    // 一次性的证人博弈 payoff
-    uint public rewardViolationReport    = 10;   // +10
-    uint public fineViolationSilence     =  0;   // -0
-    uint public fineNoviolationReport    =  1;   // -1
-    uint public rewardNoviolationSilence =  1;   // +1
+    uint public rewardViolationReport    = 10;   // 证人博弈 payoff +10
+    uint public fineViolationSilence     =  0;   // 证人博弈 payoff -0
+    uint public fineNoviolationReport    =  1;   // 证人博弈 payoff -1
+    uint public rewardNoviolationSilence =  1;   // 证人博弈 payoff +1
 
-    // 非诚实证人降低的信誉值
-    uint public reputationDishonestReduced = 1;
-
-    // SLA 的证人数量标准
-    uint public stdNumWitness = 3;    
-    // 违约判定的证人数量标准             
-    uint public stdNumReportRequired = 2;  
     
-    // 抽选需要的区块数量标准
-    uint public stdblockNeed = 2;
+    uint public reputationDishonestReduced = 1; // 非诚实证人降低的信誉值
+    uint public stdNumWitness = 3;              // SLA 的证人数量标准
+    uint public stdNumReportRequired = 2;       // 违约判定的证人数量标准    
+    uint public stdBlockNeed = 2;               // 抽选证人需要的区块数量标准
     
     // ------------------------------------------------------------------------------------------------
 
@@ -148,7 +142,7 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
         // onlyOwner
     {
         // 抽选证人委员会，使用标准的参数
-        address[] memory _committee = _sortitionWitnessCommittee(stdNumWitness, _curBlockNum, stdblockNeed);
+        address[] memory _committee = _sortitionWitnessCommittee(stdNumWitness, _curBlockNum, stdBlockNeed);
 
         // SLA 执行信息初始化
         SLAInfo storage _sla = SLAPool[_slaID];
@@ -271,10 +265,10 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
     {
         address[] memory _committee;
 
-        // require(
-        //     numOnlineWitness > 10 * _numWitness,
-        //     "WintnessPool: not enough online witness"
-        // );
+        require(
+            numOnlineWitness > 3,
+            "WintnessPool: not enough online witness"
+        );
 
         // 除数 1024 是一个缩小系数
         uint _pivotBlockNum = block.number - ( block.number - _curBlockNum ) / 1024 - _blockNeed;
@@ -290,7 +284,7 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
         // 抽选算法生成种子要求 _pivotBlockNum 后面 _blockNeed 数量的区块已经产生
         // 事实上，该 require 总是成功的
         require(
-            block.number > _pivotBlockNum + _blockNeed,
+            block.number >= _pivotBlockNum + _blockNeed,
             "WintnessPool: no more blockNeed blocks generated"
         );
 

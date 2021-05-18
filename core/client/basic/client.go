@@ -19,7 +19,7 @@ func init() {
 }
 
 type BasicClient struct {
-	suite.Suite
+	*suite.Suite
 	Key          *keystore.Key
 	DeFaaSConfig *config.DeFaaSConfig
 	ETHClient    *ethclient.Client
@@ -57,16 +57,17 @@ func NewBasicClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*BasicClient, 
 		return nil, err
 	}
 
-	_suite, err := suite.NewSuite(
+	client.Suite, err = suite.NewSuite(
 		client.ETHClient,
 		auth,
 		dfc.FaaSTokenContractAddress,
 		dfc.MarketContractAddress,
 		dfc.WitnessPoolContractAddress)
+
 	if err != nil {
 		return nil, err
 	}
-	client.Suite = *_suite
+
 	log.Println("[basic] set up a session of smart contarct")
 
 	return client, nil

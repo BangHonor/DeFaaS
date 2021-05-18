@@ -1,4 +1,4 @@
-package wintess
+package witness
 
 import (
 	"context"
