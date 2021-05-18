@@ -207,7 +207,7 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
 
     // 判断是否违约，并产生证人奖励
     function _judgeViolation(uint _slaID)
-        private
+        public
         atSLAState(_slaID, SLAStates.Monitoring)
     {
         SLAInfo storage _sla = SLAPool[_slaID];
@@ -253,7 +253,9 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
     }
 
     // 改变证人委员状态为可以被抽选的 Online 状态
-    function _releaseWitnessCommittee(uint _slaID) private {
+    function _releaseWitnessCommittee(uint _slaID)
+        public
+    {
         for(uint i = 0; i < SLAPool[_slaID].committee.length; i++) {
             address _witness = SLAPool[_slaID].committee[i];
             witnessPool[_witness].state = WStates.Online;
@@ -264,7 +266,7 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
     // 抽选证人委员会
     function _sortitionWitnessCommittee(
         uint _numWitness, uint _curBlockNum, uint _blockNeed) 
-        private 
+        public
         returns (address[] memory)
     {
         address[] memory _committee;

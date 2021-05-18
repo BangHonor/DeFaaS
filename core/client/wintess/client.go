@@ -1,18 +1,25 @@
 package wintess
 
 import (
+	"defaas/contracts/go/witnesspool"
 	basic "defaas/core/client/basic"
 	"defaas/core/config"
 	"defaas/core/helper"
 	"io/ioutil"
 	"log"
 	"math/big"
+	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type WitnessClient struct {
 	basic.BasicClient
+
+	stopRunningTrigger chan struct{}
+
+	WitnessState string // "online", "offline", "busy"
 }
 
 func NewWitnessClientWithFile(configFilePath, keyStoreFilePath string, password string) (*WitnessClient, error) {
@@ -46,6 +53,8 @@ func NewWitnessClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*WitnessClie
 	}
 	client.BasicClient = *_basicClient
 
+	client.stopRunningTrigger = make(chan struct{})
+
 	return client, nil
 }
 
@@ -53,14 +62,13 @@ func NewWitnessClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*WitnessClie
 // The default state of just registered witnesses is "Offline".
 func (client *WitnessClient) Login() error {
 
-	log.Printf("[witness] login ...\n")
-
 	depoist, err := client.WitnessPool.StdWitnessDepoist()
 	if err != nil {
 		return err
 	}
 
-	log.Printf("[witness] approve for login...\n")
+	log.Printf("[witness] approval for login...\n")
+
 	transferTx, err := client.FaaSToken.Approve(client.DeFaaSConfig.WitnessPoolContractAddress, depoist)
 	if err != nil {
 		return err
@@ -68,7 +76,10 @@ func (client *WitnessClient) Login() error {
 	if err := client.ConfirmTxByPolling(transferTx.Hash(), helper.NumBlockToWaitRecommended); err != nil {
 		return err
 	}
-	log.Printf("[witness] approve for login done\n")
+
+	log.Printf("[witness] approval for login done\n")
+
+	log.Printf("[witness] login ...\n")
 
 	loginTx, err := client.WitnessPool.WitnessLogin()
 	if err != nil {
@@ -114,6 +125,8 @@ func (client *WitnessClient) TurnOn() error {
 		return err
 	}
 
+	client.StartMonitoring()
+
 	log.Printf("[witness] turn on done\n")
 
 	return nil
@@ -131,6 +144,8 @@ func (client *WitnessClient) TurnOff() error {
 	if err := client.ConfirmTxByPolling(turnOffTx.Hash(), helper.NumBlockToWaitRecommended); err != nil {
 		return err
 	}
+
+	client.StoptMonitoring()
 
 	log.Printf("[witness] turn off done\n")
 
@@ -178,10 +193,46 @@ func (client *WitnessClient) DrawReward() error {
 	return nil
 }
 
-func (client *WitnessClient) Run() error {
+func (client *WitnessClient) StartMonitoring() {
 
-	// TODO
-	// listen monitoring task from WitnessPool contract
+	var (
+		filter              = client.WitnessPool.Contract.WitnessPoolFilterer
+		sinkWitnessSelected = make(chan *witnesspool.WitnessPoolWitnessSelectedEvent)
+	)
 
-	return nil
+	subWitnessSelected, err := filter.WatchWitnessSelectedEvent(nil, sinkWitnessSelected, []common.Address{client.Key.Address})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	go func() {
+		for {
+			select {
+
+			case <-client.stopRunningTrigger:
+				return
+
+			case err := <-subWitnessSelected.Err():
+				log.Fatal(err)
+
+			case event := <-sinkWitnessSelected:
+
+				// TODO: monitoring...
+				// TODO: random time monitor
+				// TODO: random time report
+
+				log.Println(event)
+				time.Sleep(5 * time.Second)
+
+				client.Report(event.SlaID, false)
+				if err != nil {
+					log.Println(err)
+				}
+			}
+		}
+	}()
+}
+
+func (client *WitnessClient) StoptMonitoring() {
+	client.stopRunningTrigger <- struct{}{}
 }

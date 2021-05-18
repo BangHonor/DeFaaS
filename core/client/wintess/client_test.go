@@ -1,6 +1,7 @@
 package wintess
 
 import (
+	"context"
 	"defaas/tests/testconfig"
 	"log"
 	"testing"
@@ -31,6 +32,7 @@ func TestNewWitnessClient(t *testing.T) {
 func TestLogin(t *testing.T) {
 
 	client := getTestWitnessClientFromFile()
+	client.FaaSTokenEventSub(context.TODO())
 
 	if err := client.Login(); err != nil {
 		t.Fatal(err)
@@ -40,6 +42,7 @@ func TestLogin(t *testing.T) {
 func TestLogout(t *testing.T) {
 
 	client := getTestWitnessClientFromFile()
+	client.FaaSTokenEventSub(context.TODO())
 
 	if err := client.Logout(); err != nil {
 		t.Fatal(err)
@@ -49,6 +52,8 @@ func TestLogout(t *testing.T) {
 func TestLoginLogout(t *testing.T) {
 
 	client := getTestWitnessClientFromFile()
+
+	client.FaaSTokenEventSub(context.TODO())
 
 	if err := client.Login(); err != nil {
 		t.Fatal(err)
