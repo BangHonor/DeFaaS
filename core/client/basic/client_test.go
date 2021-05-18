@@ -1,6 +1,7 @@
 package basic
 
 import (
+	"context"
 	"defaas/core/helper"
 	"defaas/tests/testconfig"
 	"log"
@@ -38,6 +39,8 @@ func TestConfirmTxByPolling(t *testing.T) {
 	assert := assert.New(t)
 
 	client := getTestBasicClientFromFile()
+
+	client.FaaSTokenEventSub(context.TODO())
 
 	confirmTxFunc := client.ConfirmTxByPolling
 
@@ -100,14 +103,11 @@ func TestConfirmTxByPolling(t *testing.T) {
 
 func TestConfirmTxBySubscription(t *testing.T) {
 
-	// 如果在用于开发的私有链下测试,
-	// 注意私有链不会主动挖矿出块,
-	// 因此, 需要在 geth 节点的控制台执行 miner.start() ,
-	// 关闭挖矿的则在控制台执行 miner.stop() .
-
 	assert := assert.New(t)
 
 	client := getTestBasicClientFromFile()
+
+	client.FaaSTokenEventSub(context.TODO())
 
 	confirmTxFunc := client.ConfirmTxBySubscription
 
