@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	NumBlockToWaitRecommended int = 1
+	NumBlockToWaitRecommended int = 0
+	// NumBlockToWaitRecommended int = 1
 )
 
 var (
@@ -21,7 +22,7 @@ var (
 	ErrWaitMinedBlocksTimeout = errors.New("wait blocks timeout")
 )
 
-func waitPeddingTxByPolling(ethClient *ethclient.Client, txHash common.Hash) error {
+func WaitPeddingTxByPolling(ethClient *ethclient.Client, txHash common.Hash) error {
 
 	checkPeddingTimeout := time.NewTimer(1 * time.Minute)
 	checkPeddingTicker := time.NewTicker(1 * time.Second)
@@ -52,7 +53,7 @@ CheckPeddingLoop:
 	return nil
 }
 
-func waitMinedBlocksByPolling(ethClient *ethclient.Client, txHash common.Hash, numBlockToWait int) error {
+func WaitMinedBlocksByPolling(ethClient *ethclient.Client, numBlockToWait int) error {
 
 	// record currnet blockNumber
 	curHeader, err := ethClient.HeaderByNumber(context.TODO(), nil)
@@ -86,7 +87,7 @@ WaitBlockLoop:
 	return nil
 }
 
-func waitPeddingTxBySubscription(ethClient *ethclient.Client, txHash common.Hash) error {
+func WaitPeddingTxBySubscription(ethClient *ethclient.Client, txHash common.Hash) error {
 
 	headers := make(chan *types.Header)
 	headerSub, err := ethClient.SubscribeNewHead(context.TODO(), headers)
@@ -124,7 +125,7 @@ CheckPeddingSubLoop:
 	return nil
 }
 
-func waitMinedBlocksBySubscription(ethClient *ethclient.Client, txHash common.Hash, numBlockToWait int) error {
+func WaitMinedBlocksBySubscription(ethClient *ethclient.Client, numBlockToWait int) error {
 
 	headers := make(chan *types.Header)
 	headerSub, err := ethClient.SubscribeNewHead(context.TODO(), headers)
@@ -148,13 +149,13 @@ func waitMinedBlocksBySubscription(ethClient *ethclient.Client, txHash common.Ha
 func ConfirmTxByPolling(ethClient *ethclient.Client, txHash common.Hash, numBlockToWait int) error {
 
 	log.Printf("[confirmTx] wait pedding tx [%v] ...", txHash)
-	if err := waitPeddingTxByPolling(ethClient, txHash); err != nil {
+	if err := WaitPeddingTxByPolling(ethClient, txHash); err != nil {
 		return err
 	}
 	log.Printf("[confirmTx] wait pedding tx [%v] done", txHash)
 
 	log.Printf("[confirmTx] wait [%v] mined blocks for tx [%v] ...", numBlockToWait, txHash)
-	if err := waitMinedBlocksByPolling(ethClient, txHash, numBlockToWait); err != nil {
+	if err := WaitMinedBlocksByPolling(ethClient, numBlockToWait); err != nil {
 		return err
 	}
 	log.Printf("[confirmTx] wait [%v] mined blocks for tx [%v] done", numBlockToWait, txHash)
@@ -165,13 +166,13 @@ func ConfirmTxByPolling(ethClient *ethclient.Client, txHash common.Hash, numBloc
 func ConfirmTxBySubscription(ethClient *ethclient.Client, txHash common.Hash, numBlockToWait int) error {
 
 	log.Printf("[confirmTx] wait pedding tx [%v] ...", txHash)
-	if err := waitPeddingTxBySubscription(ethClient, txHash); err != nil {
+	if err := WaitPeddingTxBySubscription(ethClient, txHash); err != nil {
 		return err
 	}
 	log.Printf("[confirmTx] wait pedding tx [%v] done", txHash)
 
 	log.Printf("[confirmTx] wait [%v] mined blocks for tx [%v] ...", numBlockToWait, txHash)
-	if err := waitMinedBlocksBySubscription(ethClient, txHash, numBlockToWait); err != nil {
+	if err := WaitMinedBlocksBySubscription(ethClient, numBlockToWait); err != nil {
 		return err
 	}
 	log.Printf("[confirmTx] wait [%v] mined blocks for tx [%v] done", numBlockToWait, txHash)

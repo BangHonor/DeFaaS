@@ -1,7 +1,10 @@
 package helper
 
 import (
+	"context"
 	"errors"
+	"log"
+	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -35,4 +38,14 @@ func EqualAddress(s, t common.Address) bool {
 	// type Address [AddressLength]byte
 	// in Go, you can directly compare two arrays of the same length
 	return (s == t)
+}
+
+func CurrentBlockNumber(client *ethclient.Client) *big.Int {
+
+	header, err := client.HeaderByNumber(context.Background(), nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return header.Number
 }

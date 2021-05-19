@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"math/big"
-	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 )
@@ -125,8 +124,6 @@ func (client *WitnessClient) TurnOn() error {
 		return err
 	}
 
-	client.StartWatching()
-
 	log.Printf("[witness] turn on done\n")
 
 	return nil
@@ -144,8 +141,6 @@ func (client *WitnessClient) TurnOff() error {
 	if err := client.ConfirmTxByPolling(turnOffTx.Hash(), helper.NumBlockToWaitRecommended); err != nil {
 		return err
 	}
-
-	client.StoptWatching()
 
 	log.Printf("[witness] turn off done\n")
 
@@ -223,16 +218,15 @@ func (client *WitnessClient) StartWatching() {
 
 				log.Printf("[witness] [%v] is selected for SLA [%v]\n", event.Witness, event.SlaID)
 
-				// TODO: monitoring...
-				// TODO: random time monitor
-				// TODO: random time report
+				result, err := client.DoMonitor(event.FuncPath)
 
-				log.Println(event)
-				time.Sleep(5 * time.Second)
-
-				client.Report(event.SlaID, false)
 				if err != nil {
 					log.Println(err)
+				} else {
+					client.Report(event.SlaID, result)
+					if err != nil {
+						log.Println(err)
+					}
 				}
 			}
 		}
@@ -241,4 +235,15 @@ func (client *WitnessClient) StartWatching() {
 
 func (client *WitnessClient) StoptWatching() {
 	client.stopRunningTrigger <- struct{}{}
+}
+
+func (client *WitnessClient) DoMonitor(funcParg string) (bool, error) {
+
+	// TODO: monitoring...
+	// TODO: random time monitor
+	// TODO: random time report
+
+	result := true
+
+	return result, nil
 }

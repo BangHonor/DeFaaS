@@ -1,6 +1,7 @@
 package witness
 
 import (
+	"context"
 	"defaas/core/suite"
 	"log"
 	"math/big"
@@ -182,14 +183,70 @@ func SimMonitoring2() {
 		_ = newslaTx
 		blockchain.Commit()
 		log.Println("newSLA done")
+
+		for i := 0; i < len(witnesses); i++ {
+			if err := witnesses[i].Report(slaID, true); err != nil {
+				log.Println(err)
+			}
+		}
+
+		log.Println("check ...")
+		checkslaTx, err := witnesses[0].WitnessPool.CheckSLA(slaID)
+		if err != nil {
+			log.Fatal(err)
+		}
+		_ = checkslaTx
+		blockchain.Commit()
+		log.Println("check done")
+
+		time.Sleep(3 * time.Second)
+
+		if isViolated, err := witnesses[0].WitnessPool.IsViolatedSLA(slaID); err != nil {
+			log.Fatal(err)
+		} else {
+			log.Printf("isViolated [%v]\n", isViolated)
+		}
 	}
 
-	time.Sleep(3 * time.Second)
+}
 
-	if onlines, err := witnesses[0].WitnessPool.NumOnlineWitness(); err != nil {
-		log.Fatal(err)
-	} else {
-		log.Printf("onlines [%v]\n", onlines)
+func TestMonitoring3(t *testing.T) {
+	SimMonitoring3()
+}
+
+func SimMonitoring3() {
+
+	sim := suite.NewSim()
+	blockchain := sim.Blockchain
+	witnesses := []*WitnessClient{}
+
+	for i := 0; i < len(sim.Keys); i++ {
+
+		witness := &WitnessClient{}
+
+		witness.Key = sim.Keys[i]
+		witness.DeFaaSConfig = nil
+		witness.ETHClient = nil
+
+		auth, err := bind.NewKeyedTransactorWithChainID(sim.Keys[i].PrivateKey, blockchain.Blockchain().Config().ChainID)
+		if err != nil {
+			log.Fatal(err)
+		}
+		witness.Suite, err = suite.NewSuite(blockchain, auth, sim.Suite.FaaSTokenAddress, sim.Suite.MarketAddress, sim.Suite.WitnessPoolAddress)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		witness.stopRunningTrigger = make(chan struct{})
+
+		witnesses = append(witnesses, witness)
 	}
 
+	witnesses[0].FaaSTokenEventSub(context.TODO())
+
+	witnesses[0].FaaSToken.Mint(big.NewInt(1))
+	witnesses[0].FaaSToken.Mint(big.NewInt(2))
+	witnesses[0].FaaSToken.Transfer(witnesses[1].Key.Address, big.NewInt(1))
+
+	time.Sleep(2 * time.Second)
 }

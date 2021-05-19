@@ -11,3 +11,7 @@ func TestGetTestConfig(t *testing.T) {
 	fmt.Println(tcfg.TestKeyStoreFilePath)
 	fmt.Println(tcfg.TestKeyStorePassword)
 }
+
+func TestGenerateTestKeyStore(t *testing.T) {
+	GenerateTestKeyStore()
+}

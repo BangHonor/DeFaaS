@@ -116,17 +116,7 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
         _;
     }
 
-    // 监视结束检查
-    modifier monitoringEndTrigger(uint _slaID) {
-        SLAInfo storage _sla = SLAPool[_slaID];
-        if (_sla.state == SLAStates.Monitoring && block.timestamp > _sla.monitoringBeginTime + _sla.monitoringDuration) {
-            // 监视结束
-            _judgeViolation(_slaID);
-            _releaseWitnessCommittee(_slaID);
-            _sla.state = SLAStates.Finished;  // 改变 SLA 状态
-        }
-        _;
-    }
+
 
 
     // ------------------------------------------------------------------------------------------------
@@ -152,7 +142,7 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
         _sla.isViolated = false;
         
         _sla.funcPath       = _funcPath;
-        _sla.monitoringBeginTime = block.timestamp + 1 minutes;
+        _sla.monitoringBeginTime = block.timestamp;
         _sla.monitoringDuration  = _monitoringDuration;
 
         _sla.numReportRequired = stdNumReportRequired;
@@ -184,15 +174,35 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
         SLAPool[_slaID].memberInfos[msg.sender].isReportViolation = true;
     }
 
+
+    // Market API
+    function checkSLA(uint _slaID) 
+        public
+        validSLA(_slaID)
+        atSLAState(_slaID, SLAStates.Monitoring)
+    {
+        SLAInfo storage _sla = SLAPool[_slaID];
+
+        // 检查时间
+        require(
+            block.timestamp > _sla.monitoringBeginTime + _sla.monitoringDuration,
+            "monitoring is not over"
+        );
+
+        // 监视结束
+        _judgeViolation(_slaID);
+        _releaseWitnessCommittee(_slaID);
+        _sla.state = SLAStates.Finished;  // 改变 SLA 状态
+    }
+
     // Matket API
     function isViolatedSLA(uint _slaID)
         public
+        view
         validSLA(_slaID)
-        monitoringEndTrigger(_slaID)
         atSLAState(_slaID, SLAStates.Finished)
         returns (bool)
     {
-        // isViolated 已经在 monitoringEndTrigger 中算出
         return SLAPool[_slaID].isViolated;
     }
     
