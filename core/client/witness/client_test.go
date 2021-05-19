@@ -98,6 +98,8 @@ func getWitnesses() []*WitnessClient {
 
 	for i := 0; i < len(ksPaths); i++ {
 
+		log.Printf("[%v/%v]\n", i, len(ksPaths))
+
 		witness, err := NewWitnessClientWithFile(tcfg.TestDeFaaSConfigFilePath, ksPaths[i], "")
 		if err != nil {
 			log.Fatal(err)
@@ -115,6 +117,8 @@ func TestManyLogin(t *testing.T) {
 
 	for i := 0; i < len(witnesses); i++ {
 
+		log.Printf("[%v/%v]\n", i, len(witnesses))
+
 		registered, err := witnesses[i].WitnessPool.IsWitnessRegistered(witnesses[i].Key.Address)
 		if err != nil {
 			log.Fatal(err)
@@ -126,6 +130,12 @@ func TestManyLogin(t *testing.T) {
 			}
 		}
 	}
+
+	if onlines, err := witnesses[0].WitnessPool.NumOnlineWitness(); err != nil {
+		log.Fatal(err)
+	} else {
+		log.Printf("onlines [%v]\n", onlines)
+	}
 }
 
 func TestManyLogout(t *testing.T) {
@@ -133,6 +143,8 @@ func TestManyLogout(t *testing.T) {
 	witnesses := getWitnesses()
 
 	for i := 0; i < len(witnesses); i++ {
+
+		log.Printf("[%v/%v]\n", i, len(witnesses))
 
 		registered, err := witnesses[i].WitnessPool.IsWitnessRegistered(witnesses[i].Key.Address)
 		if err != nil {
@@ -145,6 +157,12 @@ func TestManyLogout(t *testing.T) {
 			}
 		}
 	}
+
+	if onlines, err := witnesses[0].WitnessPool.NumOnlineWitness(); err != nil {
+		log.Fatal(err)
+	} else {
+		log.Printf("onlines [%v]\n", onlines)
+	}
 }
 
 func TestManyTurnOn(t *testing.T) {
@@ -153,9 +171,17 @@ func TestManyTurnOn(t *testing.T) {
 
 	for i := 0; i < len(witnesses); i++ {
 
+		log.Printf("[%v/%v]\n", i, len(witnesses))
+
 		if err := witnesses[i].TurnOn(); err != nil {
 			t.Log(err)
 		}
+	}
+
+	if onlines, err := witnesses[0].WitnessPool.NumOnlineWitness(); err != nil {
+		log.Fatal(err)
+	} else {
+		log.Printf("onlines [%v]\n", onlines)
 	}
 }
 
@@ -165,24 +191,69 @@ func TestManyTurnOff(t *testing.T) {
 
 	for i := 0; i < len(witnesses); i++ {
 
+		log.Printf("[%v/%v]\n", i, len(witnesses))
+
 		if err := witnesses[i].TurnOff(); err != nil {
 			t.Log(err)
 		}
 	}
+
+	if onlines, err := witnesses[0].WitnessPool.NumOnlineWitness(); err != nil {
+		log.Fatal(err)
+	} else {
+		log.Printf("onlines [%v]\n", onlines)
+	}
 }
 
-func TestWitnessGame(t *testing.T) {
-	WitnessGame()
-}
-
-func WitnessGame() {
+func TestManyLoginTurnOn(t *testing.T) {
 
 	witnesses := getWitnesses()
 
 	for i := 0; i < len(witnesses); i++ {
+
+		log.Printf("[%v/%v]\n", i, len(witnesses))
+
+		registered, err := witnesses[i].WitnessPool.IsWitnessRegistered(witnesses[i].Key.Address)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if !registered {
+			if err := witnesses[i].Login(); err != nil {
+				log.Fatal(err)
+			}
+		}
+
+		if err := witnesses[i].TurnOn(); err != nil {
+			t.Log(err)
+		}
+	}
+
+	if onlines, err := witnesses[0].WitnessPool.NumOnlineWitness(); err != nil {
+		log.Fatal(err)
+	} else {
+		log.Printf("onlines [%v]\n", onlines)
+	}
+}
+
+func TestWitnessGame(t *testing.T) {
+
+	witnesses := getWitnesses()
+
+	//
+	for i := 0; i < len(witnesses); i++ {
+		log.Printf("[%v/%v]\n", i, len(witnesses))
 		witnesses[i].StartWatching()
 	}
 
+	//
+	if onlines, err := witnesses[0].WitnessPool.NumOnlineWitness(); err != nil {
+		log.Fatal(err)
+	} else {
+		log.Printf("onlines [%v]\n", onlines)
+	}
+
+	//
 	curBlockNum := helper.CurrentBlockNumber(witnesses[0].ETHClient)
 
 	blockNeed, err := witnesses[0].WitnessPool.StdBlockNeed()
@@ -191,7 +262,7 @@ func WitnessGame() {
 	}
 	helper.WaitMinedBlocksBySubscription(witnesses[0].ETHClient, int(blockNeed.Int64()))
 
-	slaID := big.NewInt(233)
+	slaID := big.NewInt(time.Now().Unix())
 	monitoringDuration := big.NewInt(1)
 
 	log.Println("newSLA ...")
@@ -202,6 +273,16 @@ func WitnessGame() {
 	witnesses[0].ConfirmTxByPolling(newslaTx.Hash(), helper.NumBlockToWaitRecommended)
 	log.Println("newSLA done")
 
+	if onlines, err := witnesses[0].WitnessPool.NumOnlineWitness(); err != nil {
+		log.Fatal(err)
+	} else {
+		log.Printf("onlines [%v]\n", onlines)
+	}
+
+	if _, err := witnesses[0].WitnessPool.IsViolatedSLA(slaID); err == nil {
+		log.Fatal()
+	}
+
 	log.Println("checkSLA ...")
 	checkslaTx, err := witnesses[0].WitnessPool.CheckSLA(slaID)
 	if err != nil {
@@ -210,7 +291,7 @@ func WitnessGame() {
 	witnesses[0].ConfirmTxBySubscription(checkslaTx.Hash(), helper.NumBlockToWaitRecommended)
 	log.Println("checkSLA done")
 
-	time.Sleep(2 * time.Second)
+	time.Sleep(15 * time.Second)
 
 	if isViolated, err := witnesses[0].WitnessPool.IsViolatedSLA(slaID); err != nil {
 		log.Fatal(err)
@@ -219,8 +300,14 @@ func WitnessGame() {
 	}
 
 	for i := 0; i < len(witnesses); i++ {
-		if err := witnesses[i].Logout(); err != nil {
-			log.Fatal(err)
-		}
+		log.Printf("[%v/%v]\n", i, len(witnesses))
+		witnesses[i].StoptWatching()
+	}
+
+	//
+	if onlines, err := witnesses[0].WitnessPool.NumOnlineWitness(); err != nil {
+		log.Fatal(err)
+	} else {
+		log.Printf("onlines [%v]\n", onlines)
 	}
 }

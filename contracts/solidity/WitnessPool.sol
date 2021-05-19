@@ -77,6 +77,10 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
     // 证人被选中通知事件（被选中证人，证人服务的 SLA 的 ID，监视开始时间，监视时长，证人要监视的函数）
     event WitnessSelectedEvent(address indexed _witness, uint _slaID,  uint _monitoringBeginTime, uint _monitoringDuration, string _funcPath);
 
+
+    // 证人报告事件
+    event WitnessReportEvent(address indexed _witness, uint _slaID,  bool _result);
+
     // ------------------------------------------------------------------------------------------------
 
     function isWitnessCommitteeMember(uint _slaID, address _witness) public view returns (bool) {
@@ -148,6 +152,11 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
         _sla.numReportRequired = stdNumReportRequired;
         _sla.committee         = _committee;
 
+        require(
+            _committee.length == stdNumWitness,
+            "wrong"
+        );
+
         // 证人委员信息初始化
         for(uint i = 0; i < _sla.committee.length; i++) {
             address _witness = _sla.committee[i];
@@ -161,7 +170,7 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
 
     // 证人 API
     // 为指定的 SLA 报告违约
-    function reportViolation(uint _slaID)
+    function reportMonitoringResult(uint _slaID, bool _result)
         public
         witenssRegisterd
         witnessQualified
@@ -171,7 +180,10 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
         inMonitoringTime(_slaID)
     {
         // 报告违约
-        SLAPool[_slaID].memberInfos[msg.sender].isReportViolation = true;
+        SLAPool[_slaID].memberInfos[msg.sender].isReportViolation = _result;
+        
+        // 发出通知
+        emit WitnessReportEvent(msg.sender, _slaID, _result);
     }
 
 
@@ -273,14 +285,13 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
         public
         returns (address[] memory)
     {
-        address[] memory _committee;
-
+        address[] memory _committee = new address[](_numWitness);
+        
         require(
-            numOnlineWitness > 3,
+            numOnlineWitness >= _numWitness,
             "WintnessPool: not enough online witness"
         );
 
-        // 除数 1024 是一个缩小系数
         uint _pivotBlockNum = block.number - ( block.number - _curBlockNum ) / 1024 - _blockNeed;
 
         // https://solidity-cn.readthedocs.io/zh/develop/units-and-global-variables.html
@@ -292,7 +303,6 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
         );
 
         // 抽选算法生成种子要求 _pivotBlockNum 后面 _blockNeed 数量的区块已经产生
-        // 事实上，该 require 总是成功的
         require(
             block.number >= _pivotBlockNum + _blockNeed,
             "WintnessPool: no more blockNeed blocks generated"
@@ -316,6 +326,7 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
                 witnessPool[sAddr].state = WStates.Working;   // 改变选中的证人状态为 Working
                 numOnlineWitness--;
 
+                _committee[ _counter ] = sAddr;
                 _counter++;
             }
             

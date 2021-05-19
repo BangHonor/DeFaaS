@@ -37,6 +37,8 @@ func NewBasicClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*BasicClient, 
 	client.Key = key
 	client.DeFaaSConfig = dfc
 
+	log.Printf("[basic] address [%v]\n", client.Key.Address)
+
 	// connect to eth network
 	client.ETHClient, err = helper.GetETHClient(dfc.WsURLs)
 	if err != nil {
@@ -49,7 +51,7 @@ func NewBasicClient(dfc *config.DeFaaSConfig, key *keystore.Key) (*BasicClient, 
 	if err != nil {
 		return nil, err
 	}
-	log.Println("[basic] chainID", chainID)
+	log.Printf("[basic] chainID [%v]\n", chainID)
 
 	// build a auth
 	auth, err := bind.NewKeyedTransactorWithChainID(key.PrivateKey, chainID)

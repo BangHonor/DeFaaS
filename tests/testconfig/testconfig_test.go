@@ -15,3 +15,11 @@ func TestGetTestConfig(t *testing.T) {
 func TestGenerateTestKeyStore(t *testing.T) {
 	GenerateTestKeyStore()
 }
+
+func TestGetTestKeyStorePaths(t *testing.T) {
+
+	paths := GetTestKeyStorePaths()
+	for _, path := range paths {
+		t.Log(path)
+	}
+}

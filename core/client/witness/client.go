@@ -10,6 +10,7 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type WitnessClient struct {
@@ -150,7 +151,7 @@ func (client *WitnessClient) TurnOff() error {
 // Report reports the monitoring result for specified SLA.
 func (client *WitnessClient) Report(slaID *big.Int, isProviderViolated bool) error {
 
-	reportTx, err := client.WitnessPool.ReportViolation(slaID)
+	reportTx, err := client.WitnessPool.ReportMonitoringResult(slaID, isProviderViolated)
 	if err != nil {
 		return err
 	}
@@ -192,11 +193,10 @@ func (client *WitnessClient) StartWatching() {
 
 	var (
 		filter              = client.WitnessPool.Contract.WitnessPoolFilterer
-		sinkWitnessSelected = make(chan *witnesspool.WitnessPoolWitnessSelectedEvent)
+		sinkWitnessSelected = make(chan *witnesspool.WitnessPoolWitnessSelectedEvent, 5)
 	)
 
-	// subWitnessSelected, err := filter.WatchWitnessSelectedEvent(nil, sinkWitnessSelected, []common.Address{client.Key.Address})
-	subWitnessSelected, err := filter.WatchWitnessSelectedEvent(nil, sinkWitnessSelected, nil)
+	subWitnessSelected, err := filter.WatchWitnessSelectedEvent(nil, sinkWitnessSelected, []common.Address{client.Key.Address})
 	if err != nil {
 		log.Fatal(err)
 	}
