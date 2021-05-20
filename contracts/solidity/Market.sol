@@ -377,7 +377,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
             _lease.curBlockNum,
             _deploymentOrderID,
             _info.funcPath,
-            _order.faasDuration - 1 hours);
+            _order.faasDuration);
         
         emit NewSLAEvent(_deploymentOrderID);
 
@@ -400,6 +400,9 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
             block.timestamp > _lease.faasFulfillStartTime + _order.faasDuration,
             "Matket: FaaS is still fulfilling"
         );
+
+        // 检验 SLA
+        wpContract.checkSLA(_deploymentOrderID);
 
         // 查看是否违反 SLA
         _lease.isViolatedSLA = wpContract.isViolatedSLA(_deploymentOrderID);

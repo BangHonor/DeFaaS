@@ -238,7 +238,7 @@ contract WitnessPool is Owned, FaaSTokenPay, WitnessManagement {
         }
 
         // 记录监视结果
-        _sla.isViolated = (numReportViolation > _sla.numReportRequired);
+        _sla.isViolated = (numReportViolation >= _sla.numReportRequired);
 
         // 证人奖励结算
         for(uint i = 0; i < _sla.committee.length; i++) {

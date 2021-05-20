@@ -13,8 +13,8 @@ import (
 func GetETHClient(urls []string) (*ethclient.Client, error) {
 
 	var (
-		client *ethclient.Client = nil
-		err    error             = nil
+		client *ethclient.Client
+		err    error
 	)
 
 	if len(urls) == 0 {
