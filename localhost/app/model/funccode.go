@@ -8,7 +8,7 @@ import (
 type FunccodeItem struct {
   Name string `json:"name"`
   Tag string `json:"tag"`
-  Files struct{
+  Files []struct{
 	Filename string `json:"filename"`
 	Language string `json:"language"`
 	Code string `json:"code"`

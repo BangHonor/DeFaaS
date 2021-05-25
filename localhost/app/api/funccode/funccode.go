@@ -15,7 +15,7 @@ type FunccodeAPI struct{}
 type FunccodeListRes []model.FunccodeItem
 
 func (a *FunccodeAPI) List(r *ghttp.Request) {
-
+	//获取Service数据
 	levels, err := funccodesvc.Service().List()
 	if err != nil {
 		response.JSONExit(r, 1, err.Error())
@@ -29,19 +29,22 @@ func (a *FunccodeAPI) List(r *ghttp.Request) {
 // ----------------------------------------------------------------------------------------------------------------
 
 type FunccodeAddReq struct {
-	Files struct {
+	Name  string
+	Tag   string
+	Files []struct {
 		Filename string `param:"filename" v:"required"`
 		Language string `param:"language" v:"required"`
 		Code     string `param:"code" v:"required"`
 	}
-	Name string `json:"name" v:"required"`
-	Tag  string `json:"tag" v:"required"`
+	//读入前端传递的数据
 }
 
 type FunccodeAddRes model.FunccodeItem
 
-func (a *FunccodeAPI) Add(r *ghttp.Request) {
+//后台数据格式
 
+func (a *FunccodeAPI) Add(r *ghttp.Request) {
+	//请求添加数据req
 	var (
 		apiReq FunccodeAddReq
 		apiRes FunccodeAddRes
@@ -52,9 +55,15 @@ func (a *FunccodeAPI) Add(r *ghttp.Request) {
 	}
 
 	item := model.FunccodeItem{
-		Name:  apiRes.Name,
-		Tag:   apiRes.Tag,
-		Files: apiRes.Files,
+		//从前端存储到后端
+
+		Name: apiReq.Name,
+		Tag:  apiReq.Tag,
+		Files: []struct {
+			Filename string "json:\"filename\""
+			Language string "json:\"language\""
+			Code     string "json:\"code\""
+		}(apiReq.Files),
 	}
 
 	item, err := funccodesvc.Service().Add(item)

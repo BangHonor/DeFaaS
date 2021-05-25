@@ -32,14 +32,26 @@ func NewFunccodeSvc() *FunccodeSvc {
 	svc := &FunccodeSvc{}
 	svc.levels = []model.FunccodeItem{
 		{
-			Name :"first",
-			Tag :"none",
-			Files: struct{Filename string "json:\"filename\""; Language string "json:\"language\""; Code string "json:\"code\""}{
-				Filename :"handler.py",
-				Language :"python",
-				Code :"123",
+			Name: "first",
+			Tag:  "666",
+			Files:[]struct{
+				Filename string `json:"filename"`
+				Language string `json:"language"`
+				Code string `json:"code"`
+			  }{
+				  {
+					Filename: "handler.py",
+					Language: "python",
+					Code:     "import { NzCodeEditorModule } from 'ng-zorro-antd/code-editor",
+					},//数组
+					{
+						Filename: "handler.ts",
+						Language: "typescript",
+						Code:     "import { NzCodeEditorModule } from 'ng-zorro-antd/code-editor",
+					},
 			},
 		},
+
 	}
 	return svc
 }
