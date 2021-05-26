@@ -75,3 +75,36 @@ func (a *FunccodeAPI) Add(r *ghttp.Request) {
 
 	response.JSONExit(r, 0, "ok", apiRes)
 }
+
+func (a *FunccodeAPI) Delete(r *ghttp.Request) {
+	//请求添加数据req
+	var (
+		apiReq FunccodeAddReq
+		apiRes FunccodeAddRes
+	)
+
+	if err := r.Parse(&apiReq); err != nil {
+		response.JSONExit(r, 1, "wrong param "+err.Error())
+	}
+
+	item := model.FunccodeItem{
+		//从前端存储到后端
+
+		Name: apiReq.Name,
+		Tag:  apiReq.Tag,
+		Files: []struct {
+			Filename string "json:\"filename\""
+			Language string "json:\"language\""
+			Code     string "json:\"code\""
+		}(apiReq.Files),
+	}
+
+	item, err := funccodesvc.Service().Delete(item)
+	if err != nil {
+		response.JSONExit(r, 1, err.Error())
+	}
+
+	apiRes = FunccodeAddRes(item)
+
+	response.JSONExit(r, 0, "ok", apiRes)
+}

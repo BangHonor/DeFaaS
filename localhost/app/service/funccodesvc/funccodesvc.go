@@ -24,13 +24,13 @@ func Service() *FunccodeSvc {
 }
 
 type FunccodeSvc struct {
-	levels []model.FunccodeItem
+	funccodes []model.FunccodeItem
 }
 
 func NewFunccodeSvc() *FunccodeSvc {
 
 	svc := &FunccodeSvc{}
-	svc.levels = []model.FunccodeItem{
+	svc.funccodes = []model.FunccodeItem{
 		{
 			Name: "first",
 			Tag:  "666",
@@ -58,16 +58,28 @@ func NewFunccodeSvc() *FunccodeSvc {
 
 func (svc *FunccodeSvc) List() ([]model.FunccodeItem, error) {
 
-	return svc.levels, nil
+	return svc.funccodes, nil
 }
 
 func (svc *FunccodeSvc) Add(item model.FunccodeItem) (model.FunccodeItem, error) {
 
 	// add name of funccode
 
-	svc.levels = append(svc.levels, item)
+	svc.funccodes = append(svc.funccodes, item)
 
 	g.Log().Printf("[funccodesvc] add funccode %v\n", item)
 
+	return item, nil
+}
+
+func (svc *FunccodeSvc) Delete(item model.FunccodeItem)  (model.FunccodeItem, error) {
+
+	// add name of funccode
+	for index, value := range svc.funccodes {
+		if(value.Name==item.Name){
+			svc.funccodes = append(svc.funccodes[:index], svc.funccodes[index+1:]...)
+			break;
+		}
+	}
 	return item, nil
 }

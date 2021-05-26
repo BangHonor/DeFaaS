@@ -63,6 +63,7 @@ func init() {
 				funccodeAPI := new(funccode.FunccodeAPI)
 
 				funccodeGroup.POST("/add", funccodeAPI.Add)
+				funccodeGroup.POST("/delete", funccodeAPI.Delete)
 				funccodeGroup.GET("/list", funccodeAPI.List)
 			})
 
