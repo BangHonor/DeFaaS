@@ -33,19 +33,15 @@ contract WitnessManagement is FaaSTokenPay {
 
     // ------------------------------------------------------------------------------------------------
 
-    // 证人押金标准
-    uint public stdWitnessDepoist;
-    // 证人信誉初始值
-    uint public witnessReputationInit;
-    // 证人信誉合格值
-    uint public witnessReputationQualified;
+    
+    uint public stdWitnessDepoist = 0;               // 证人押金标准
+    uint public witnessReputationInit = 100;         // 证人信誉初始值
+    uint public witnessReputationQualified = 100;    // 证人信誉合格值
+    uint public numOnlineWitness;                    // 证人在线数量
 
     // 证人表
     mapping(address => Witness) internal witnessPool;    
     address [] internal witnessAddrs;
-
-    // 证人 Online 数量
-    uint internal numOnlineWitness;
 
     
     // ------------------------------------------------------------------------------------------------
@@ -54,9 +50,6 @@ contract WitnessManagement is FaaSTokenPay {
         FaaSTokenPay(_tokenContractAddress)
     {
         numOnlineWitness           = 0;
-        stdWitnessDepoist          = 100;  // 100 token
-        witnessReputationInit      = 10;
-        witnessReputationQualified = 1;
     }
 
     // ------------------------------------------------------------------------------------------------
@@ -86,7 +79,7 @@ contract WitnessManagement is FaaSTokenPay {
 
     // 证人是否合格
     function isWitnessQualified(address _witness) public view returns (bool) {
-        return (witnessPool[_witness].reputation >= witnessReputationQualified && witnessPool[_witness].depoist >= 1);
+        return (witnessPool[_witness].reputation >= witnessReputationQualified);
     }
 
     // 证人合格

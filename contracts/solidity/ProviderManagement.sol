@@ -26,8 +26,7 @@ contract ProviderManagement is FaaSTokenPay {
     constructor(address _tokenContractAddress) 
         FaaSTokenPay(_tokenContractAddress)
     {
-        // 供应商参数初始化 TODO
-        stdProviderDeposit = 100; // 100 token
+        stdProviderDeposit = 0; 
         providerReputationInit = 5;
         providerReputationQualified = 5;
     }
