@@ -1,10 +1,12 @@
 package funccode
 
 import (
+	devutils "defaas/dev-cmd/utils"
 	"defaas/localhost/app/api/response"
 	"defaas/localhost/app/model"
 	"defaas/localhost/app/service/funccodesvc"
 
+	"github.com/go-cmd/cmd"
 	"github.com/gogf/gf/net/ghttp"
 )
 
@@ -72,6 +74,14 @@ func (a *FunccodeAPI) Add(r *ghttp.Request) {
 	}
 
 	apiRes = FunccodeAddRes(item)
+
+	//openfaas
+	faascli := cmd.NewCmd(
+		"faas-cli",
+		"new", apiReq.Name,
+		"--lang", apiReq.Files[0].Language,
+		"--p", apiReq.Files[0].Filename)
+	devutils.RunCmd(faascli)
 
 	response.JSONExit(r, 0, "ok", apiRes)
 }
