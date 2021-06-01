@@ -76,13 +76,37 @@ func (a *FunccodeAPI) Add(r *ghttp.Request) {
 	apiRes = FunccodeAddRes(item)
 
 	//openfaas
-	faascli := cmd.NewCmd(
+
+	faasnew := cmd.NewCmd(
 		"faas-cli",
 		"new", apiReq.Name,
 		"--lang", apiReq.Files[0].Language,
-		"--p", apiReq.Files[0].Filename)
-	devutils.RunCmd(faascli)
+		"-p", apiReq.Files[0].Filename)
 
+	faasbuild := cmd.NewCmd(
+		"faas-cli",
+		"build",
+		"-f",
+		"./"+apiReq.Name+".yml")
+
+	faasdeploy := cmd.NewCmd(
+		"faas-cli",
+		"deploy",
+		"-f",
+		"./"+apiReq.Name+".yml")
+
+	// server := cmd.NewCmd(
+	// 	"go",
+	// 	"run",
+	// 	"./localhost/server/main.go")
+
+	go func() {
+		devutils.RunCmd(faasnew)
+		devutils.RunCmd(faasbuild)
+		devutils.RunCmd(faasdeploy)
+		//devutils.RunCmd(server)
+		//在root状态下,先实现登录faas-cli login，然后export OPENFAAS_URL=http://10.186.133.126:31112实现默认接口
+	}()
 	response.JSONExit(r, 0, "ok", apiRes)
 }
 
