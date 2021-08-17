@@ -83,12 +83,12 @@ func (a *FunccodeAPI) Add(r *ghttp.Request) {
 		"--lang", apiReq.Files[0].Language,
 		"-p", apiReq.Files[0].Filename)
 
-	//修改handler文件内容，改为自己的函数
-	deleteFunc := cmd.NewCmd(
-		">", apiReq.Name+"/handler.py")
+	chmod := cmd.NewCmd(
+		"chmod", "-R", "777", "./"+apiReq.Name+"/handler.py")
 
+	//修改handler文件内容，改为自己的函数
 	editFunc := cmd.NewCmd(
-		"echo", apiReq.Files[0].Code, ">", apiReq.Name+"/handler.py")
+		"sed", "'1,10d'", "./"+apiReq.Name+"/handler.py")
 
 	// faasbuild := cmd.NewCmd(
 	// 	"faas-cli",
@@ -115,7 +115,7 @@ func (a *FunccodeAPI) Add(r *ghttp.Request) {
 
 	go func() {
 		devutils.RunCmd(faasnew)
-		devutils.RunCmd(deleteFunc)
+		devutils.RunCmd(chmod)
 		devutils.RunCmd(editFunc)
 		// devutils.RunCmd(faasbuild)
 		// devutils.RunCmd(faasdeploy)

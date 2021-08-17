@@ -17,7 +17,7 @@ import (
 func RunCmd(_cmd *cmd.Cmd) {
 
 	fmt.Print("[dev-cmd] ")
-	fmt.Print(_cmd.Name)
+	fmt.Print(_cmd.Name) //echo这种可能用不了？
 	for _, arg := range _cmd.Args {
 		fmt.Print(" ", arg)
 	}
