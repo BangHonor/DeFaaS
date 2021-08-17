@@ -83,27 +83,42 @@ func (a *FunccodeAPI) Add(r *ghttp.Request) {
 		"--lang", apiReq.Files[0].Language,
 		"-p", apiReq.Files[0].Filename)
 
-	faasbuild := cmd.NewCmd(
-		"faas-cli",
-		"build",
-		"-f",
-		"./"+apiReq.Name+".yml")
+	//修改handler文件内容，改为自己的函数
+	deleteFunc := cmd.NewCmd(
+		">", apiReq.Name+"/handler.py")
 
-	faasdeploy := cmd.NewCmd(
-		"faas-cli",
-		"deploy",
-		"-f",
-		"./"+apiReq.Name+".yml")
+	editFunc := cmd.NewCmd(
+		"echo", apiReq.Files[0].Code, ">", apiReq.Name+"/handler.py")
 
-	// server := cmd.NewCmd(
-	// 	"go",
-	// 	"run",
-	// 	"./localhost/server/main.go")
+	// faasbuild := cmd.NewCmd(
+	// 	"faas-cli",
+	// 	"build",
+	// 	"-f",
+	// 	"./"+apiReq.Name+".yml")
+
+	// faasdeploy := cmd.NewCmd(
+	// 	"faas-cli",
+	// 	"deploy",
+	// 	"-f",
+	// 	"./"+apiReq.Name+".yml",
+	// 	"--gateway",
+	// 	"http://10.186.133.126:31112")
+
+	// //移动文件到func，方便管理
+	// mvFolder := cmd.NewCmd(
+	// 	">",apiReq.Name,"func"
+	// )
+
+	// mvFile := cmd.NewCmd(
+	// 	">",apiReq.Name+".yml","func"
+	// )
 
 	go func() {
 		devutils.RunCmd(faasnew)
-		devutils.RunCmd(faasbuild)
-		devutils.RunCmd(faasdeploy)
+		devutils.RunCmd(deleteFunc)
+		devutils.RunCmd(editFunc)
+		// devutils.RunCmd(faasbuild)
+		// devutils.RunCmd(faasdeploy)
 		//devutils.RunCmd(server)
 		//在root状态下,先实现登录faas-cli login，然后export OPENFAAS_URL=http://10.186.133.126:31112实现默认接口
 	}()
