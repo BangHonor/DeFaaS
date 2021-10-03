@@ -1,0 +1,10 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://10.186.133.126:31112
+functions:
+  test4:
+    lang: python
+    handler: ./../../func/test4
+    image: honorbang/test4:latest
+

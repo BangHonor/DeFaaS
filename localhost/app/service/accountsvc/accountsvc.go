@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 	"path"
-	"sync"
+	//"sync"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/gogf/gf/frame/g"
@@ -14,24 +14,24 @@ import (
 )
 
 var (
-	service     *AccountSvc
-	serviceOnce sync.Once
+	service *AccountSvc
+	//serviceOnce sync.Once
 )
 
 func Service() *AccountSvc {
 
-	serviceOnce.Do(func() {
+	// serviceOnce.Do(func() {
 
-		// g.Cfg().Set("local.keystore", "/home/dds/kitchen/defaas/tmp/keystore")
-		// keyStoreDirPath := g.Cfg().GetString("local.keystore")
-		accountsDirPath := "/home/dds/kitchen/defaas/tmp/accounts"
-		service, _ = NewAccountSvc(accountsDirPath)
-
-	})
+	// 	// g.Cfg().Set("local.keystore", "/home/dds/kitchen/defaas/tmp/keystore")
+	// 	// keyStoreDirPath := g.Cfg().GetString("local.keystore")
+	// })
+	accountsDirPath := "/home/dds/kitchen/defaas/tmp/accounts"
+	service, _ = NewAccountSvc(accountsDirPath)
 
 	return service
 }
 
+//刚创的时候的原始信息
 func NewAccountItem(address string, password string) *model.AccountItem {
 
 	item := &model.AccountItem{}

@@ -53,12 +53,12 @@ func (a *FaaSLevelAPI) Add(r *ghttp.Request) {
 		Mem: apiReq.Mem,
 	}
 
-	item, err := faaslevelsvc.Service().Add(item)
+	res, err := faaslevelsvc.Service().Add(item)
 	if err != nil {
 		response.JSONExit(r, 1, err.Error())
 	}
 
-	apiRes = FaaslevelAddRes(item)
+	apiRes = FaaslevelAddRes(*res)
 
 	response.JSONExit(r, 0, "ok", apiRes)
 }

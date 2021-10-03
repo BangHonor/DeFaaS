@@ -1,0 +1,14 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://10.186.133.126:31112
+functions:
+  test5:
+    lang: python
+    handler: ./../../func/test5
+    image: honorbang/test5:latest
+    constraints:
+    - "test5=true"
+    limits:
+      memory: 40Mi
+      cpu: 100m

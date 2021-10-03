@@ -35,7 +35,7 @@ contract Market is Owned, FaaSTokenPay, FaaSLevel, ProviderManagement {
     modifier atOrderState(uint _deploymentOrderID, OrderStates _state) {
         require(
             isAtOrderStates(_deploymentOrderID, _state),
-            "Matket: function cannot be called at this state"
+            "Market: function cannot be called at this state"
         );
         _;
     }

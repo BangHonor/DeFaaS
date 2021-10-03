@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-test5
+  namespace: openfaas-fn
+spec:
+  rules:
+  - host: ingress-test5.com
+    http:
+      paths:
+      - path: 
+        backend:
+          serviceName: test5
+          servicePort: 80

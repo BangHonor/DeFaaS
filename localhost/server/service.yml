@@ -1,0 +1,15 @@
+---
+apiVersion: v1        ##版本号
+kind: Service        ##服务类型
+metadata:
+  name: test5
+  namespace: openfaas-fn
+spec:
+  selector:
+    faas_function: test5
+  ports:
+  - name: http
+    port: 80          ##用于访问该服务的servie的port
+    targetPort: 8080  ##pod的访问端口,根据实际
+    nodePort: 30080
+  type: NodePort

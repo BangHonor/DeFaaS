@@ -1,0 +1,10 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://10.186.133.126:31112
+functions:
+  crd-example:
+    lang: go
+    handler: ./crd-example
+    image: honorbang/crd-example:latest
+

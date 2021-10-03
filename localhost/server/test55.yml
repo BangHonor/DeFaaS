@@ -1,0 +1,25 @@
+#test5.yaml
+---
+apiVersion: openfaas.com/v1
+kind: Function
+metadata:
+  name: test5
+  namespace: openfaas-fn
+spec:
+  name: test5
+  image: honorbang/test5:latest
+---
+apiVersion: v1        ##版本号
+kind: Service        ##服务类型
+metadata:
+  name: test5-service
+  namespace: openfaas-fn
+  labels:
+    faas_function: test5
+spec:
+  type: NodePort     ##端口映射
+  ports:
+  - port: 8080        ##内部端口
+    targetPort: 8080   ##映射端口
+  selector:       ##选择器/
+    faas_function: test5          ##选择业务进行发布

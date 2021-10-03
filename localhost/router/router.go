@@ -5,6 +5,7 @@ import (
 	"defaas/localhost/app/api/faaslevel"
 	"defaas/localhost/app/api/faastoken"
 	"defaas/localhost/app/api/funccode"
+	"defaas/localhost/app/api/funcsvc"
 
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/net/ghttp"
@@ -57,7 +58,7 @@ func init() {
 				faaslevelGroup.POST("/add", faaslevelAPI.Add)
 				faaslevelGroup.GET("/list", faaslevelAPI.List)
 			})
-			
+
 			group.Group("/funccode", func(funccodeGroup *ghttp.RouterGroup) {
 
 				funccodeAPI := new(funccode.FunccodeAPI)
@@ -67,6 +68,14 @@ func init() {
 				funccodeGroup.GET("/list", funccodeAPI.List)
 			})
 
+			group.Group("/funcsvc", func(funcsvcGroup *ghttp.RouterGroup) {
+
+				funcsvcAPI := new(funcsvc.FuncsvcAPI)
+
+				funcsvcGroup.POST("/add", funcsvcAPI.Add)
+				funcsvcGroup.POST("/delete", funcsvcAPI.Delete)
+				funcsvcGroup.GET("/list", funcsvcAPI.List)
+			})
 		})
 	}
 }

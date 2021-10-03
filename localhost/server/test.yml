@@ -1,0 +1,25 @@
+apiVersion: openfaas.com/v1
+kind: Function
+metadata:
+  name: nodeinfo
+  namespace: openfaas-fn
+spec:
+  name: nodeinfo
+  handler: node main.js
+  image: functions/nodeinfo:latest
+  labels:
+    com.openfaas.scale.min: "2"
+    com.openfaas.scale.max: "15"
+  annotations:
+    current-time: Mon 6 Aug 23:42:00 BST 2018
+    next-time: Mon 6 Aug 23:42:00 BST 2019
+  environment:
+    write_debug: "true"
+  limits:
+    cpu: "200m"
+    memory: "256Mi"
+  requests:
+    cpu: "10m"
+    memory: "128Mi"
+  constraints:
+    - "cloud.google.com/gke-nodepool=default-pool"

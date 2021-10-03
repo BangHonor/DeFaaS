@@ -6,13 +6,11 @@ import (
 )
 
 type FunccodeItem struct {
-  Name string `json:"name"`
-  Tag string `json:"tag"`
-  Files []struct { 
+	Name     string `json:"name"`
+	Tag      string `json:"tag"`
 	Filename string `json:"filename"`
 	Language string `json:"language"`
-	Code string `json:"code"`
-  }
+	Code     string `json:"code"`
 }
 
 func (item FunccodeItem) String() string {
